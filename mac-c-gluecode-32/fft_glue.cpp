@@ -8,7 +8,7 @@
 //      -lstdc++ -lfftw3 -framework VecLib
 //
 
-#include <vecLib/vecLib.h>
+#include <Accelerate/Accelerate.h>
 #include <strings.h>
 #include "vdsp_intf.h"
 
@@ -892,7 +892,7 @@ void siglab_sbFFT(float *rsrc, float *cdst, long nfft)
   long nfft2 = nfft/2;
 
   DSPSplitComplex ioData = {cdst, cdst+nfft2};
-  ctoz((DSPComplex*)rsrc, 2, &ioData, 1, nfft2);
+  vDSP_ctoz((DSPComplex*)rsrc, 2, &ioData, 1, nfft2);
   
   VDSP_CRITICAL_SECTION {
     check_twids(nfft);
@@ -906,7 +906,7 @@ void siglab_sbFFT(float *rsrc, float *cdst, long nfft)
 
   // NOTE: Normalized so that unit DC signal produces unit delta at 0 freq
   float norm = 0.5f / nfft;
-  vsmul(cdst,1,&norm,cdst,1,nfft);
+  vDSP_vsmul(cdst,1,&norm,cdst,1,nfft);
 }
 
 // ------------------------------------------------------------

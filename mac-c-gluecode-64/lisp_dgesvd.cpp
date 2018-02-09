@@ -12,8 +12,6 @@
 
 #include <Accelerate/Accelerate.h>
 
-#include <vecLib/clapack.h>
-
 double *c_matrix_to_fortran(double *m, int nrow, int ncol)
 {
   // allocate matrix and copy transpose
