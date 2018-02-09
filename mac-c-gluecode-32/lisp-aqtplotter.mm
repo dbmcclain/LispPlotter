@@ -2112,7 +2112,7 @@ void show_or_plot_image(TImageParms *p, int oper)
 	}
     }
   maybe_render();
-  delete pixels;
+  delete[] pixels;
 }
 
 extern "C"
