@@ -17,7 +17,8 @@ make
 
 Step 2: In LispWorks, or in Emacs/Slime connected to LispWorks via
 Swank [1], you may execute a convenience script that will allow you to
-quickly get it all loaded and working:
+quickly get it all loaded and working (see load-script.lisp for any changes
+indicated for your environment):
 
 (load "load-script.lisp")
 

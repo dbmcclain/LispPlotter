@@ -1,6 +1,6 @@
 ;; Convenience script to load and configure everything
 ;;
-;; Notes for newbs: If you are using Slime with LispWorks, make sure
+;; NOTE: If you are using Slime with LispWorks, make sure
 ;; to set Slime's default directory first before executing this next
 ;; form via ', cd RET' or programmatically, e.g.,
 ;; (swank:set-default-directory ;; "path/to/LispPlotter/"). Beware there is a
@@ -10,16 +10,18 @@
 ;; how quicklisp is doing it anyway, but it is good to get into the
 ;; habit of using quicklisp.
 ;;
-;;; Note: Instead of this next mapc form, you could alternatively symlink the
+;;; NOTE: Instead of this next mapc form, you could alternatively symlink the
 ;;; asd files below into the ~/quicklisp/local-projects directory.
+;;; NOTE: The following form assumes you've placed the other dbmclain repos at
+;;; the same directory level as LispPlotter repo on your local disc. Edit as required.
 (mapc (lambda (system-file) (load system-file))  (list "../C-Arrays/c-arrays.asd"
                                                        "../data-objects/data-objects.asd"
-                                                       "../MPCompat/mpcompat.asd"
+                                                       ;; "../MPCompat/mpcompat.asd"
                                                        "../useful-macros/useful-macros.asd"
                                                        "../regex/regex.asd"
                                                        "../regex/csv.asd"
                                                        "../vmath/vmath.asd"
-                                                       "../lazy-streams/lazy-streams.asd"
+                                                       ;; "../lazy-streams/lazy-streams.asd"
                                                        "../LispPlotter/plotter.asd"))
 
 
