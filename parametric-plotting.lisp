@@ -284,18 +284,18 @@
 #|
 ;; test it out...
 (clear 'myplot)
-(fplot 'myplot '(-20 20) (lambda (x) (/ (sin x) x)) :thick 2 :title "Sinc")
+(plt:fplot 'myplot '(-20 20) (lambda (x) (/ (sin x) x)) :thick 2 :title "Sinc")
 (destructuring-bind (npts xvals yvals)
-    (fplot 'myplot '(-20 20) (lambda (x) (/ (sin x) x)) :color :blue :symbol :circle)
+    (plt:fplot 'myplot '(-20 20) (lambda (x) (/ (sin x) x)) :color :blue :symbol :circle)
   (clear 'xvals)
-  (plot 'xvals xvals))
+  (plt:plot 'xvals xvals))
 (clear 'tan)
 (with-default-args (:fullgrid    nil
                     ;;:watermarkfn nil
                     :thick 2
                     :color :blue
                     :alpha 0.5)
-  (fplot 'tan '(-1.57 1.57) #'tan :yrange '(-10 10)))
+  (plt:fplot 'tan '(-1.57 1.57) #'tan :yrange '(-10 10)))
 |#
 
 #|
