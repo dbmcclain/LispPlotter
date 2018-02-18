@@ -3,7 +3,7 @@
 //
 
 #include <math.h>
-#include <vecLib/vecLib.h>
+#include <Accelerate/Accelerate.h>
 #include <memory.h>
 
 extern "C" {
@@ -58,12 +58,12 @@ void siglab_restore_denormals(long _savemxcsr)
 //
 void siglab_sbMpy3(float *src1, float *src2, float *dst, long nel)
 {
-  vmul(src1, 1, src2, 1, dst, 1, nel);
+  vDSP_vmul(src1, 1, src2, 1, dst, 1, nel);
 }
 
 void siglab_sbMpy1(float kval, float *src, float *dst, long nel)
 {
-  vsmul(src, 1, &kval, dst, 1, nel);
+  vDSP_vsmul(src, 1, &kval, dst, 1, nel);
 }
 
 void siglab_sbAdd1(float kval, float *src, float *dst, long nel)
@@ -138,16 +138,16 @@ void siglab_sbDB(float *src, float *dst, long nfft)
   float *pdst = dst;
   for(long ix = nfft2; --ix >= 0;)
     *pdst++ = logf(*src++);
-  vsmul(dst,1,&dbsf,dst,1,nfft2);
+  vDSP_vsmul(dst,1,&dbsf,dst,1,nfft2);
 }
 
 void siglab_cbPwr(float *src, float *dst, long nfft)
 {
   // requires dst to be nel/2+1 element or more
   // src is in separated Re and Im arrays, A(Im) = A(Re) + NFFT/2
-  vsq(src,1,dst,1,nfft);
+  vDSP_vsq(src,1,dst,1,nfft);
   long nfft2 = nfft/2;
-  vadd(dst+1,1,dst+nfft2+1,1,dst+1,1,nfft2-1);
+  vDSP_vadd(dst+1,1,dst+nfft2+1,1,dst+1,1,nfft2-1);
 }
 
 void siglab_cbMag(float *src, float *dst, long nfft)
@@ -185,7 +185,7 @@ void siglab_cbPhaseDeg(float *src, float *dst, long nfft)
   static float phsf = 45.0f/atan2f(1.0f,1.0f);
 
   siglab_cbPhase(src,dst,nfft);
-  vsmul(dst,1,&phsf,dst,1,nfft/2);
+  vDSP_vsmul(dst,1,&phsf,dst,1,nfft/2);
 }
 
 }; // extern "C"

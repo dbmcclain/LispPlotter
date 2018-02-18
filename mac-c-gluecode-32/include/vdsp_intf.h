@@ -8,7 +8,7 @@
 #ifndef __VDSP_INTF_H__
 #define __VDSP_INTF_H__
 
-#include <vecLib/vecLib.h>
+#include <Accelerate/Accelerate.h>
 #include "tlocker.h"
 
 // ----------------------------------------
@@ -21,19 +21,19 @@ DSPDoubleSplitComplex vDSPBufferTemp;
 // then you absolutely must free with free_floats().
 // Doing otherwise will cause fatal exceptions
 extern "C"
-void *alloc_align16(int nbytes);
+void *alloc_align16(long nbytes);
 
 extern "C"
-void *must_alloc_align16(int nbytes);
+void *must_alloc_align16(long nbytes);
 
 extern "C"
 void free_align16(void *p);
 
 extern "C"
-void *alloc_align32(int nbytes);
+void *alloc_align32(long nbytes);
 
 extern "C"
-void *must_alloc_align32(int nbytes);
+void *must_alloc_align32(long nbytes);
 
 extern "C"
 void free_align32(void *p);

@@ -8,7 +8,7 @@
 //      -lstdc++ -lfftw3 -framework VecLib
 //
 
-#include <vecLib/vecLib.h>
+#include <Accelerate/Accelerate.h>
 #include <strings.h>
 #include "vdsp_intf.h"
 

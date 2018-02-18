@@ -8,7 +8,7 @@
 #ifndef __VDSP_INTF_H__
 #define __VDSP_INTF_H__
 
-#include <vecLib/vecLib.h>
+#include <Accelerate/Accelerate.h>
 #include "tlocker.h"
 
 // ----------------------------------------

@@ -3,7 +3,7 @@
 //
 
 #include <math.h>
-#include <vecLib/vecLib.h>
+#include <Accelerate/Accelerate.h>
 #include <memory.h>
 
 inline double _DSQR(double x)
