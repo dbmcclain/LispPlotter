@@ -238,7 +238,6 @@
                                    ;; (linewidth (or thick 1))
                                    ;; linedashing
                                    ;; symbol
-                                   plot-joined
                                    ;; legend
                                    legend-x
                                    legend-y
@@ -277,7 +276,7 @@
                   (line-style   (line-style plot-style))
                   (symbol-style (and (not symbol-for-legend)
                                      (symbol-style plot-style)))
-                  (:mvb (x0 y0) (gp:transform-point xform 0 0)))
+                  (:mvb (_ y0) (gp:transform-point xform 0 0)))
           (flet ((draw-lines ()
                    (gp:with-graphics-state (port
                                             :thickness  (adjust-linewidth (line-thick line-style))

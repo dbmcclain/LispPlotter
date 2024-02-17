@@ -59,9 +59,9 @@
                
                (:hbars
                 (if (bar-width symbol-style)
-                    (let* ((wd   (get-y-width port (bar-width symbol-style)))
+                    (let* ((wd   (get-y-width pane (bar-width symbol-style)))
                            (off  (if (bar-offset symbol-style)
-                                     (get-y-width port (bar-offset symbol-style))
+                                     (get-y-width pane (bar-offset symbol-style))
                                    0)
                                  ))
                       (hbar-rects xfpairs wd off x0))
