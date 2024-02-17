@@ -25,6 +25,6 @@ Ad-hoc plotting of data from the keyboard is as simple as:
 ```
 (PLOT 'name xs ys :clear t :thick 2 :symbol :circle :plot-joined t)
 ```
-where 'name is used to refer to a Window made on demand to plot the data in xs and ys. Any number of additional options can be added with keyword args, as shown here. The data in xs and ys can be any sequence of numnbers (LISTS, VECTORS). You can omit the xs, in which case some xs will be generated using an integer ordinal sequence against the provided ys data.
+where 'name is used to refer to a Window made on demand to plot the data in xs and ys. Any number of additional options can be added with keyword args, as shown here. The data in xs and ys can be any sequence of numbers (LISTS, VECTORS). You can omit the xs, in which case some xs will be generated using an integer ordinal sequence against the provided ys data.
 
-There are many different styles of plotting as demonstrated in the image above: function plots, line plots, point plots, histogram, filled vertical or horizontal bar charts, image plots for 2-D data, etc, etc... 
+There are many different styles of plotting as demonstrated in the image above: function plots, line plots, point plots, histogram, filled vertical or horizontal bar charts, image plots for 2-D data, etc, etc... Plots done without :CLEAR T will be drawn on top of an existing plot. So the image above was formed from at least 4 separate PLOT styles on top of each other, plus some annotations added with DRAW-STRING. 
