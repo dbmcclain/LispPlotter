@@ -15,7 +15,7 @@ MacOSX, starting in Catalina and above, introduced severe restrictions on when y
 
 The new code tries to avoid having unnecessary non-drawing activity take place in that main thread. It performs all data pre-scaling, filtering for NaN's and Infinities, interpolating Spline curves for smooth display, etc., all on any other thread but the Main Mac drawing thread. We want to keep that main thread lightly loaded so that the overall system remains responsive.
 
-Using Actors, it is trivial to invoke multiple concurrent parallel threads to perform much of this work. Just SEND to a FORK of all the actions needed. The JOIN is automatic, before sending final results to the customer Actor.
+Using Actors, it would be trivial to invoke multiple concurrent parallel threads to perform much of this work. Just SEND to a FORK of all the actions needed. The JOIN is automatic, before sending final results to the customer Actor.
 
 This Plotter code is not overtly Actor driven, but it is Actor-aware, and can usefully signal customer Actors waiting on the redraw to screen. You can schedule a whole slew of plotting activity, and use WITH-DELAYED-UPDATE :NOTIFYING when it has completed. This avoids choppy partial drawings appearing, and presents the final image all in one go. 
 
