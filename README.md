@@ -7,7 +7,7 @@ Publication-quality 2-D Data Plotting in Lisp
 
 [Example.pdf](https://github.com/dbmcclain/LispPlotter/files/14318921/Example.pdf)
 
-MacOS produces gorgeous Display-PDF images on screen. Using the pane popup-menu, they can be directly copied and pasted into other programs, or saved to PDF files. The current code has been updated and improved to be compatible with the latest MacOSX Sonoma 14.3.1.
+MacOS produces gorgeous Display-PDF images on screen. Using the pane popup-menu, they can be directly copied and pasted into other programs, or saved to PDF files. The current code has been updated and improved to be compatible with the latest MacOSX Sonoma 14.3.1, and Lispworks 8.1.
 
 MacOSX, starting in Catalina and above, introduced severe restrictions on when you can draw to screen. It must happen *ONLY* during a redraw-callback, running on the main drawing thread, and nowhere else - else it bombs out badly. The graphics engine is still, since 1984, only single-threaded by design, and all drawing-related activity (obtaining and measuring fonts, making colors, measuring images, etc.) must occur on the main thread of an application. Despite this pretty severe restriction, we can do quite a lot of useful work.
 
