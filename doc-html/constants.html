@@ -6,7 +6,7 @@
 <link rel="Stylesheet" type="text/css" href="cludg.css"/>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"/>
 <title>
-plotter-compat</title>
+constants</title>
 </head>
 <body>
 <div id="navbar">
@@ -18,18 +18,18 @@ plotter-compat</title>
 </colgroup>
 <tr>
 <td align="left" valign="baseline">
-<a href="plotter-classes.html">
-Prev:&nbsp;plotter-classes.lisp</a>
+<a href="packages.html">
+Prev:&nbsp;packages.lisp</a>
 <br/>
-<a href="plotter-nans.html">
-Next:&nbsp;plotter-nans.lisp</a>
+<a href="mac-plotter-stuff.html">
+Next:&nbsp;mac-plotter-stuff.lisp</a>
 </td>
 <td>
 &nbsp;&nbsp;&nbsp;&nbsp;</td>
 <td align="left" valign="baseline">
 <span class="upchain">
 <b>
-plotter-compat.lisp</b>
+constants.lisp</b>
 <br/>
 <a href="index.html">
 Table of Contents</a>
@@ -40,87 +40,117 @@ Table of Contents</a>
 </div>
 <div class="cludg-doc-body">
 <h2>
-plotter-compat.lisp
+constants.lisp
 </h2>
-<table style="width: 100%;" class="summary-table">
+<table style="width: 100%;" class="external-summary-table">
 <tr class="table-heading-color">
-<th class="summary" colspan="2">
-Function summary</th>
+<th class="summary" colspan="3">
+External symbol summary</th>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-compat.html#_g11645">
-adjust-box</a>
+<a href="constants.html#_g11471">
+plotter:$big-times-font-size</a>
 </td>
 <td class="summary">
-box</td>
+14</td>
+<td class="summary-type">
+Constant</td>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-compat.html#_g11644">
-adjust-color</a>
+<a href="constants.html#_g11470">
+plotter:$normal-times-font-size</a>
 </td>
 <td class="summary">
-pane color <em>&amp;optional</em> alpha</td>
+12</td>
+<td class="summary-type">
+Constant</td>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-compat.html#_g11641">
-adjust-linewidth</a>
+<a href="constants.html#_g11469">
+plotter:$tiny-times-font-size</a>
 </td>
 <td class="summary">
-wd</td>
-</tr>
-<tr class="table-row-color">
-<td class="summary-name">
-<a href="plotter-compat.html#_g11642">
-background-color</a>
-</td>
-<td class="summary">
-pane</td>
-</tr>
-<tr class="table-row-color">
-<td class="summary-name">
-<a href="plotter-compat.html#_g11640">
-find-best-font</a>
-</td>
-<td class="summary">
-pane <em>&amp;key</em> (family &quot;Times&quot;) size (weight :normal) (slant :roman)</td>
-</tr>
-<tr class="table-row-color">
-<td class="summary-name">
-<a href="plotter-compat.html#_g11643">
-foreground-color</a>
-</td>
-<td class="summary">
-pane</td>
+10</td>
+<td class="summary-type">
+Constant</td>
 </tr>
 </table>
 <table style="width: 100%;" class="summary-table">
 <tr class="table-heading-color">
 <th class="summary" colspan="2">
-Macro summary</th>
+Constant summary</th>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-compat.html#_g11646">
-create-pixmap-port</a>
+<a href="constants.html#_g11471">
+$big-times-font-size</a>
 </td>
 <td class="summary">
-<em>&amp;rest</em> args</td>
+14</td>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-compat.html#_g11647">
-with-pixmap-graphics-port</a>
+<a href="constants.html#_g11468">
+$largest-permissible-value</a>
 </td>
 <td class="summary">
-args <em>&amp;body</em> body</td>
+(/ least-positive-normalized-double-float)</td>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="constants.html#_g11470">
+$normal-times-font-size</a>
+</td>
+<td class="summary">
+12</td>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="constants.html#_g11469">
+$tiny-times-font-size</a>
+</td>
+<td class="summary">
+10</td>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="constants.html#_g11467">
++bottom-inset+</a>
+</td>
+<td class="summary">
+35</td>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="constants.html#_g11464">
++left-inset+</a>
+</td>
+<td class="summary">
+30</td>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="constants.html#_g11466">
++right-inset+</a>
+</td>
+<td class="summary">
+15</td>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="constants.html#_g11465">
++top-inset+</a>
+</td>
+<td class="summary">
+20</td>
 </tr>
 </table>
-<div class="defun">
+<div class="defconstant">
 <div class="defunsignatures">
-<a id="_g11645">
+<a id="_g11471">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -131,61 +161,11 @@ args <em>&amp;body</em> body</td>
 <tbody>
 <tr>
 <td class="symbol-name">
-adjust-box&nbsp;&nbsp;</td>
+$big-times-font-size&nbsp;&nbsp;</td>
 <td class="lambda-list">
-box</td>
+14</td>
 <td class="symbol-type">
-&nbsp;[Function]</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="doc-package">
-Package: PLOTTER</div>
-</div>
-<div class="defun">
-<div class="defunsignatures">
-<a id="_g11644">
-</a>
-<table cellpadding="0" cellspacing="0" width="100%">
-<colgroup span="3">
-<col width="0*"/>
-<col width="1*"/>
-<col width="0*"/>
-</colgroup>
-<tbody>
-<tr>
-<td class="symbol-name">
-adjust-color&nbsp;&nbsp;</td>
-<td class="lambda-list">
-pane color <em>&amp;optional</em> alpha</td>
-<td class="symbol-type">
-&nbsp;[Function]</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="doc-package">
-Package: PLOTTER</div>
-</div>
-<div class="defun">
-<div class="defunsignatures">
-<a id="_g11641">
-</a>
-<table cellpadding="0" cellspacing="0" width="100%">
-<colgroup span="3">
-<col width="0*"/>
-<col width="1*"/>
-<col width="0*"/>
-</colgroup>
-<tbody>
-<tr>
-<td class="symbol-name">
-adjust-linewidth&nbsp;&nbsp;</td>
-<td class="lambda-list">
-wd</td>
-<td class="symbol-type">
-&nbsp;[Function]</td>
+&nbsp;[Constant]</td>
 </tr>
 </tbody>
 </table>
@@ -193,9 +173,9 @@ wd</td>
 <div class="doc-package">
 Package: PLOTTER</div>
 </div>
-<div class="defun">
+<div class="defconstant">
 <div class="defunsignatures">
-<a id="_g11642">
+<a id="_g11468">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -206,11 +186,11 @@ Package: PLOTTER</div>
 <tbody>
 <tr>
 <td class="symbol-name">
-background-color&nbsp;&nbsp;</td>
+$largest-permissible-value&nbsp;&nbsp;</td>
 <td class="lambda-list">
-pane</td>
+(/ least-positive-normalized-double-float)</td>
 <td class="symbol-type">
-&nbsp;[Function]</td>
+&nbsp;[Constant]</td>
 </tr>
 </tbody>
 </table>
@@ -218,9 +198,9 @@ pane</td>
 <div class="doc-package">
 Package: PLOTTER</div>
 </div>
-<div class="defun">
+<div class="defconstant">
 <div class="defunsignatures">
-<a id="_g11640">
+<a id="_g11470">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -231,11 +211,11 @@ Package: PLOTTER</div>
 <tbody>
 <tr>
 <td class="symbol-name">
-find-best-font&nbsp;&nbsp;</td>
+$normal-times-font-size&nbsp;&nbsp;</td>
 <td class="lambda-list">
-pane <em>&amp;key</em> (family &quot;Times&quot;) size (weight :normal) (slant :roman)</td>
+12</td>
 <td class="symbol-type">
-&nbsp;[Function]</td>
+&nbsp;[Constant]</td>
 </tr>
 </tbody>
 </table>
@@ -243,9 +223,9 @@ pane <em>&amp;key</em> (family &quot;Times&quot;) size (weight :normal) (slant :
 <div class="doc-package">
 Package: PLOTTER</div>
 </div>
-<div class="defun">
+<div class="defconstant">
 <div class="defunsignatures">
-<a id="_g11643">
+<a id="_g11469">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -256,11 +236,11 @@ Package: PLOTTER</div>
 <tbody>
 <tr>
 <td class="symbol-name">
-foreground-color&nbsp;&nbsp;</td>
+$tiny-times-font-size&nbsp;&nbsp;</td>
 <td class="lambda-list">
-pane</td>
+10</td>
 <td class="symbol-type">
-&nbsp;[Function]</td>
+&nbsp;[Constant]</td>
 </tr>
 </tbody>
 </table>
@@ -268,9 +248,9 @@ pane</td>
 <div class="doc-package">
 Package: PLOTTER</div>
 </div>
-<div class="defun">
+<div class="defconstant">
 <div class="defunsignatures">
-<a id="_g11646">
+<a id="_g11467">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -281,11 +261,11 @@ Package: PLOTTER</div>
 <tbody>
 <tr>
 <td class="symbol-name">
-create-pixmap-port&nbsp;&nbsp;</td>
++bottom-inset+&nbsp;&nbsp;</td>
 <td class="lambda-list">
-<em>&amp;rest</em> args</td>
+35</td>
 <td class="symbol-type">
-&nbsp;[Macro]</td>
+&nbsp;[Constant]</td>
 </tr>
 </tbody>
 </table>
@@ -293,9 +273,9 @@ create-pixmap-port&nbsp;&nbsp;</td>
 <div class="doc-package">
 Package: PLOTTER</div>
 </div>
-<div class="defun">
+<div class="defconstant">
 <div class="defunsignatures">
-<a id="_g11647">
+<a id="_g11464">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -306,11 +286,61 @@ Package: PLOTTER</div>
 <tbody>
 <tr>
 <td class="symbol-name">
-with-pixmap-graphics-port&nbsp;&nbsp;</td>
++left-inset+&nbsp;&nbsp;</td>
 <td class="lambda-list">
-args <em>&amp;body</em> body</td>
+30</td>
 <td class="symbol-type">
-&nbsp;[Macro]</td>
+&nbsp;[Constant]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="doc-package">
+Package: PLOTTER</div>
+</div>
+<div class="defconstant">
+<div class="defunsignatures">
+<a id="_g11466">
+</a>
+<table cellpadding="0" cellspacing="0" width="100%">
+<colgroup span="3">
+<col width="0*"/>
+<col width="1*"/>
+<col width="0*"/>
+</colgroup>
+<tbody>
+<tr>
+<td class="symbol-name">
++right-inset+&nbsp;&nbsp;</td>
+<td class="lambda-list">
+15</td>
+<td class="symbol-type">
+&nbsp;[Constant]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="doc-package">
+Package: PLOTTER</div>
+</div>
+<div class="defconstant">
+<div class="defunsignatures">
+<a id="_g11465">
+</a>
+<table cellpadding="0" cellspacing="0" width="100%">
+<colgroup span="3">
+<col width="0*"/>
+<col width="1*"/>
+<col width="0*"/>
+</colgroup>
+<tbody>
+<tr>
+<td class="symbol-name">
++top-inset+&nbsp;&nbsp;</td>
+<td class="lambda-list">
+20</td>
+<td class="symbol-type">
+&nbsp;[Constant]</td>
 </tr>
 </tbody>
 </table>

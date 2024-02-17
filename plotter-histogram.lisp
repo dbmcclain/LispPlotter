@@ -21,7 +21,7 @@
 (defun do-plot-histogram (pane v &rest args
                             &key min max range nbins binwidth
                             ylog cum (norm t)
-                            (line-type :stepped)
+                            (line-type :histo)
                             &allow-other-keys)
   (multiple-value-bind (x h bw)
       (vm:histogram v
@@ -30,14 +30,16 @@
                     :range    range
                     :nbins    nbins
                     :binwidth binwidth)
-    (let* ((nel (array-total-size v))
-           (tot (* nel bw))
+    (let* (;; (nel (array-total-size v))
+           ;; (tot (* nel bw))
+           (tot (length v))
+           (nel (length v))
            minnz)
       (when norm
         (loop for v across h
               for ix from 0
               do
-              (setf (aref h ix) (/ v tot))
+              (setf (aref h ix) (/ v tot bw))
               ))
       (when cum
         (loop for vy across h

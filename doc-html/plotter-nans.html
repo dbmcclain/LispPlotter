@@ -45,73 +45,35 @@ plotter-nans.lisp
 <table style="width: 100%;" class="summary-table">
 <tr class="table-heading-color">
 <th class="summary" colspan="2">
-Method summary</th>
-</tr>
-<tr class="table-row-color">
-<td class="summary-name">
-<a href="plotter-nans.html#_g3356">
-filter-potential-x-y-nans-and-infinities</a>
-</td>
-<td class="summary">
-(xs cons) (ys cons) xlog ylog</td>
-</tr>
-<tr class="table-row-color">
-<td class="summary-name">
-<a href="plotter-nans.html#_g3357">
-filter-potential-x-y-nans-and-infinities</a>
-</td>
-<td class="summary">
-(xs vector) (ys vector) xlog ylog</td>
-</tr>
-<tr class="table-row-color">
-<td class="summary-name">
-<a href="plotter-nans.html#_g3358">
-filter-potential-x-y-nans-and-infinities</a>
-</td>
-<td class="summary">
-xs ys xlog ylog</td>
-</tr>
-<tr class="table-row-color">
-<td class="summary-name">
-<a href="plotter-nans.html#_g3351">
-filter-x-y-nans-and-infinities</a>
-</td>
-<td class="summary">
-(xs cons) (ys cons)</td>
-</tr>
-<tr class="table-row-color">
-<td class="summary-name">
-<a href="plotter-nans.html#_g3352">
-filter-x-y-nans-and-infinities</a>
-</td>
-<td class="summary">
-(xs vector) (ys vector)</td>
-</tr>
-<tr class="table-row-color">
-<td class="summary-name">
-<a href="plotter-nans.html#_g3353">
-filter-x-y-nans-and-infinities</a>
-</td>
-<td class="summary">
-xs ys</td>
-</tr>
-</table>
-<table style="width: 100%;" class="summary-table">
-<tr class="table-heading-color">
-<th class="summary" colspan="2">
 Function summary</th>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-nans.html#_g3355">
-acceptable-value</a>
+<a href="plotter-nans.html#_g11655">
+acceptable-for-log</a>
 </td>
 <td class="summary">
-v islog</td>
+v</td>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-nans.html#_g3354">
+<a href="plotter-nans.html#_g11661">
+acceptance-test</a>
+</td>
+<td class="summary">
+islog</td>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="plotter-nans.html#_g11656">
+coerce-to-dfloat-vector</a>
+</td>
+<td class="summary">
+xs</td>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="plotter-nans.html#_g11660">
 filter-nans-and-infinities</a>
 </td>
 <td class="summary">
@@ -119,7 +81,7 @@ xs</td>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-nans.html#_g3359">
+<a href="plotter-nans.html#_g11663">
 filter-potential-nans-and-infinities</a>
 </td>
 <td class="summary">
@@ -127,7 +89,31 @@ xs islog</td>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-nans.html#_g3347">
+<a href="plotter-nans.html#_g11662">
+filter-potential-x-y-nans-and-infinities</a>
+</td>
+<td class="summary">
+xs ys xlog ylog</td>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="plotter-nans.html#_g11659">
+filter-xs</a>
+</td>
+<td class="summary">
+xs fn</td>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="plotter-nans.html#_g11658">
+filter-xs-ys</a>
+</td>
+<td class="summary">
+xs ys xfn yfn</td>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="plotter-nans.html#_g11651">
 inf-nan-p</a>
 </td>
 <td class="summary">
@@ -135,7 +121,7 @@ v</td>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-nans.html#_g3345">
+<a href="plotter-nans.html#_g11649">
 infinitep</a>
 </td>
 <td class="summary">
@@ -143,7 +129,7 @@ v</td>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-nans.html#_g3350">
+<a href="plotter-nans.html#_g11654">
 nan-or-infinite-p</a>
 </td>
 <td class="summary">
@@ -151,7 +137,7 @@ v</td>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-nans.html#_g3346">
+<a href="plotter-nans.html#_g11650">
 nanp</a>
 </td>
 <td class="summary">
@@ -159,7 +145,7 @@ v</td>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-nans.html#_g3349">
+<a href="plotter-nans.html#_g11653">
 real-eval-with-nans</a>
 </td>
 <td class="summary">
@@ -167,41 +153,24 @@ fn <em>&amp;rest</em> args</td>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-nans.html#_g3348">
+<a href="plotter-nans.html#_g11652">
 simple-real-number</a>
 </td>
 <td class="summary">
 v</td>
 </tr>
-</table>
-<div class="defun">
-<div class="defunsignatures">
-<a id="_g3356">
-</a>
-<table cellpadding="0" cellspacing="0" width="100%">
-<colgroup span="3">
-<col width="0*"/>
-<col width="1*"/>
-<col width="0*"/>
-</colgroup>
-<tbody>
-<tr>
-<td class="symbol-name">
-filter-potential-x-y-nans-and-infinities&nbsp;&nbsp;</td>
-<td class="lambda-list">
-(xs cons) (ys cons) xlog ylog</td>
-<td class="symbol-type">
-&nbsp;[Method]</td>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="plotter-nans.html#_g11657">
+try-dfloat</a>
+</td>
+<td class="summary">
+x</td>
 </tr>
-</tbody>
 </table>
-</div>
-<div class="doc-package">
-Package: PLOTTER</div>
-</div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3357">
+<a id="_g11655">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -212,134 +181,9 @@ Package: PLOTTER</div>
 <tbody>
 <tr>
 <td class="symbol-name">
-filter-potential-x-y-nans-and-infinities&nbsp;&nbsp;</td>
+acceptable-for-log&nbsp;&nbsp;</td>
 <td class="lambda-list">
-(xs vector) (ys vector) xlog ylog</td>
-<td class="symbol-type">
-&nbsp;[Method]</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="doc-package">
-Package: PLOTTER</div>
-</div>
-<div class="defun">
-<div class="defunsignatures">
-<a id="_g3358">
-</a>
-<table cellpadding="0" cellspacing="0" width="100%">
-<colgroup span="3">
-<col width="0*"/>
-<col width="1*"/>
-<col width="0*"/>
-</colgroup>
-<tbody>
-<tr>
-<td class="symbol-name">
-filter-potential-x-y-nans-and-infinities&nbsp;&nbsp;</td>
-<td class="lambda-list">
-xs ys xlog ylog</td>
-<td class="symbol-type">
-&nbsp;[Method]</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="doc-package">
-Package: PLOTTER</div>
-</div>
-<div class="defun">
-<div class="defunsignatures">
-<a id="_g3351">
-</a>
-<table cellpadding="0" cellspacing="0" width="100%">
-<colgroup span="3">
-<col width="0*"/>
-<col width="1*"/>
-<col width="0*"/>
-</colgroup>
-<tbody>
-<tr>
-<td class="symbol-name">
-filter-x-y-nans-and-infinities&nbsp;&nbsp;</td>
-<td class="lambda-list">
-(xs cons) (ys cons)</td>
-<td class="symbol-type">
-&nbsp;[Method]</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="doc-package">
-Package: PLOTTER</div>
-</div>
-<div class="defun">
-<div class="defunsignatures">
-<a id="_g3352">
-</a>
-<table cellpadding="0" cellspacing="0" width="100%">
-<colgroup span="3">
-<col width="0*"/>
-<col width="1*"/>
-<col width="0*"/>
-</colgroup>
-<tbody>
-<tr>
-<td class="symbol-name">
-filter-x-y-nans-and-infinities&nbsp;&nbsp;</td>
-<td class="lambda-list">
-(xs vector) (ys vector)</td>
-<td class="symbol-type">
-&nbsp;[Method]</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="doc-package">
-Package: PLOTTER</div>
-</div>
-<div class="defun">
-<div class="defunsignatures">
-<a id="_g3353">
-</a>
-<table cellpadding="0" cellspacing="0" width="100%">
-<colgroup span="3">
-<col width="0*"/>
-<col width="1*"/>
-<col width="0*"/>
-</colgroup>
-<tbody>
-<tr>
-<td class="symbol-name">
-filter-x-y-nans-and-infinities&nbsp;&nbsp;</td>
-<td class="lambda-list">
-xs ys</td>
-<td class="symbol-type">
-&nbsp;[Method]</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="doc-package">
-Package: PLOTTER</div>
-</div>
-<div class="defun">
-<div class="defunsignatures">
-<a id="_g3355">
-</a>
-<table cellpadding="0" cellspacing="0" width="100%">
-<colgroup span="3">
-<col width="0*"/>
-<col width="1*"/>
-<col width="0*"/>
-</colgroup>
-<tbody>
-<tr>
-<td class="symbol-name">
-acceptable-value&nbsp;&nbsp;</td>
-<td class="lambda-list">
-v islog</td>
+v</td>
 <td class="symbol-type">
 &nbsp;[Function]</td>
 </tr>
@@ -351,7 +195,57 @@ Package: PLOTTER</div>
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3354">
+<a id="_g11661">
+</a>
+<table cellpadding="0" cellspacing="0" width="100%">
+<colgroup span="3">
+<col width="0*"/>
+<col width="1*"/>
+<col width="0*"/>
+</colgroup>
+<tbody>
+<tr>
+<td class="symbol-name">
+acceptance-test&nbsp;&nbsp;</td>
+<td class="lambda-list">
+islog</td>
+<td class="symbol-type">
+&nbsp;[Function]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="doc-package">
+Package: PLOTTER</div>
+</div>
+<div class="defun">
+<div class="defunsignatures">
+<a id="_g11656">
+</a>
+<table cellpadding="0" cellspacing="0" width="100%">
+<colgroup span="3">
+<col width="0*"/>
+<col width="1*"/>
+<col width="0*"/>
+</colgroup>
+<tbody>
+<tr>
+<td class="symbol-name">
+coerce-to-dfloat-vector&nbsp;&nbsp;</td>
+<td class="lambda-list">
+xs</td>
+<td class="symbol-type">
+&nbsp;[Function]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="doc-package">
+Package: PLOTTER</div>
+</div>
+<div class="defun">
+<div class="defunsignatures">
+<a id="_g11660">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -376,7 +270,7 @@ Package: PLOTTER</div>
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3359">
+<a id="_g11663">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -401,7 +295,82 @@ Package: PLOTTER</div>
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3347">
+<a id="_g11662">
+</a>
+<table cellpadding="0" cellspacing="0" width="100%">
+<colgroup span="3">
+<col width="0*"/>
+<col width="1*"/>
+<col width="0*"/>
+</colgroup>
+<tbody>
+<tr>
+<td class="symbol-name">
+filter-potential-x-y-nans-and-infinities&nbsp;&nbsp;</td>
+<td class="lambda-list">
+xs ys xlog ylog</td>
+<td class="symbol-type">
+&nbsp;[Function]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="doc-package">
+Package: PLOTTER</div>
+</div>
+<div class="defun">
+<div class="defunsignatures">
+<a id="_g11659">
+</a>
+<table cellpadding="0" cellspacing="0" width="100%">
+<colgroup span="3">
+<col width="0*"/>
+<col width="1*"/>
+<col width="0*"/>
+</colgroup>
+<tbody>
+<tr>
+<td class="symbol-name">
+filter-xs&nbsp;&nbsp;</td>
+<td class="lambda-list">
+xs fn</td>
+<td class="symbol-type">
+&nbsp;[Function]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="doc-package">
+Package: PLOTTER</div>
+</div>
+<div class="defun">
+<div class="defunsignatures">
+<a id="_g11658">
+</a>
+<table cellpadding="0" cellspacing="0" width="100%">
+<colgroup span="3">
+<col width="0*"/>
+<col width="1*"/>
+<col width="0*"/>
+</colgroup>
+<tbody>
+<tr>
+<td class="symbol-name">
+filter-xs-ys&nbsp;&nbsp;</td>
+<td class="lambda-list">
+xs ys xfn yfn</td>
+<td class="symbol-type">
+&nbsp;[Function]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="doc-package">
+Package: PLOTTER</div>
+</div>
+<div class="defun">
+<div class="defunsignatures">
+<a id="_g11651">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -426,7 +395,7 @@ Package: PLOTTER</div>
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3345">
+<a id="_g11649">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -451,7 +420,7 @@ Package: PLOTTER</div>
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3350">
+<a id="_g11654">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -476,7 +445,7 @@ Package: PLOTTER</div>
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3346">
+<a id="_g11650">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -501,7 +470,7 @@ Package: PLOTTER</div>
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3349">
+<a id="_g11653">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -526,7 +495,7 @@ Package: PLOTTER</div>
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3348">
+<a id="_g11652">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -549,11 +518,36 @@ v</td>
 <div class="doc-package">
 Package: PLOTTER</div>
 </div>
+<div class="defun">
+<div class="defunsignatures">
+<a id="_g11657">
+</a>
+<table cellpadding="0" cellspacing="0" width="100%">
+<colgroup span="3">
+<col width="0*"/>
+<col width="1*"/>
+<col width="0*"/>
+</colgroup>
+<tbody>
+<tr>
+<td class="symbol-name">
+try-dfloat&nbsp;&nbsp;</td>
+<td class="lambda-list">
+x</td>
+<td class="symbol-type">
+&nbsp;[Function]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="doc-package">
+Package: PLOTTER</div>
+</div>
 </div>
 <div class="cludg-footer">
 Generated by a locally modified version of<a href="mailto:ihatchondo@common-lisp.net" lang="en">
 CLDOC</a>
-- 2008-08-08 19:11:58<br/>
-This document is Copyright (C) 2008 by SpectroDynamics, LLC. All rights reserved.</div>
+- 2024-02-17 06:13:38<br/>
+This document is Copyright (C) 2008-2022 by Refined Audiometrics Laboratory. MIT License terms apply.</div>
 </body>
 </html>

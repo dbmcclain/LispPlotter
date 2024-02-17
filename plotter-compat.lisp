@@ -4,18 +4,6 @@
 ;; ------------------------------------------
 ;; Win32/OS X compatibility constants and functions
 ;; ------------------------------------------
-(defconstant $tiny-times-font-size
-  #+:COCOA 10
-  #+:WIN32  8)
-
-(defconstant $normal-times-font-size
-  #+:COCOA 12
-  #+:WIN32  9)
-
-(defconstant $big-times-font-size
-  #+:COCOA 14
-  #+:WIN32 10)
-  
 (defun find-best-font (pane &key
                             (family "Times")
                             size
@@ -24,17 +12,19 @@
   (gp:find-best-font (display-pane-of pane)
                      (gp:make-font-description
                       :family family
-                      :size   #+:COCOA size #+:WIN32 (round size)
+                      :size   #-:WIN32 size #+:WIN32 (round size)
                       :weight weight
                       :slant  slant)))
 
 ;; ------------------------------------------
-#+:WIN32
+#+:WIN32x
+;; -- Under Windows/7+ we seem to not need this anymore...
+;; DM/RAL  05/14
 (defun adjust-linewidth (wd)
   ;; Win/XP can't handle fractional linewidths
   (max 1 (round wd)))
 
-#+:COCOA
+;; #-:WIN32
 (defun adjust-linewidth (wd)
   ;; ... but Display PDF can...
   wd)
@@ -48,7 +38,9 @@
   (gp:graphics-state-foreground
    (gp:get-graphics-state pane)))
 
-#+:WIN32
+#+:WIN32x
+;; --- WE FINALLY HAVE DECENT ALPHA BLENDING ON WINDOW 7+ --
+;; DM/RAL 05/14
 (defun adjust-color (pane color &optional alpha)
   ;; Win/XP can't handle true alpha blending. So we use a make-pretend system
   ;; that assumes the color will be blending with the background color. That only
@@ -74,7 +66,7 @@
          (mix #'color:color-blue))
         )))))
       
-#+:COCOA
+;; #-:WIN32
 (defun adjust-color (pane color &optional alpha)
   ;; Mac OS/X Cocoa can do real alpha blending. Here we take the user's
   ;; requested color, and a possibly separate alpha level (alpha might be nil)
@@ -114,12 +106,12 @@
       )))
 
 ;; ------------------------------------------
-#+:WIN32
+#+:WIN32x
 (defun adjust-box (box)
   ;; Win/XP can't handle fractional box coords
   (mapcar #'round box))
 
-#+:COCOA
+;; #-:WIN32
 (defun adjust-box (box)
   ;; ... but OS/X Cocoa can...
   box)
@@ -143,12 +135,12 @@
      (gp:with-pixmap-graphics-port ,args
        ,@body)))
 
-#+:COCOA
+#-:WIN32
 (defmacro create-pixmap-port (&rest args)
   `(gp:create-pixmap-port ,@args))
 
 
-#+:COCOA
+#-:WIN32
 (defmacro with-pixmap-graphics-port (args &body body)
   `(gp:with-pixmap-graphics-port ,args
      ,@body))

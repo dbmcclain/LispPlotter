@@ -6,11 +6,12 @@
 ;;
 
 ;; -------------------------------------------------------------------
-(defmethod coerce-to-vector ((v vector))
-  v)
 
 (defmethod coerce-to-vector ((lst list))
   (coerce lst 'vector))
+
+(defmethod coerce-to-vector ((v vector))
+  v)
 
 (defmethod coerce-to-vector ((a array))
   (make-array (array-total-size a)
@@ -24,6 +25,12 @@
 (defmethod length-of (arg)
   (length arg))
 
+(defmethod length-of ((arg vector))
+  ;; Careful here! We are using extensible vectors in some places. The
+  ;; ARRAY-TOTAL-SIZE may not be the same as the actual occupancy of
+  ;; the vectors.
+  (length arg))
+
 (defmethod length-of ((arg array))
   (array-total-size arg))
 
@@ -34,6 +41,9 @@
 (defmethod vmax-of (arg)
   (vmax arg))
 
+(defmethod vmax-of ((arg vector))
+  (loop for x across arg maximize x))
+
 (defmethod vmax-of ((arg array))
   (loop for ix from 0 below (array-total-size arg)
         maximize (row-major-aref arg ix)))
@@ -43,8 +53,11 @@
         maximize (ca:row-major-caref arg ix)))
 
 ;;---------
-(defmethod vmin-of (arg)
+(defmethod vmin-of ((arg sequence))
   (vmin arg))
+
+(defmethod vmin-of ((arg vector))
+  (loop for x across arg minimize x))
 
 (defmethod vmin-of ((arg array))
   (loop for ix from 0 below (array-total-size arg)
@@ -55,8 +68,15 @@
         minimize (ca:row-major-caref arg ix)))
 
 ;;---------
+(defun vextrema-of (arg)
+  (vextrema (coerce-to-vector arg)))
+
+;;---------
 (defmethod array-total-size-of (arg)
   (array-total-size arg))
+
+(defmethod array-total-size-of ((arg vector))
+  (length arg))
 
 (defmethod array-total-size-of ((arg ca:<carray>))
   (ca:carray-total-size arg))
@@ -76,7 +96,17 @@
   (apply #'ca:caref arg indices))
 
 ;;---------
+(defmethod row-major-aref-of (arg ix)
+  (row-major-aref arg ix))
+
+(defmethod row-major-aref-of ((arg ca:<carray>) ix)
+  (ca:row-major-caref arg ix))
+
+;;---------
 (defmethod subseq-of (arg start &optional end)
+  (subseq arg start end))
+
+(defmethod subseq-of ((arg vector) start &optional end)
   (subseq arg start end))
 
 (defmethod subseq-of ((arg array) start &optional end)

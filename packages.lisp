@@ -1,8 +1,19 @@
 
-(defpackage :plotter
+(defpackage #:plotter
   (:nicknames #:plt)
-  (:use       #:common-lisp #:vector-ops)
+  #+nil
+  (:local-nicknames
+   (#:ca       #:com.ral.c-arrays)
+   (#:c-arrays #:com.ral.c-arrays)
+   ;; (#:um       #:com.ral.useful-macros)
+   (#:engfmt   #:com.ral.useful-macros.engfmt)
+   (#:vmath    #:com.ral.vectorized-math)
+   ;; (#:vm       #:com.ral.vectorized-math)
+   (#:interpolation #:com.ral.interpolation))
+  (:use   #:common-lisp #:vops) ;; #:com.ral.vector-ops)
   (:export
+   #:sinc
+   #:find-named-plotter-pane
    #:*plotter-window-class*
    #:<plotter-window>
    #:<plotter-pane>
@@ -15,9 +26,9 @@
    #:clear  ;; these functions require a <plotter-pane> argument
    #:plot
    #:axes
-   #:draw-text
    #:with-delayed-update
    #:histogram
+   #:spline
    #:fplot
    #:paramplot
    #:plot-bars
@@ -30,8 +41,11 @@
    #:set-x-readout-hook
    #:set-y-readout-hook
    #:display-cursor-readout
-   
+
+   #:draw-text
+   #:draw-line
    #:draw-rect
+   #:draw-circle
    #:draw-ellipse
    #:draw-arc
 
@@ -43,17 +57,27 @@
 
    #:$heat-colormap
    #:$gray-colormap
-
+   #:get-cmap
+   #:set-cmap
+   
    #:with-default-args
    #:wait-until-finished
-
+   #:with-cached-graphing
+   
    #:helpme
 
    #:draw-text-box
+
+   #:cmplx-plot
+   #:cmplx-paramplot
+   #:polar-fplot
+
+   #:help
    ))
 
 #|
 ;; generate HTML documentation
+(asdf :doctools)
 (doctools:gen-docs
  :asdf-system-name :plotter
  :package-name     :plotter

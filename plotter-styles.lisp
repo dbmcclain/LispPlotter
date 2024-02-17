@@ -14,11 +14,12 @@
                        line-dashing
                        (line-type :interpolated)
                        symbol
+                       symbol-for-legend
                        plot-joined
                        (border-color color)
                        (border-alpha alpha)
                        symbol-filled
-                       fill-color
+                       (fill-color color)
                        (fill-alpha alpha)
                        (border-thick linewidth)
                        bar-width
@@ -28,6 +29,7 @@
                        line-style
                        symbol-style
                        &allow-other-keys)
+  (setf symbol (or symbol symbol-for-legend))
   (cond ((consp plot-style)
          (let ((line-style   (getf plot-style :line-style))
                (symbol-style (getf plot-style :symbol-style))
@@ -76,7 +78,7 @@
                                               (symbol
                                                (make-instance '<symbol-style>
                                                               :symbol  (case symbol
-                                                                         ((:filled-circle :sampled-data)         :circle)
+                                                                         (:filled-circle                         :circle)
                                                                          ((:filled-square :filled-box)           :square)
                                                                          ((:filled-triangle :filled-up-triangle) :up-triangle)
                                                                          (:filled-down-triangle                  :down-triangle)

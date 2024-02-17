@@ -2,31 +2,35 @@
 (in-package :plotter)
 
 (defvar *cross-cursor*
-  (ignore-errors
+  (progn ;; ignore-errors
     (capi:load-cursor
-     '((:win32 (translate-logical-pathname "PROJECTS:LIB;crosshair.cur"))
-       (:cocoa (translate-logical-pathname "PROJECTS:LIB;crosshair.gif"))
+     `((:win32 ,(namestring (translate-logical-pathname "PROJECTS:LIB;cross-i.cur")))
+       (:cocoa ,(namestring (translate-logical-pathname "PROJECTS:LIB;crosshair.gif"))
         :x-hot 7
-        :y-hot 7))
+        :y-hot 7)
+       (:gtk   #P"~/Linux-stuff/crosshair.gif"
+        :x-hot 7
+        :y-hot 7)
+       ))
     ))
 
 (defclass <line-style> ()
   ((line-thick    :accessor line-thick
-                  :initarg :thick
-                  :initform 1)
+                  :initarg :thick)
    (line-dashing  :accessor line-dashing
-                  :initarg  :dashing
-                  :initform nil)
+                  :initarg  :dashing)
    (line-color    :accessor line-color
-                  :initarg :color
-                  :initform :darkgreen)
+                  :initarg :color)
    (line-alpha    :accessor line-alpha
-                  :initarg  :alpha
-                  :initform nil)
+                  :initarg  :alpha)
    (line-type     :accessor line-type
-                  :initarg  :type
-                  :initform :interpolated)
-   ))
+                  :initarg  :type))
+  (:default-initargs
+   :thick   1
+   :dashing nil
+   :color   :darkgreen
+   :alpha   nil
+   :type    :interpolated))
 
 (defclass <symbol-style> ()
   ((plot-symbol   :accessor plot-symbol
@@ -52,24 +56,30 @@
                   :initform nil)
    (bar-offset    :accessor bar-offset
                   :initarg  :bar-offset
-                  :initform nil)
-   ))
+                  :initform nil))
+  (:default-initargs
+   :symbol       :circle
+   :fill-color   nil
+   :fill-alpha   nil
+   :border-color :black
+   :border-alpha nil
+   :border-thick 1
+   :bar-width    nil
+   :bar-offset   nil))
 
 (defclass <plot-style> ()
   ((line-style    :accessor line-style
-                  :initarg :line-style
-                  :initform (make-instance '<line-style>
-                                           :thick 1
-                                           :color :darkgreen))
-
+                  :initarg :line-style)
    (symbol-style  :accessor symbol-style
-                  :initarg :symbol-style
-                  :initform nil)
-   
+                  :initarg :symbol-style)
    (legend        :accessor legend
-                  :initarg :legend
-                  :initform nil)
-   ))
+                  :initarg :legend))
+  (:default-initargs
+   :line-style (make-instance '<line-style>
+                              :thick 1
+                              :color :darkgreen)
+   :symbol-style nil
+   :legend       nil))
 
 (defclass <legend> ()
   ((activep     :accessor activep     :initform t)
@@ -99,34 +109,38 @@
    (ymax          :accessor plotter-ymax           :initform 1.0d0)
    
    (box           :accessor plotter-box)
-   (xform         :accessor plotter-xform          :initform '(1 0 0 1 0 0))
-   (inv-xform     :accessor plotter-inv-xform      :initform '(1 0 0 1 0 0))
-   (dlist         :accessor plotter-display-list   :initform  (um:make-mpsafe-monitored-collector))
+   (xform         :accessor plotter-xform          :initform (gp:make-transform))
+   (inv-xform     :accessor plotter-inv-xform      :initform (gp:make-transform))
+   (mask          :accessor plotter-mask           :initform '(0 0 0 0))
+   (dlist         :accessor plotter-display-list   :initform (make-array 16 :adjustable t :fill-pointer 0))
    (delayed       :accessor plotter-delayed-update :initform 0)
+   (damage        :accessor plotter-delayed-damage :initform nil)
+   (aspect        :accessor plotter-aspect         :initform nil)
    
    ;; info for nice looking zooming
-   (def-wd        :accessor plotter-nominal-width  :initarg :nominal-width  :initform nil)
-   (def-ht        :accessor plotter-nominal-height :initarg :nominal-height :initform nil)
+   (def-wd        :accessor plotter-nominal-width  :initarg :nominal-width)
+   (def-ht        :accessor plotter-nominal-height :initarg :nominal-height)
+   ;; (def-x         :accessor plotter-nominal-x      :initarg :nominal-x   :initform 0)
+   ;; (def-y         :accessor plotter-nominal-y      :initarg :nominal-y   :initform 0)
 
    (sf            :accessor plotter-sf    :initform 1)
    (magn          :accessor plotter-magn  :initform 1)
 
-   (legend-info   :accessor plotter-legend-info        :initform (um:make-collector))
-   (legend-x      :accessor plotter-legend-x           :initform '(:frac 0.95))
+   (legend-info   :accessor plotter-legend-info        :initform (make-array 16 :adjustable t :fill-pointer 0))
+   (legend-x      :accessor plotter-legend-x           :initform '(:frac 0.05))
    (legend-y      :accessor plotter-legend-y           :initform '(:frac 0.95))
    (legend-anchor :accessor plotter-legend-anchor      :initform :auto)
    (legend        :accessor plotter-legend             :initform (make-instance '<legend>))
    (preferred-x   :accessor preferred-x                :initform nil)
    (preferred-y   :accessor preferred-y                :initform nil)
   
-   (dirty         :accessor plotter-dirty              :initform nil)
-   (needs-legend  :accessor plotter-needs-legend       :initform nil)
-   (reply-mbox    :accessor reply-mbox                 :initform nil)
+   (notify-cust   :accessor plotter-notify-cust        :initform nil)
+   (initial-gs    :accessor plotter-initial-gs         :initform nil)
+   (plotting-gs   :accessor plotter-plotting-gs        :initform nil)
    )
   (:default-initargs
    :nominal-width      400
    :nominal-height     300
-   :name               "Plot"
    ))
 
 (defclass <plotter-pane> (<plotter-mixin> capi:output-pane)
@@ -134,9 +148,7 @@
   ;; The pane adds something to draw on...
   ;; And it also adds some user gestures and any display related items
   ;; like cross hairs, cursors, backing images, etc.
-  ((backing-image   :accessor plotter-backing-image  :initform nil)
-   (timer           :accessor plotter-resize-timer   :initform nil)
-   (backing-pixmap  :accessor plotter-backing-pixmap :initform nil)
+  (;; (backing-pixmap  :accessor plotter-backing-pixmap :initform nil)
    (delay-backing   :accessor plotter-delay-backing  :initform nil)
    (full-crosshair  :accessor plotter-full-crosshair :initform nil   :initarg :full-crosshair)
    (prev-x          :accessor plotter-prev-x         :initform nil)
@@ -145,10 +157,17 @@
    (y-ro-hook       :accessor plotter-y-readout-hook :initform #'identity)
    (plotter-valid   :accessor plotter-valid          :initform t)
    
-   (mark-x        :accessor mark-x                     :initform nil)
-   (mark-y        :accessor mark-y                     :initform nil)
-   (mark-x-raw    :accessor mark-x-raw                 :initform nil)
-   (mark-y-raw    :accessor mark-y-raw                 :initform nil)
+   (mark-x           :accessor mark-x                :initform nil)
+   (mark-y           :accessor mark-y                :initform nil)
+   (mark-x-raw       :accessor mark-x-raw            :initform nil)
+   (mark-y-raw       :accessor mark-y-raw            :initform nil)
+
+   (cached-cmap      :accessor cached-cmap           :initform nil)
+   (cache-pixmap-ver :accessor plotter-cache-ver     :initform nil)
+   (cache-pixmap     :accessor plotter-cache-pixmap  :initform nil)
+   (cache-state      :accessor plotter-cache-state   :initform nil)
+
+   (prev-frame       :accessor plotter-prev-frame    :initform nil)
    )
   (:default-initargs
    :display-callback 'display-callback
@@ -156,8 +175,8 @@
    :destroy-callback 'destroy-callback
    :pane-menu        'popup-menu
    :input-model      '((:motion mouse-move)
-                       ((:button-1 :motion) drag-legend)
-                       ((:button-1 :press) show-x-y-at-cursor)
+                       ((:button-1 :motion)  drag-legend)
+                       ((:button-1 :press)   show-x-y-at-cursor)
                        ((:button-1 :release) undrag-legend)
                        ((:gesture-spec "Backspace")
                         maybe-remove-legend)
@@ -187,6 +206,8 @@
    :visible-min-height 150
    :visible-max-width  800
    :visible-max-height 600
+   :default-width      400
+   :default-height     300
    :background :white
    :foreground :black
    ))
@@ -196,13 +217,12 @@
                                        &key full-crosshair background &allow-other-keys)
   (when full-crosshair
     (setf (plotter-full-crosshair pane)
-          (complementary-color pane full-crosshair background))
-    ))
+          (complementary-color pane full-crosshair background))))
                                
 (defun destroy-callback (pane)
   (setf (plotter-valid pane) nil)
-  (discard-backing-image  pane)
-  (discard-backing-pixmap pane))
+  ;; (discard-backing-pixmap pane)
+  )
 
 ;; ---------------------------------------------------------
 (defun popup-menu (pane selection x y)
@@ -267,7 +287,8 @@
                                (:restore-legend
                                 (let ((legend (plotter-legend pane)))
                                   (setf (activep legend) t)
-                                  (draw-existing-legend pane pane)))
+                                  (restore-legend-background pane legend)
+                                  (draw-existing-legend pane legend)))
                                (:mark-x
                                 (mark-x-at-cursor pane x y))
                                (:mark-y
@@ -309,24 +330,66 @@
 
 ;; -------------------------------------------------------------------
 (defun append-display-list (pane item)
-  (um:collector-append-item (plotter-display-list pane) item))
+  (vector-push-extend item (plotter-display-list pane))
+  (update-pane pane))
 
 (defun discard-display-list (pane)
-  (um:collector-discard-contents (plotter-display-list pane))
-  (um:collector-discard-contents (plotter-legend-info pane)))
+  #|
+  (setf (plotter-delayed-damage pane) nil
+        (plotter-delayed-update pane) 0)
+  |#
+  (setf (fill-pointer (plotter-display-list pane)) 0
+        (fill-pointer (plotter-legend-info pane)) 0))
 
 (defun display-list-items (pane &key discard)
-  (um:collector-contents (plotter-display-list pane) :discard discard))
+  (prog1
+      (coerce (plotter-display-list pane) 'list)
+    (when discard
+      (setf (fill-pointer (plotter-display-list pane)) 0))
+    ))
 
 (defun display-list-empty-p (pane)
-  (um:collector-empty-p (plotter-display-list pane)))
+  (zerop (length (plotter-display-list pane))))
 
 
 (defun append-legend (pane item)
-  (um:collector-append-item (plotter-legend-info pane) item))
+  (vector-push-extend item (plotter-legend-info pane)))
 
 (defun all-legends (pane &key discard)
-  (um:collector-contents (plotter-legend-info pane) :discard discard))
+  (prog1
+      (coerce (plotter-legend-info pane) 'list)
+    (when discard
+      (setf (fill-pointer (plotter-legend-info pane)) 0))
+    ))
 
 (defun discard-legends (pane)
-  (um:collector-discard-contents (plotter-legend-info pane)))
+  (setf (fill-pointer (plotter-legend-info pane)) 0))
+
+;; --------------------------------------------------------------------
+
+(defun sfloat (v)
+  (float v 1f0))
+
+(defun dfloat (v)
+  (float v 1d0))
+
+(defun log10 (x)
+  (if (not (and (realp x)
+                (plusp x)))
+      -300
+    (log x 10.0d0)))
+
+(defun pow10 (x)
+  (expt 10.0d0 x))
+
+;; ------------------------------------------
+
+(defun logfn (islog)
+  (cond ((consp islog) (first islog))
+        (islog         #'log10)
+        (t             #'identity)))
+
+(defun alogfn (islog)
+  (cond ((consp islog) (second islog))
+        (islog         #'pow10)
+        (t             #'identity)))

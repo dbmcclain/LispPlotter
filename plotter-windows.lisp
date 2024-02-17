@@ -102,12 +102,12 @@
                                             :accelerator   "accelerator-p"))
                                    :callback-type :data
                                    :callback-data-function  (constantly pane)))
-                   :visible-min-width  #+:COCOA visible-min-width #+:WIN32 (+ visible-min-width 4)
-                   :visible-max-width  #+:COCOA visible-max-width #+:WIN32 (+ visible-max-width 4)
-                   :visible-min-height #+:COCOA visible-min-height #+:WIN32 (+ visible-min-height 4)
-                   :visible-max-height #+:COCOA visible-max-height #+:WIN32 (+ visible-max-height 4)
-                   :best-width         #+:COCOA best-width #+:WIN32 (+ best-width 4)
-                   :best-height        #+:COCOA best-height #+:WIN32 (+ best-height 4)
+                   :visible-min-width  #-:WIN32 visible-min-width #+:WIN32 (+ visible-min-width 4)
+                   :visible-max-width  #-:WIN32 visible-max-width #+:WIN32 (+ visible-max-width 4)
+                   :visible-min-height #-:WIN32 visible-min-height #+:WIN32 (+ visible-min-height 4)
+                   :visible-max-height #-:WIN32 visible-max-height #+:WIN32 (+ visible-max-height 4)
+                   :best-width         #-:WIN32 best-width #+:WIN32 (+ best-width 4)
+                   :best-height        #-:WIN32 best-height #+:WIN32 (+ best-height 4)
                    :best-x             best-x
                    :best-y             best-y
                    :window-styles      window-styles)

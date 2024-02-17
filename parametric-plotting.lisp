@@ -151,8 +151,8 @@
 
 (defun fill-in-prepfns (islog parms)
   "Log plots need pref-functions of log10 and pow10"
-  (setf (plot-arg-prepfn  parms) (if islog #'log10 #'identity)
-        (plot-arg-iprepfn parms) (if islog #'pow10 #'identity)))
+  (setf (plot-arg-prepfn  parms) (logfn islog)
+        (plot-arg-iprepfn parms) (alogfn islog)))
 
 (defun fill-in-range (parms range)
   "Set up the range in the plot-arg object"
@@ -189,8 +189,8 @@
 
 (defun fill-in-parms (parms islog fn range tparms screen-size)
   "Collect the plotting parameters for the plot-arg structure"
-  (setf (plot-arg-prepfn parms)  (if islog #'log10 #'identity)
-        (plot-arg-iprepfn parms) (if islog #'pow10 #'identity))
+  (setf (plot-arg-prepfn parms)  (logfn islog)
+        (plot-arg-iprepfn parms) (alogfn islog))
   (fill-in-computed-vals parms fn tparms)
   (if range
       (fill-in-range parms range)
@@ -210,8 +210,8 @@
 |#
 
 (defun compute-tcheby-tvals (tmin tmax npts)
-  "Compute roots of the Tchebyshev polynomial of order npts in the domain
-(tmin, tmax) mapped to (-1,1)"
+  "Compute abscissae x_i = Cos(i*pi/npts) mapped to the interval (tmin, tmax).
+This produces denser sampling near the endpoints of the interval."
   (let* ((npts (or npts
                    16))
          (sft   (* 0.5d0 (- tmax tmin)))
@@ -222,17 +222,18 @@
              (x-of-index (ix)
                (cos (* sfpi ix))))
 
-      (loop for ix from 0 to npts collect
-            (t-of-x (x-of-index ix)))
+      (um:lc (t-of-x (x-of-index ix))
+             (ix <.. 0 (1+ npts)))
       )))
 
 (defun internal-paramplot (pane domain xfn yfn &rest args
                          &key tlog xlog ylog xrange yrange npts
+                         (plotfn 'plot)
                          &allow-other-keys)
   "Internal driver routine for paramplot and fplot"
   (destructuring-bind (tmin tmax) domain
-    (let* ((tprepfn  (if tlog #'log10 #'identity))
-           (itprepfn (if tlog #'pow10 #'identity))
+    (let* ((tprepfn  (logfn tlog))
+           (itprepfn (alogfn tlog))
            (tmin     (funcall tprepfn tmin))
            (tmax     (funcall tprepfn tmax))
            (tvals    (compute-tcheby-tvals tmin tmax npts))
@@ -250,7 +251,7 @@
       (fill-in-parms xparms xlog xfn xrange tparms (capi:screen-width screen))
       (fill-in-parms yparms ylog yfn yrange tparms (capi:screen-height screen))
 
-      (do-param-plotting #'plot pane xfn yfn npts tparms xparms yparms args)
+      (do-param-plotting plotfn pane xfn yfn npts tparms xparms yparms args)
       )))
 
 ;; --------------------------------------------------------------------------
@@ -313,3 +314,34 @@
                                           :target "html-template.html"
                                           :subtitle "a library for scientific graphing"))
 |#
+
+(defun make-pairs-for-spline (pairs)
+  (let (xs ys xprev yprev)
+    (with-pairs (pairs x y)
+      (cond ((null xprev)
+             (push x xs)
+             (push y ys)
+             (setf xprev x
+                   yprev y))
+            ((or (/= x xprev)
+                 (/= y yprev))
+             (push x xs)
+             (push y ys)
+             (setf xprev x
+                   yprev y))
+            ))
+    (let* ((spl     (interpolation:spline (coerce xs 'vector) (coerce ys 'vector) :natural :natural))
+           (xmin    (reduce 'min xs))
+           (xmax    (reduce 'max xs))
+           (domain  (list xmin xmax)))
+      (apply #'internal-paramplot nil
+             domain
+             #'identity
+             (um:curry 'interpolation:splint spl)
+             :plotfn (lambda (pane xsv ysv &rest ignored)
+                       (declare (ignore pane ignored))
+                       (setf xs (make-scanner xsv)
+                             ys (make-scanner ysv)))
+             *default-args*)
+      (make-pair-scanner xs ys)
+      )))

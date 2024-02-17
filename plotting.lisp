@@ -59,7 +59,7 @@
         (let ((new-text (format nil "~S" new-color))
               (cp       (patch (capi:element-interface widget))))
           (setf (cp-color cp) new-color)
-          (gp:invalidate-rectangle (capi:pinboard-object-pinboard cp))
+          (capi:redisplay-element (capi:pinboard-object-pinboard cp))
           new-text)
       data)))
 
@@ -93,7 +93,7 @@
                 :accessor domain)|#
    (plot-fn capi:text-input-pane
        :title "Function"
-       :text  "plt::sinc"
+       :text  "plt:sinc"
        :accessor plot-fn)
    (x-title capi:text-input-pane
             :title "Title"
@@ -168,7 +168,7 @@
     capi:row-layout
     '(bg-color
       fg-color)
-    :background (color:make-gray 0.75)
+    :background :gray30
     )
    (x-minmax
     capi:row-layout
@@ -185,12 +185,12 @@
    (x-column
     capi:column-layout
     '(x-title x-logscale x-minmax)
-    :background (color:make-rgb 0.77 0.8 0.8)
+    :background :gray30
     :title "X Axis")
    (y-column
     capi:column-layout
     '(y-title y-logscale y-minmax)
-    :background (color:make-rgb 0.77 0.8 0.8)
+    :background :gray30
     :title "Y Axis")
    (title-row
     capi:column-layout

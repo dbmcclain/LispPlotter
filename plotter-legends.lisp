@@ -3,162 +3,192 @@
 
 ;; ----------------------------------------------------------------
 
-(defun draw-existing-legend (pane port)
+(defun internal-draw-existing-legend (pane port)
   (let* ((legend (plotter-legend pane))
          (items  (has-content legend)))
     (when items
-      (let* ((sf   (plotter-sf pane))
-             (font1 (find-best-font port
-                                    :size $tiny-times-font-size))
-             (font (find-best-font port
-                                   :size (* sf $tiny-times-font-size)
-                                   ;; :size $tiny-times-font-size
-                                   ))
-             (nitems (length items)))
-        
-        (multiple-value-bind (txtwd txtht txtbase)
-            (let ((maxwd   0)
-                  (maxht   0)
-                  (maxbase 0))
-              (loop for item in items do
-                    (multiple-value-bind (lf tp rt bt)
-                        (gp:get-string-extent port (legend item) font)
-                      (setf maxwd   (max maxwd (- rt lf))
-                            maxht   (max maxht (- bt tp))
-                            maxbase (max maxbase tp))))
-              (values maxwd maxht maxbase))
+      (with-plotview-coords (pane port)
+        (let* ((font1 (find-best-font port
+                                      :size $tiny-times-font-size))
+               (font (find-best-font port
+                                     :size $tiny-times-font-size
+                                     ;; :size $tiny-times-font-size
+                                     ))
+               (nitems (length items)))
           
-          (declare (ignore txtbase))
-          (let* ((totwd  (+ txtwd  (* sf 40)))
-                 (totht  (+ 2 (* nitems (+ txtht 0))))
-                 (effwd  (/ totwd sf))
-                 (effht  (/ totht sf))
-                 (effht1 (/ txtht sf))
-                 (x      (or (preferred-x pane)
-                             (let ((x (get-x-location pane (plotter-legend-x pane))))
-                               (ecase (plotter-legend-anchor pane)
-                                 (:auto         (if (> x (/ (plotter-nominal-width pane) 2))
-                                                    (- x effwd)
-                                                  x))
-                                 ((:nw :w :sw)  (- x effwd))
-                                 ((:ne :e :se)  x)
-                                 ((:n  :ctr :s) (- x (/ effwd 2)))
-                                 ))))
-                 (y      (or (preferred-y pane)
-                             (let ((y (get-y-location pane (plotter-legend-y pane))))
-                               (case (plotter-legend-anchor pane)
-                                 (:auto         (if (> y (/ (plotter-nominal-height pane) 2))
-                                                    (- y effht)
-                                                  y))
-                                 ((:nw :n :ne)  y)
-                                 ((:sw :s :sw)  (- y effht))
-                                 ((:w  :ctr :e) (- y (/ effht 2)))
-                                 )))))
-            
-            (setf (x legend)      (* sf x)
-                  (y legend)      (* sf y)
-                  (width legend)  totwd
-                  (height legend) totht)
-            
-            (gp:with-graphics-scale (port sf sf)
+          (multiple-value-bind (txtwd txtht)
+              (let ((maxwd   0)
+                    (maxht   0))
+                (dolist (item items)
+                  (multiple-value-bind (lf tp rt bt)
+                      (gp:get-string-extent port (legend item) font)
+                    (setf maxwd   (max maxwd (- rt lf))
+                          maxht   (max maxht (- bt tp))
+                          )))
+                (values maxwd maxht))
               
-              (with-color (port (adjust-color port (background-color port) 0.75))
-                (gp:draw-rectangle port x y effwd effht
-                                   :filled t))
-              
-              (gp:with-graphics-state (port
-                                       :thickness (adjust-linewidth sf))
-                (gp:draw-rectangle port x y effwd effht))
-              
+            (let* ((totwd  (+ txtwd  40))
+                   (totht  (+ 2 (* nitems txtht)))
+                   (effwd  totwd)
+                   (effht  totht)
+                   (effht1 txtht)
+                   (box    (plotter-box pane))
+                   (x      (or (preferred-x pane)
+                               (let ((x (get-x-location pane (plotter-legend-x pane))))
+                                 (ecase (plotter-legend-anchor pane)
+                                   (:auto         (if (> x (/ (box-width box) 2))
+                                                      (- x effwd)
+                                                    x))
+                                   ((:nw :w :sw)  (- x effwd))
+                                   ((:ne :e :se)  x)
+                                   ((:n  :ctr :s) (- x (/ effwd 2)))
+                                   ))))
+                   (y      (or (preferred-y pane)
+                               (let ((y (get-y-location pane (plotter-legend-y pane))))
+                                 (case (plotter-legend-anchor pane)
+                                   (:auto         (if (> y (/ (box-height box) 2))
+                                                      (- y effht)
+                                                    y))
+                                   ((:nw :n :ne)  y)
+                                   ((:sw :s :sw)  (- y effht))
+                                   ((:w  :ctr :e) (- y (/ effht 2)))
+                                   )))))
+                
+              (setf (x legend)      x
+                    (y legend)      y
+                    (width legend)  totwd
+                    (height legend) totht)
+                
+              (gp:draw-rectangle port x y effwd effht
+                                 :filled t
+                                 :foreground (adjust-color port
+                                                           (background-color port)
+                                                           0.75))
+                
+              (gp:draw-rectangle port x y effwd effht
+                                 :foreground (if (highlighted legend)
+                                                 :magenta
+                                               :black))
+                
               (loop for item in items
                     for y from (+ y effht1 1) by effht1
                     do
-                    (let* ((line-style   (line-style   item))
-                           (symbol-style (symbol-style item)))
-                      
-                      ;; ---------------------------------------------
-                      (labels ((draw-line (&optional thickness)
-                                 (gp:with-graphics-state
-                                     (port
-                                      :thickness  (adjust-linewidth
-                                                   (* sf (or thickness
-                                                             (line-thick line-style))))
-                                      :dashed     (and line-style
-                                                       (line-dashing line-style))
-                                      :dash       (mapcar (um:expanded-curry (v) #'* sf)
-                                                          (and line-style
-                                                               (line-dashing line-style)))
-                                      :foreground (if line-style
-                                                      (adjust-color port
-                                                                    (line-color line-style)
-                                                                    (line-alpha line-style))
-                                                    (adjust-color port
-                                                                  (fill-color symbol-style)
-                                                                  (fill-alpha symbol-style))))
-                                   (let ((y (floor (- y (/ effht1 2)))))
-                                     (gp:draw-line port
-                                                   (+ x  3) y
-                                                   (+ x 33) y)
-                                     ))))
-                        
+                      (let* ((line-style   (line-style   item))
+                             (symbol-style (symbol-style item)))
+                          
                         ;; ---------------------------------------------
-                        (cond  (symbol-style
-                                (case (plot-symbol symbol-style)
-                                  ((:vbars :hbars) (draw-line 5))
-                                  (otherwise
-                                   (when line-style
-                                     (draw-line))
-                                   (funcall (get-symbol-plotfn port sf symbol-style)
-                                            (+ x 18) (- y (/ effht1 2))
-                                            ))
-                                  ))
-                               
-                               (line-style (draw-line))
-                               ))
-                      
-                      ;; ---------------------------------------------
-                      (gp:draw-string port (legend item) (+ x 36) (- y 3)
-                                      :font font1)
-                      
-                      ))
+                        (labels ((draw-line (&optional thickness)
+                                   (gp:with-graphics-state
+                                       (port
+                                        :thickness  (or thickness
+                                                        (line-thick line-style))
+                                        :dashed     (and line-style
+                                                         (line-dashing line-style))
+                                        :dash       (and line-style
+                                                         (line-dashing line-style))
+                                        :foreground (if line-style
+                                                        (adjust-color port
+                                                                      (line-color line-style)
+                                                                      (line-alpha line-style))
+                                                      (adjust-color port
+                                                                    (fill-color symbol-style)
+                                                                    (fill-alpha symbol-style))))
+                                     (let ((y (floor (- y (/ effht1 2)))))
+                                       (gp:draw-line port
+                                                     (+ x  3) y
+                                                     (+ x 33) y)
+                                       ))))
+                            
+                          ;; ---------------------------------------------
+                          (cond  (symbol-style
+                                  (case (plot-symbol symbol-style)
+                                    ((:vbars :hbars) (draw-line 5))
+                                    (otherwise
+                                     (when line-style
+                                       (draw-line))
+                                     (funcall (get-symbol-plotfn port symbol-style)
+                                              (+ x 18) (- y (/ effht1 2))
+                                              ))
+                                    ))
+                                   
+                                 (line-style (draw-line))
+                                 ))
+                          
+                        ;; ---------------------------------------------
+                        (gp:draw-string port (legend item) (+ x 36) (- y 3)
+                                        :font font1)
+                        ))
               ))
-          )))
-    ))
+          ))
+      )))
 
 (defun draw-accumulated-legend (pane port)
-  (let ((items  (all-legends pane))
-        (legend (plotter-legend pane)))
+  (unless (eql (plotter-cache-state pane) :drawing)
+    (let ((items  (all-legends pane))
+          (legend (plotter-legend pane)))
 
-    (cond ((null items)
-           (setf (has-content legend) nil))
-    
-          ((activep legend)
-           (setf (has-content legend) items)
-           (draw-existing-legend pane port))
-          )))
+      (cond ((null items)
+             (setf (has-content legend) nil))
+            
+            ((activep legend)
+             (setf (has-content legend) items)
+             (internal-draw-existing-legend pane port))
+            ))))
+
+(defun refresh-view (pane x y w h)
+  ;; Code to convert a plotter region rectangle to an absolute,
+  ;; scaled, rectangle in the parent graphport.
+  ;;
+  ;; CAPI:REDISPLAY-ELEMENT is great, but it doesn't know anything
+  ;; about graphics transforms.
+  (let ((xform (gp:make-transform))
+        (sf    (plotter-sf pane))
+        (box   (plotter-box pane)))
+    (gp:apply-translation xform +LEFT-INSET+ +TOP-INSET+)
+    (gp:apply-scale xform sf sf)
+    (gp:apply-translation xform
+                          (- (box-left box) +LEFT-INSET+)
+                          (- (box-top  box) +TOP-INSET+))
+    (multiple-value-bind (xp yp)
+        (gp:transform-point xform x y)
+      (multiple-value-bind (rp bp)
+          (gp:transform-point xform (+ x w) (+ y h))
+        (capi:redisplay-element pane xp yp (- rp xp) (- bp yp))
+        ))
+    ))
+
+(defun draw-existing-legend (pane legend)
+  (let* ((extra   2)
+         (extra*2 (* 2 extra))
+         (w       (ceiling (+ extra*2 (width legend))))
+         (h       (ceiling (+ extra*2 (height legend))))
+         (x       (floor (- (or (preferred-x pane)
+                                (x legend))
+                            extra)))
+         (y       (floor (- (or (preferred-y pane)
+                                (y legend))
+                            extra))))
+    (refresh-view pane x y w h)
+    ))
+
+(defun restore-legend-background (pane legend)
+  (let* ((extra   2)
+         (extra*2 (* 2 extra))
+         (w       (ceiling (+ extra*2 (width legend))))
+         (h       (ceiling (+ extra*2 (height legend))))
+         (x-old   (floor (- (x legend) extra)))
+         (y-old   (floor (- (y legend) extra))))
+    (refresh-view pane x-old y-old w h)
+    ))
 
 (defun highlight-legend (pane)
   (let ((legend (plotter-legend pane)))
     (when (activep legend)
       (unless (highlighted legend)
         (setf (highlighted legend) t)
-        (let ((sf (plotter-sf pane)))
-          (gp:draw-rectangle pane (x legend) (y legend)
-                             (width legend) (height legend)
-                             :thickness (* 2 sf))
-          )))))
-
-(defun restore-legend-background (pane legend)
-  (let* ((sf      (plotter-sf pane))
-         (extra   (* 2 sf))
-         (extra*2 (* 2 extra))
-         (w       (+ extra*2 (width legend)))
-         (h       (+ extra*2 (height legend)))
-         (x-old   (- (x legend) extra))
-         (y-old   (- (y legend) extra)))
-    (gp:copy-pixels pane (plotter-backing-pixmap pane)
-                    x-old y-old w h x-old y-old)
-    ))
+        (restore-legend-background pane legend)
+        (draw-existing-legend pane legend)
+        ))))
 
 (defun unhighlight-legend (pane)
   (let ((legend (plotter-legend pane)))
@@ -166,25 +196,41 @@
                (highlighted legend))
       (setf (highlighted legend) nil)
       (restore-legend-background pane legend)
-      (draw-existing-legend pane pane)
+      (draw-existing-legend pane legend)
       )))
+
+(defun plotview-coords (pane x y)
+  ;; convert reported screen coords to plotting region coords
+  (multiple-value-bind (xd yd)
+      (gp:transform-point (plotter-inv-xform pane) x y)
+    (gp:transform-point (plotter-xform pane) xd yd)
+    ))
 
 (defun on-legend (pane x y)
   (let ((legend (plotter-legend pane)))
     (and (activep legend)
          (has-content legend)
-         (<= (x legend) x (+ (x legend) (width legend)))
-         (<= (y legend) y (+ (y legend) (height legend)))
+         (multiple-value-bind (xp yp)
+             (plotview-coords pane x y)
+           (with-accessors ((xl   x)
+                            (yl   y)
+                            (wd   width)
+                            (ht   height)) legend
+             (and (<= xl xp (+ xl wd))
+                  (<= yl yp (+ yl ht)))
+             ))
          )))
 
 (defun start-drag-legend (pane x y)
   (let ((legend (plotter-legend pane)))
     (when (and (activep legend)
                (has-content legend))
-      (setf (dragging legend) t
-            (dx legend) (- (x legend) x)
-            (dy legend) (- (y legend) y))
-      )))
+      (multiple-value-bind (xp yp)
+          (plotview-coords pane x y)
+        (setf (dragging legend) t
+              (dx legend) (- (x legend) xp)
+              (dy legend) (- (y legend) yp))
+        ))))
 
 (defun undrag-legend (pane x y)
   (declare (ignore x y))
@@ -197,10 +243,11 @@
   (let ((legend (plotter-legend pane)))
     (when (dragging legend)
       (restore-legend-background pane legend)
-      (let ((sf (plotter-sf pane)))
-        (setf (preferred-x pane) (/ (+ x (dx legend)) sf)
-              (preferred-y pane) (/ (+ y (dy legend)) sf))
-        (draw-existing-legend pane pane)
+      (multiple-value-bind (xp yp)
+          (plotview-coords pane x y)
+        (setf (preferred-x pane) (+ xp (dx legend))
+              (preferred-y pane) (+ yp (dy legend)))
+        (draw-existing-legend pane legend)
         ))))
 
 
@@ -211,4 +258,19 @@
            :legend "Sinc(x)"
            :clear t)
 
+(defun draw-test-pane (gp pane
+                          x y
+                          width height)
+  
+(defclass test-pane (capi:drawn-pinboard-object)
+  ()
+  (:default-initargs
+   :display-callback 'draw-test-pane
+   :visible-min-width 50
+   :visible-min-height 50))
+
+(capi:contain
+ (make-instance 'test-pane
+                :best-width 400
+                :best-height 300))
 |#

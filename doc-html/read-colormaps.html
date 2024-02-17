@@ -6,7 +6,7 @@
 <link rel="Stylesheet" type="text/css" href="cludg.css"/>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"/>
 <title>
-plotter-watermark</title>
+read-colormaps</title>
 </head>
 <body>
 <div id="navbar">
@@ -18,18 +18,18 @@ plotter-watermark</title>
 </colgroup>
 <tr>
 <td align="left" valign="baseline">
-<a href="plotter-drawing.html">
-Prev:&nbsp;plotter-drawing.lisp</a>
+<a href="parametric-plotting.html">
+Prev:&nbsp;parametric-plotting.lisp</a>
 <br/>
-<a href="plotter-axes.html">
-Next:&nbsp;plotter-axes.lisp</a>
+<a href="plotting.html">
+Next:&nbsp;plotting.lisp</a>
 </td>
 <td>
 &nbsp;&nbsp;&nbsp;&nbsp;</td>
 <td align="left" valign="baseline">
 <span class="upchain">
 <b>
-plotter-watermark.lisp</b>
+read-colormaps.lisp</b>
 <br/>
 <a href="index.html">
 Table of Contents</a>
@@ -40,8 +40,54 @@ Table of Contents</a>
 </div>
 <div class="cludg-doc-body">
 <h2>
-plotter-watermark.lisp
+read-colormaps.lisp
 </h2>
+<table style="width: 100%;" class="external-summary-table">
+<tr class="table-heading-color">
+<th class="summary" colspan="3">
+External symbol summary</th>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="read-colormaps.html#_g11979">
+plotter:get-cmap</a>
+</td>
+<td class="summary">
+(nbr fixnum)</td>
+<td class="summary-type">
+Method</td>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="read-colormaps.html#_g11980">
+plotter:get-cmap</a>
+</td>
+<td class="summary">
+(name string)</td>
+<td class="summary-type">
+Method</td>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="read-colormaps.html#_g11977">
+plotter:set-cmap</a>
+</td>
+<td class="summary">
+(nbr fixnum)</td>
+<td class="summary-type">
+Method</td>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="read-colormaps.html#_g11978">
+plotter:set-cmap</a>
+</td>
+<td class="summary">
+(name string)</td>
+<td class="summary-type">
+Method</td>
+</tr>
+</table>
 <table style="width: 100%;" class="summary-table">
 <tr class="table-heading-color">
 <th class="summary" colspan="2">
@@ -49,44 +95,11 @@ Variable summary</th>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-watermark.html#_g11794">
-*cached-dummy-port*</a>
+<a href="read-colormaps.html#_g11976">
+*cmaps*</a>
 </td>
 <td class="summary">
-nil</td>
-</tr>
-<tr class="table-row-color">
-<td class="summary-name">
-<a href="plotter-watermark.html#_g11804">
-*cright1*</a>
-</td>
-<td class="summary">
-&quot;Copyright (c) 2006-2024 by Refined Audiometrics Laboratory&quot;</td>
-</tr>
-<tr class="table-row-color">
-<td class="summary-name">
-<a href="plotter-watermark.html#_g11805">
-*cright2*</a>
-</td>
-<td class="summary">
-&quot;All rights reserved.&quot;</td>
-</tr>
-<tr class="table-row-color">
-<td class="summary-name">
-<a href="plotter-watermark.html#_g11802">
-*ext-logo*</a>
-</td>
-<td class="summary">
-(cached-image
- (graphics-ports:read-external-image (translate-logical-pathname &quot;PROJECTS:LIB;Logo75Img-Alpha25y.bmp&quot;)))</td>
-</tr>
-<tr class="table-row-color">
-<td class="summary-name">
-<a href="plotter-watermark.html#_g11803">
-*ext-logo-alpha*</a>
-</td>
-<td class="summary">
-1</td>
+(read-cmaps)</td>
 </tr>
 </table>
 <table style="width: 100%;" class="summary-table">
@@ -96,8 +109,8 @@ Structure summary</th>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-watermark.html#_g11788">
-cached-image</a>
+<a href="read-colormaps.html#_g11969">
+cmap</a>
 </td>
 <td class="summary">
 </td>
@@ -110,43 +123,35 @@ Method summary</th>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-watermark.html#_g11796">
-cached-image</a>
+<a href="read-colormaps.html#_g11979">
+get-cmap</a>
 </td>
 <td class="summary">
-(img cached-image)</td>
+(nbr fixnum)</td>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-watermark.html#_g11797">
-cached-image</a>
+<a href="read-colormaps.html#_g11980">
+get-cmap</a>
 </td>
 <td class="summary">
-(img graphics-ports:external-image)</td>
+(name string)</td>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-watermark.html#_g11798">
-do-with-converted-image</a>
+<a href="read-colormaps.html#_g11977">
+set-cmap</a>
 </td>
 <td class="summary">
-(img graphics-ports:image) port fn</td>
+(nbr fixnum)</td>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-watermark.html#_g11799">
-do-with-converted-image</a>
+<a href="read-colormaps.html#_g11978">
+set-cmap</a>
 </td>
 <td class="summary">
-(img graphics-ports:external-image) port fn</td>
-</tr>
-<tr class="table-row-color">
-<td class="summary-name">
-<a href="plotter-watermark.html#_g11800">
-do-with-converted-image</a>
-</td>
-<td class="summary">
-(img cached-image) port fn</td>
+(name string)</td>
 </tr>
 </table>
 <table style="width: 100%;" class="summary-table">
@@ -156,86 +161,56 @@ Function summary</th>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-watermark.html#_g11790">
-cached-image-ext</a>
+<a href="read-colormaps.html#_g11971">
+cmap-name</a>
 </td>
 <td class="summary">
-cached-image</td>
+cmap</td>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-watermark.html#_g11789">
-cached-image-int</a>
-</td>
-<td class="summary">
-cached-image</td>
-</tr>
-<tr class="table-row-color">
-<td class="summary-name">
-<a href="plotter-watermark.html#_g11792">
-cached-image-p</a>
+<a href="read-colormaps.html#_g11973">
+cmap-p</a>
 </td>
 <td class="summary">
 object</td>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-watermark.html#_g11793">
-copy-cached-image</a>
+<a href="read-colormaps.html#_g11970">
+cmap-rgb</a>
 </td>
 <td class="summary">
-cached-image</td>
+cmap</td>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-watermark.html#_g11795">
-free-cached-image</a>
+<a href="read-colormaps.html#_g11974">
+copy-cmap</a>
 </td>
 <td class="summary">
-obj</td>
+cmap</td>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-watermark.html#_g11791">
-make-cached-image</a>
+<a href="read-colormaps.html#_g11972">
+make-cmap</a>
 </td>
 <td class="summary">
-<em>&amp;key</em> ext int</td>
+<em>&amp;key</em> name rgb</td>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-watermark.html#_g11806">
-stamp-logo</a>
+<a href="read-colormaps.html#_g11975">
+read-cmaps</a>
 </td>
 <td class="summary">
-pane port logo logo-alpha</td>
-</tr>
-<tr class="table-row-color">
-<td class="summary-name">
-<a href="plotter-watermark.html#_g11807">
-watermark</a>
-</td>
-<td class="summary">
-pane port logo logo-alpha cright1 cright2</td>
-</tr>
-</table>
-<table style="width: 100%;" class="summary-table">
-<tr class="table-heading-color">
-<th class="summary" colspan="2">
-Macro summary</th>
-</tr>
-<tr class="table-row-color">
-<td class="summary-name">
-<a href="plotter-watermark.html#_g11801">
-with-converted-image</a>
-</td>
-<td class="summary">
-(img img-expr port) <em>&amp;body</em> body</td>
+<em>&amp;key</em> (fname &quot;/usr/local/lib/nml/colortable.bin&quot;)</td>
 </tr>
 </table>
 <div class="defstruct">
 <div class="defunsignatures">
-<a id="_g11788">
+<a id="_g11969">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -246,7 +221,7 @@ with-converted-image</a>
 <tbody>
 <tr>
 <td class="symbol-name">
-cached-image&nbsp;&nbsp;</td>
+cmap&nbsp;&nbsp;</td>
 <td class="lambda-list">
 </td>
 <td class="symbol-type">
@@ -264,7 +239,7 @@ Package: PLOTTER</div>
 <div class="defclass-generics">
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g11790">
+<a id="_g11971">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -275,9 +250,9 @@ Package: PLOTTER</div>
 <tbody>
 <tr>
 <td class="symbol-name">
-cached-image-ext&nbsp;&nbsp;</td>
+cmap-name&nbsp;&nbsp;</td>
 <td class="lambda-list">
-cached-image</td>
+cmap</td>
 <td class="symbol-type">
 &nbsp;[Function]</td>
 </tr>
@@ -288,13 +263,13 @@ cached-image</td>
 Package: PLOTTER</div>
 <div class="doc-body">
 <p>
-Returns and (with setf) changes the ext of the specified cached-image 
+Returns and (with setf) changes the name of the specified cmap 
  </p>
 </div>
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g11789">
+<a id="_g11970">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -305,9 +280,9 @@ Returns and (with setf) changes the ext of the specified cached-image
 <tbody>
 <tr>
 <td class="symbol-name">
-cached-image-int&nbsp;&nbsp;</td>
+cmap-rgb&nbsp;&nbsp;</td>
 <td class="lambda-list">
-cached-image</td>
+cmap</td>
 <td class="symbol-type">
 &nbsp;[Function]</td>
 </tr>
@@ -318,7 +293,7 @@ cached-image</td>
 Package: PLOTTER</div>
 <div class="doc-body">
 <p>
-Returns and (with setf) changes the int of the specified cached-image 
+Returns and (with setf) changes the rgb of the specified cmap 
  </p>
 </div>
 </div>
@@ -326,7 +301,7 @@ Returns and (with setf) changes the int of the specified cached-image
 <div class="defstruct-defuns">
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g11791">
+<a id="_g11972">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -337,9 +312,9 @@ Returns and (with setf) changes the int of the specified cached-image
 <tbody>
 <tr>
 <td class="symbol-name">
-make-cached-image&nbsp;&nbsp;</td>
+make-cmap&nbsp;&nbsp;</td>
 <td class="lambda-list">
-<em>&amp;key</em> ext int</td>
+<em>&amp;key</em> name rgb</td>
 <td class="symbol-type">
 &nbsp;[Function]</td>
 </tr>
@@ -350,13 +325,13 @@ make-cached-image&nbsp;&nbsp;</td>
 Package: PLOTTER</div>
 <div class="doc-body">
 <p>
-Returns a newly created cached-image. 
+Returns a newly created cmap. 
  </p>
 </div>
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g11793">
+<a id="_g11974">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -367,9 +342,9 @@ Returns a newly created cached-image.
 <tbody>
 <tr>
 <td class="symbol-name">
-copy-cached-image&nbsp;&nbsp;</td>
+copy-cmap&nbsp;&nbsp;</td>
 <td class="lambda-list">
-cached-image</td>
+cmap</td>
 <td class="symbol-type">
 &nbsp;[Function]</td>
 </tr>
@@ -380,13 +355,13 @@ cached-image</td>
 Package: PLOTTER</div>
 <div class="doc-body">
 <p>
-Returns a copy of the specified cached-image. 
+Returns a copy of the specified cmap. 
  </p>
 </div>
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g11792">
+<a id="_g11973">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -397,7 +372,7 @@ Returns a copy of the specified cached-image.
 <tbody>
 <tr>
 <td class="symbol-name">
-cached-image-p&nbsp;&nbsp;</td>
+cmap-p&nbsp;&nbsp;</td>
 <td class="lambda-list">
 object</td>
 <td class="symbol-type">
@@ -410,7 +385,7 @@ object</td>
 Package: PLOTTER</div>
 <div class="doc-body">
 <p>
-Returns T if the specified object is of type cached-image. 
+Returns T if the specified object is of type cmap. 
  </p>
 </div>
 </div>
@@ -418,7 +393,7 @@ Returns T if the specified object is of type cached-image.
 </div>
 <div class="defparam">
 <div class="defunsignatures">
-<a id="_g11794">
+<a id="_g11976">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -429,107 +404,7 @@ Returns T if the specified object is of type cached-image.
 <tbody>
 <tr>
 <td class="symbol-name">
-*cached-dummy-port*&nbsp;&nbsp;</td>
-<td class="lambda-list">
-</td>
-<td class="symbol-type">
-&nbsp;[Variable]</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="doc-package">
-Package: PLOTTER</div>
-</div>
-<div class="defparam">
-<div class="defunsignatures">
-<a id="_g11804">
-</a>
-<table cellpadding="0" cellspacing="0" width="100%">
-<colgroup span="3">
-<col width="0*"/>
-<col width="1*"/>
-<col width="0*"/>
-</colgroup>
-<tbody>
-<tr>
-<td class="symbol-name">
-*cright1*&nbsp;&nbsp;</td>
-<td class="lambda-list">
-</td>
-<td class="symbol-type">
-&nbsp;[Variable]</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="doc-package">
-Package: PLOTTER</div>
-</div>
-<div class="defparam">
-<div class="defunsignatures">
-<a id="_g11805">
-</a>
-<table cellpadding="0" cellspacing="0" width="100%">
-<colgroup span="3">
-<col width="0*"/>
-<col width="1*"/>
-<col width="0*"/>
-</colgroup>
-<tbody>
-<tr>
-<td class="symbol-name">
-*cright2*&nbsp;&nbsp;</td>
-<td class="lambda-list">
-</td>
-<td class="symbol-type">
-&nbsp;[Variable]</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="doc-package">
-Package: PLOTTER</div>
-</div>
-<div class="defparam">
-<div class="defunsignatures">
-<a id="_g11802">
-</a>
-<table cellpadding="0" cellspacing="0" width="100%">
-<colgroup span="3">
-<col width="0*"/>
-<col width="1*"/>
-<col width="0*"/>
-</colgroup>
-<tbody>
-<tr>
-<td class="symbol-name">
-*ext-logo*&nbsp;&nbsp;</td>
-<td class="lambda-list">
-</td>
-<td class="symbol-type">
-&nbsp;[Variable]</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="doc-package">
-Package: PLOTTER</div>
-</div>
-<div class="defparam">
-<div class="defunsignatures">
-<a id="_g11803">
-</a>
-<table cellpadding="0" cellspacing="0" width="100%">
-<colgroup span="3">
-<col width="0*"/>
-<col width="1*"/>
-<col width="0*"/>
-</colgroup>
-<tbody>
-<tr>
-<td class="symbol-name">
-*ext-logo-alpha*&nbsp;&nbsp;</td>
+*cmaps*&nbsp;&nbsp;</td>
 <td class="lambda-list">
 </td>
 <td class="symbol-type">
@@ -543,7 +418,7 @@ Package: PLOTTER</div>
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g11796">
+<a id="_g11979">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -554,9 +429,9 @@ Package: PLOTTER</div>
 <tbody>
 <tr>
 <td class="symbol-name">
-cached-image&nbsp;&nbsp;</td>
+get-cmap&nbsp;&nbsp;</td>
 <td class="lambda-list">
-(img cached-image)</td>
+(nbr fixnum)</td>
 <td class="symbol-type">
 &nbsp;[Method]</td>
 </tr>
@@ -568,7 +443,7 @@ Package: PLOTTER</div>
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g11797">
+<a id="_g11980">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -579,9 +454,9 @@ Package: PLOTTER</div>
 <tbody>
 <tr>
 <td class="symbol-name">
-cached-image&nbsp;&nbsp;</td>
+get-cmap&nbsp;&nbsp;</td>
 <td class="lambda-list">
-(img graphics-ports:external-image)</td>
+(name string)</td>
 <td class="symbol-type">
 &nbsp;[Method]</td>
 </tr>
@@ -593,7 +468,7 @@ Package: PLOTTER</div>
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g11798">
+<a id="_g11977">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -604,9 +479,9 @@ Package: PLOTTER</div>
 <tbody>
 <tr>
 <td class="symbol-name">
-do-with-converted-image&nbsp;&nbsp;</td>
+set-cmap&nbsp;&nbsp;</td>
 <td class="lambda-list">
-(img graphics-ports:image) port fn</td>
+(nbr fixnum)</td>
 <td class="symbol-type">
 &nbsp;[Method]</td>
 </tr>
@@ -618,7 +493,7 @@ Package: PLOTTER</div>
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g11799">
+<a id="_g11978">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -629,9 +504,9 @@ Package: PLOTTER</div>
 <tbody>
 <tr>
 <td class="symbol-name">
-do-with-converted-image&nbsp;&nbsp;</td>
+set-cmap&nbsp;&nbsp;</td>
 <td class="lambda-list">
-(img graphics-ports:external-image) port fn</td>
+(name string)</td>
 <td class="symbol-type">
 &nbsp;[Method]</td>
 </tr>
@@ -643,7 +518,7 @@ Package: PLOTTER</div>
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g11800">
+<a id="_g11975">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -654,111 +529,11 @@ Package: PLOTTER</div>
 <tbody>
 <tr>
 <td class="symbol-name">
-do-with-converted-image&nbsp;&nbsp;</td>
+read-cmaps&nbsp;&nbsp;</td>
 <td class="lambda-list">
-(img cached-image) port fn</td>
-<td class="symbol-type">
-&nbsp;[Method]</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="doc-package">
-Package: PLOTTER</div>
-</div>
-<div class="defun">
-<div class="defunsignatures">
-<a id="_g11795">
-</a>
-<table cellpadding="0" cellspacing="0" width="100%">
-<colgroup span="3">
-<col width="0*"/>
-<col width="1*"/>
-<col width="0*"/>
-</colgroup>
-<tbody>
-<tr>
-<td class="symbol-name">
-free-cached-image&nbsp;&nbsp;</td>
-<td class="lambda-list">
-obj</td>
+<em>&amp;key</em> (fname &quot;/usr/local/lib/nml/colortable.bin&quot;)</td>
 <td class="symbol-type">
 &nbsp;[Function]</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="doc-package">
-Package: PLOTTER</div>
-</div>
-<div class="defun">
-<div class="defunsignatures">
-<a id="_g11806">
-</a>
-<table cellpadding="0" cellspacing="0" width="100%">
-<colgroup span="3">
-<col width="0*"/>
-<col width="1*"/>
-<col width="0*"/>
-</colgroup>
-<tbody>
-<tr>
-<td class="symbol-name">
-stamp-logo&nbsp;&nbsp;</td>
-<td class="lambda-list">
-pane port logo logo-alpha</td>
-<td class="symbol-type">
-&nbsp;[Function]</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="doc-package">
-Package: PLOTTER</div>
-</div>
-<div class="defun">
-<div class="defunsignatures">
-<a id="_g11807">
-</a>
-<table cellpadding="0" cellspacing="0" width="100%">
-<colgroup span="3">
-<col width="0*"/>
-<col width="1*"/>
-<col width="0*"/>
-</colgroup>
-<tbody>
-<tr>
-<td class="symbol-name">
-watermark&nbsp;&nbsp;</td>
-<td class="lambda-list">
-pane port logo logo-alpha cright1 cright2</td>
-<td class="symbol-type">
-&nbsp;[Function]</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="doc-package">
-Package: PLOTTER</div>
-</div>
-<div class="defun">
-<div class="defunsignatures">
-<a id="_g11801">
-</a>
-<table cellpadding="0" cellspacing="0" width="100%">
-<colgroup span="3">
-<col width="0*"/>
-<col width="1*"/>
-<col width="0*"/>
-</colgroup>
-<tbody>
-<tr>
-<td class="symbol-name">
-with-converted-image&nbsp;&nbsp;</td>
-<td class="lambda-list">
-(img img-expr port) <em>&amp;body</em> body</td>
-<td class="symbol-type">
-&nbsp;[Macro]</td>
 </tr>
 </tbody>
 </table>
@@ -770,7 +545,7 @@ Package: PLOTTER</div>
 <div class="cludg-footer">
 Generated by a locally modified version of<a href="mailto:ihatchondo@common-lisp.net" lang="en">
 CLDOC</a>
-- 2024-02-17 06:13:38<br/>
+- 2024-02-17 06:13:39<br/>
 This document is Copyright (C) 2008-2022 by Refined Audiometrics Laboratory. MIT License terms apply.</div>
 </body>
 </html>

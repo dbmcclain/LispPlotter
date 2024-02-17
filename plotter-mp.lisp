@@ -4,23 +4,28 @@
 ;; ---------------------------------------------
 ;; Define some safe image access macros...
 ;;
+(defun do-with-image (port image fn)
+  (unwind-protect
+      (funcall fn image)
+    (gp:free-image port image)))
+
 (defmacro with-image ((port (image imgexpr)) &body body)
   ;; returned value will be that of the body
-  `(let ((,image ,imgexpr))
-     (unwind-protect
-         (progn
-           ,@body)
-       (gp:free-image ,port ,image))
-     ))
+  `(do-with-image ,port ,imgexpr
+                  (lambda (,image)
+                    ,@body)))
+
+
+(defun do-with-image-access (acc fn)
+  (unwind-protect
+      (funcall fn acc)
+    (gp:free-image-access acc)))
 
 (defmacro with-image-access ((acc access-expr) &body body)
   ;; returned value will be that of the body
-  `(let ((,acc ,access-expr))
-     (unwind-protect
-         (progn
-           ,@body)
-       (gp:free-image-access ,acc))
-     ))
+  `(do-with-image-access ,access-expr
+                         (lambda (,acc)
+                           ,@body)))
 
 ;; ------------------------------------------
 ;; We can use WITH-DELAYED-UPDATE to ward off immediate and slowing
@@ -30,8 +35,7 @@
 ;; of all delayed operations, once the delay goes back to zero.
 ;;
 (defun do-sync-with-capi (capi-fn capi-elt fn args)
-  (funcall capi-fn capi-elt
-           #'apply fn args))
+  (apply capi-fn capi-elt fn args))
 
 (defmethod sync-with-capi ((intf capi:interface) fn &rest args)
   (do-sync-with-capi #'capi:execute-with-interface intf fn args))
@@ -45,9 +49,6 @@
       (apply 'sync-with-capi layout fn args))
     ))
 
-(defmethod sync-with-capi (pane fn &rest args)
-  (declare (ignore pane fn args)))
-
 ;; ------------------------------------------
 #|
 (defun do-with-locked-plotter-pane (pane fn)
@@ -60,48 +61,50 @@
 
 ;; ------------------------------------------
 
+(defmethod capi:redisplay-element :around ((pane <plotter-pane>) &optional x y width height)
+  (if (zerop (plotter-delayed-update pane))
+      (call-next-method)
+    (push (list x y width height) (plotter-delayed-damage pane))))
+
 (defmethod redraw-entire-pane ((pane <plotter-pane>))
-  (capi:apply-in-pane-process pane
-                              (lambda ()
-                                (setf (plotter-dirty pane) t)
-                                #+:COCOA
-                                (gp:invalidate-rectangle pane)
-                                #+:WIN32
-                                (win32-display-callback pane 0 0
-                                                        (gp:port-width pane)
-                                                        (gp:port-height pane))
-                                )))
+  (capi:redisplay-element pane))
 
-#|
-(defmethod redraw-entire-pane ((pane capi:pinboard-object))
-  (progn ;; with-locked-plotter-pane pane
-    (setf (plotter-dirty pane) t)
-    #+:COCOA
-    (gp:invalidate-rectangle pane)
-    ))
-|#
+(defun update-pane (pane &rest region) ;; x y wd ht
+  (apply #'capi:redisplay-element (plotter-mixin-of pane) region))
 
-(defun do-with-delayed-update (pane fn)
-  (let ((pane (plotter-mixin-of pane))) ;; could be called with symbolic name for pane
-    (let* ((prev-ct (plotter-delayed-update pane))
-           (changed (when (zerop prev-ct)
-                      ;; this also clears the changed indication
-                      (um:changed-p (plotter-display-list pane)))))
-      (incf (plotter-delayed-update pane))
+;; ---------------------------------------------------------------
+
+(defun do-with-delayed-update (pane notifying fn)
+  (let ((the-pane (plotter-mixin-of pane)))
+    (declare (dynamic-extent the-pane))
+    (when notifying
+      (setf (plotter-notify-cust the-pane) notifying))
+    (flet ((begin-update ()
+             (incf (plotter-delayed-update the-pane)))
+           (end-update ()
+             (when (zerop (decf (plotter-delayed-update the-pane)))
+               (dolist (region (shiftf (plotter-delayed-damage the-pane) nil))
+                 (apply #'capi:redisplay-element the-pane region)))
+             ))
+      (declare (dynamic-extent #'begin-update #'end-update))
+      (begin-update)
       (unwind-protect
-          (prog1
-              (funcall fn)
-            (when (and (zerop prev-ct)
-                       (or changed
-                           (um:changed-p (plotter-display-list pane)))
-                       (setf (plotter-dirty pane) t)
-                       (sync-with-capi pane 'redraw-entire-pane pane)))
-            (decf (plotter-delayed-update pane))
-            ))
+          (funcall fn)
+        (end-update))
       )))
+
+;; user callable macro
+(defmacro with-delayed-update ((pane &key notifying) &body body)
+  `(do-with-delayed-update ,pane ,notifying
+    (lambda ()
+      ,@body)))
+
+;; ------------------------------------------------------------------
+
 #|
 ;; test delayed updates -- entire composite plot should appear at one time
 (let ((win (plt:wset 'myplot)))
+  (plt:clear win)
   (plt:with-delayed-update (win)
     ;; (plt:clear win)
     (plt:fplot win '(-20 20) (lambda (x) (/ (sin x) x))
@@ -114,54 +117,25 @@
                :color :blue)))
 |#
 #|
-(defun do-with-delayed-update (pane fn)
-  (let* ((pane (plotter-mixin-of pane)) ;; could be called by user with symbolic name for pane
-         (ct   (plotter-delayed-update pane)))
-    (incf (plotter-delayed-update pane))
-    (when (zerop ct) ;; asking if changed resets the changed indiction
-      (um:changed-p (plotter-display-list pane)))
-    (unwind-protect
-        (progn
-          (funcall fn)
-          (when (and (zerop ct)
-                     (um:changed-p (plotter-display-list pane)))
-            (sync-with-capi pane
-                            (lambda ()
-                              (discard-backing-pixmap pane)
-                              (gp:invalidate-rectangle pane))
-                            )))
-      (decf (plotter-delayed-update pane))
-      )))
-|#
-#|
-;; capi:with-atomic-redisplay does not nest properly
-(defun do-with-delayed-update (pane fn)
-  (capi:with-atomic-redisplay (pane)
-    (funcall fn)
-    (discard-backing-pixmap pane)
-    (gp:invalidate-rectangle pane)))
-|#
-
-;; user callable macro
-(defmacro with-delayed-update ((pane) &body body)
-  `(do-with-delayed-update ,pane
-    (lambda ()
-      ,@body)))
-
-
 (defun do-wait-until-finished (pane mbox timeout fn)
-  (if (eq mp:*current-process* mp:*main-process*)
-      (with-delayed-update (pane)
-        (funcall fn))
-    (let ((mbox (or mbox (mp:make-mailbox))))
-      (with-delayed-update (pane)
-        (setf (reply-mbox (plotter-mixin-of pane)) mbox)
-        (funcall fn))
-      (mp:mailbox-read mbox "Waiting for plotter to finish" timeout)
-      )))
+  (let ((pane (plotter-mixin-of pane)))
+    (if (eq mp:*current-process* mp:*main-process*)
+        (with-delayed-update (pane)
+          (funcall fn))
+      (let ((mbox   (or mbox (mp:make-mailbox :size 1)))
+            (mboxes (reply-mboxes pane)))
+        (unwind-protect
+            (progn
+              (with-delayed-update (pane)
+                (funcall fn)
+                (push mbox (reply-mboxes pane)))
+              (mp:mailbox-read mbox "Waiting for plotter to finish" timeout))
+          (setf (reply-mboxes pane) mboxes))
+        ))))
     
 (defmacro wait-until-finished ((pane &key mbox timeout) &body body)
   `(do-wait-until-finished ,pane ,mbox ,timeout (lambda () ,@body)))
+|#
 
 
 

@@ -29,6 +29,7 @@
                              alpha
                              clip
                              (background :white)
+                             bg-alpha
                              &allow-other-keys)
   ;; Draw a string at some location, unless the bounds of the new string
   ;; overlap the previous bounds. This is used to avoid placing axis labels
@@ -57,14 +58,14 @@
             (gp:draw-string port string (+ x dx) (+ y dy)
                             :font font
                             :block (not transparent)
-                            :background background)
+                            :background (adjust-color port background bg-alpha))
             new-bounds
             )))
       )))
 
 ;; ------------------------------------------
 
-#+:LISPWORKS6.1
+#+(OR :LISPWORKS6.1 :LISPWORKS7 :LISPWORKS8)
 (defun draw-vert-string-x-y (pane port string x y
                                   &key
                                   (x-alignment :left)
@@ -109,7 +110,7 @@
           new-bounds)
         ))))
 
-#+(AND :COCOA (NOT :LISPWORKS6.1))
+#+(AND :COCOA (NOT (OR :LISPWORKS6.1 :LISPWORKS7 :LISPWORKS8)))
 (defun draw-vert-string-x-y (pane port string x y
                                   &key
                                   (x-alignment :left)
@@ -156,7 +157,7 @@
           new-bounds)
         ))))
 
-#+(AND :WIN32 (NOT :LISPWORKS6.1))
+#+(AND :WIN32 (NOT (OR :LISPWORKS6.1 :LISPWORKS7 :LISPWORKS8)))
 (defun draw-vert-string-x-y (pane port string x y
                                   &key
                                   (x-alignment :left)
@@ -204,7 +205,7 @@
                             :foreground color
                             :block      (not transparent))
             
-            (with-image (port (v-image #+:COCOA (gp:make-image port ht wd)
+            (with-image (port (v-image #-:WIN32 (gp:make-image port ht wd)
                                        #+:WIN32 (gp:make-image port ht wd
                                                                :alpha nil)
                                        ))

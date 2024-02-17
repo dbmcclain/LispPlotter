@@ -37,76 +37,87 @@
 (defun nan-or-infinite-p (v)
   (not (simple-real-number v)))
 
+(defun acceptable-for-log (v)
+  (and (simple-real-number v)
+       (plusp v)))
+
 ;; ---------------------------------------------
 ;; filtering out nans and infinities
 ;;
-(defmethod filter-x-y-nans-and-infinities ((xs cons) (ys cons))
+
+(defun coerce-to-dfloat-vector (xs)
+  ;; xs should already be a collection of double-float values
+  (make-array (length xs)
+              :element-type 'double-float
+              :initial-contents xs))
+
+(defun try-dfloat (x)
+  (if (realp x)
+      (dfloat x)
+    x))
+
+#|
+(defun filter-xs-ys (xs ys xfn yfn)
   ;; remove paired values if either of the (x,y) pair is nan or infinite
-  (let ((pairs (loop for x in xs
-                     for y in ys
-                     when (and (simple-real-number x)
-                               (simple-real-number y))
-                     collect (list x y))))
-    (values (mapcar #'first  pairs)
-            (mapcar #'second pairs))
+  (let ((filt-xs (priq:make-unsafe-fifo))
+        (filt-ys (priq:make-unsafe-fifo)))
+    (um:lc (:do
+               (priq:addq filt-xs xf)
+               (priq:addq filt-ys yf))
+           ((x y) <-// xs ys)
+           (xf <-f (try-dfloat x))
+           (yf <-f (try-dfloat y))
+           (and (funcall xfn xf)
+                (funcall yfn yf)))
+    (values (coerce-to-dfloat-vector (priq:contents filt-xs))
+            (coerce-to-dfloat-vector (priq:contents filt-ys)))
+    ))
+|#
+(defun filter-xs-ys (xs ys xfn yfn)
+  ;; remove paired values if either of the (x,y) pair is nan or infinite
+  (let ((filt-xs (make-array 256
+                             :element-type 'double-float
+                             :adjustable   t
+                             :fill-pointer 0))
+        (filt-ys (make-array 256
+                             :element-type 'double-float
+                             :adjustable   t
+                             :fill-pointer 0)))
+    (um:lc (:do
+               (vector-push-extend xf filt-xs)
+               (vector-push-extend yf filt-ys))
+           ((x y) <-// xs ys)
+           (xf <-f (try-dfloat x))
+           (yf <-f (try-dfloat y))
+           (and (funcall xfn xf)
+                (funcall yfn yf)))
+    (values filt-xs filt-ys)
     ))
 
-(defmethod filter-x-y-nans-and-infinities ((xs vector) (ys vector))
-  ;; remove paired values if either of the (x,y) pair is nan or infinite
-  (let ((pairs (loop for x across xs
-                     for y across ys
-                     when (and (simple-real-number x)
-                               (simple-real-number y))
-                     collect (list x y))))
-    (values (mapcar #'first  pairs)
-            (mapcar #'second pairs))
-    ))
-
-(defmethod filter-x-y-nans-and-infinities (xs ys)
-  ;; remove paired values if either of the (x,y) pair is nan or infinite
-  (filter-x-y-nans-and-infinities (coerce-to-vector xs) (coerce-to-vector ys)))
-
+(defun filter-xs (xs fn)
+  (coerce-to-dfloat-vector
+   (um:lc xf
+          (x <- xs)
+          (xf <-f (try-dfloat x))
+          (funcall fn xf))))
 
 (defun filter-nans-and-infinities (xs)
   ;; remove values from the sequence if they are nans or infinities
-  (remove-if (complement #'simple-real-number) xs))
+  (filter-xs xs #'simple-real-number))
 
 ;; ----------------------------------------------------------------------
 ;; filter out potential nans and infinities for logarithmic axes
-(defun acceptable-value (v islog)
-  (and (simple-real-number v)
-       (or (not islog)
-           (and islog
-                (plusp v)))))
 
-(defmethod filter-potential-x-y-nans-and-infinities ((xs cons) (ys cons) xlog ylog)
+(defun acceptance-test (islog)
+  (if islog
+      #'acceptable-for-log
+    #'simple-real-number))
+
+(defun filter-potential-x-y-nans-and-infinities (xs ys xlog ylog)
   ;; remove paired values if either of the (x,y) pair is nan or infinite
-  (let ((pairs (loop for x in xs
-                     for y in ys
-                     when (and (acceptable-value x xlog)
-                               (acceptable-value y ylog))
-                     collect (list x y))))
-    (values (mapcar #'first  pairs)
-            (mapcar #'second pairs))
-    ))
-
-(defmethod filter-potential-x-y-nans-and-infinities ((xs vector) (ys vector) xlog ylog)
-  ;; remove paired values if either of the (x,y) pair is nan or infinite
-  (let ((pairs (loop for x across xs
-                     for y across ys
-                     when (and (acceptable-value x xlog)
-                               (acceptable-value y ylog))
-                     collect (list x y))))
-    (values (mapcar #'first  pairs)
-            (mapcar #'second pairs))
-    ))
-
-(defmethod filter-potential-x-y-nans-and-infinities (xs ys xlog ylog)
-  ;; remove paired values if either of the (x,y) pair is nan or infinite
-  (filter-x-y-nans-and-infinities (coerce-to-vector xs) (coerce-to-vector ys)))
-
+  (filter-xs-ys xs ys (acceptance-test xlog) (acceptance-test ylog)))
 
 (defun filter-potential-nans-and-infinities (xs islog)
   ;; remove values from the sequence if they are nans or infinities
-  (remove-if (complement (um:rcurry #'acceptable-value islog)) xs))
+  (filter-xs xs (acceptance-test islog)))
 

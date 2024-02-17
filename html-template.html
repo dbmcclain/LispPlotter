@@ -36,29 +36,47 @@
       <li><a href="#$heat-colormap"><code>$heat-colormap</code></a>
       <li><a href="#$normal-times-font-size"><code>$normal-times-font-size</code></a>
       <li><a href="#$tiny-times-font-size"><code>$tiny-times-font-size</code></a>
+      <li><a href="#*plotter-window-class*"><code>*plotter-window-class*</code></a>
+      <li><a href="#&lt;plotter-mixin&gt;"><code>&lt;plotter-mixin&gt;</code></a>
+      <li><a href="#&lt;plotter-pane&gt;"><code>&lt;plotter-pane&gt;</code></a>
+      <li><a href="#&lt;plotter-window&gt;"><code>&lt;plotter-window&gt;</code></a>
       <li><a href="#axes"><code>axes</code></a>
       <li><a href="#clear"><code>clear</code></a>
+      <li><a href="#cmplx-paramplot"><code>cmplx-paramplot</code></a>
+      <li><a href="#cmplx-plot"><code>cmplx-plot</code></a>
+      <li><a href="#display-cursor-readout"><code>display-cursor-readout</code></a>
       <li><a href="#draw-arc"><code>draw-arc</code></a>
+      <li><a href="#draw-circle"><code>draw-circle</code></a>
       <li><a href="#draw-ellipse"><code>draw-ellipse</code></a>
+      <li><a href="#draw-line"><code>draw-line</code></a>
       <li><a href="#draw-rect"><code>draw-rect</code></a>
       <li><a href="#draw-text"><code>draw-text</code></a>
+      <li><a href="#draw-text-box"><code>draw-text-box</code></a>
+      <li><a href="#find-named-plotter-pane"><code>find-named-plotter-pane</code></a>
       <li><a href="#fplot"><code>fplot</code></a>
+      <li><a href="#get-cmap"><code>get-cmap</code></a>
+      <li><a href="#help"><code>help</code></a>
+      <li><a href="#helpme"><code>helpme</code></a>
       <li><a href="#histogram"><code>histogram</code></a>
       <li><a href="#paramplot"><code>paramplot</code></a>
       <li><a href="#plot"><code>plot</code></a>
       <li><a href="#plot-bars"><code>plot-bars</code></a>
       <li><a href="#plot-image"><code>plot-image</code></a>
+      <li><a href="#polar-fplot"><code>polar-fplot</code></a>
       <li><a href="#read-image"><code>read-image</code></a>
       <li><a href="#render-image"><code>render-image</code></a>
       <li><a href="#save-image"><code>save-image</code></a>
       <li><a href="#save-plot"><code>save-plot</code></a>
+      <li><a href="#set-cmap"><code>set-cmap</code></a>
       <li><a href="#set-full-crosshair"><code>set-full-crosshair</code></a>
       <li><a href="#set-x-readout-hook"><code>set-x-readout-hook</code></a>
       <li><a href="#set-y-readout-hook"><code>set-y-readout-hook</code></a>
+      <li><a href="#sinc"><code>sinc</code></a>
+      <li><a href="#spline"><code>spline</code></a>
       <li><a href="#tvscl"><code>tvscl</code></a>
-      <li><a href="#wait-until-finished"><code>wait-until-finished</code></a>
       <li><a href="#wclose"><code>wclose</code></a>
       <li><a href="#window"><code>window</code></a>
+      <li><a href="#with-cached-graphing"><code>with-cached-graphing</code></a>
       <li><a href="#with-default-args"><code>with-default-args</code></a>
       <li><a href="#with-delayed-update"><code>with-delayed-update</code></a>
       <li><a href="#wset"><code>wset</code></a>
@@ -131,6 +149,54 @@ A reddish to white colormap.
 <!-- End of entry for $TINY-TIMES-FONT-SIZE -->
 
 
+<!-- Entry for *PLOTTER-WINDOW-CLASS* -->
+
+<p><br>[Special variable]<br><a class=none name='*plotter-window-class*'><b>*plotter-window-class*</b></a>
+<blockquote><br>
+
+
+
+</blockquote>
+
+<!-- End of entry for *PLOTTER-WINDOW-CLASS* -->
+
+
+<!-- Entry for <PLOTTER-MIXIN> -->
+
+<p><br>[Standard class]<br><a class=none name='&lt;plotter-mixin&gt;'><b>&lt;plotter-mixin&gt;</b></a>
+<blockquote><br>
+
+
+
+</blockquote>
+
+<!-- End of entry for <PLOTTER-MIXIN> -->
+
+
+<!-- Entry for <PLOTTER-PANE> -->
+
+<p><br>[Standard class]<br><a class=none name='&lt;plotter-pane&gt;'><b>&lt;plotter-pane&gt;</b></a>
+<blockquote><br>
+
+
+
+</blockquote>
+
+<!-- End of entry for <PLOTTER-PANE> -->
+
+
+<!-- Entry for <PLOTTER-WINDOW> -->
+
+<p><br>[Standard class]<br><a class=none name='&lt;plotter-window&gt;'><b>&lt;plotter-window&gt;</b></a>
+<blockquote><br>
+
+
+
+</blockquote>
+
+<!-- End of entry for <PLOTTER-WINDOW> -->
+
+
 <!-- Entry for AXES -->
 
 <p><br>[Function]<br><a class=none name='axes'><b>axes</b> <i>pane <tt>&amp;rest</tt> args</i> =&gt; <i>result</i></a>
@@ -145,7 +211,7 @@ A reddish to white colormap.
 
 <!-- Entry for CLEAR -->
 
-<p><br>[Function]<br><a class=none name='clear'><b>clear</b> <i>pane <tt>&amp;key</tt> reply-mbox</i> =&gt; <i>result</i></a>
+<p><br>[Function]<br><a class=none name='clear'><b>clear</b> <i>pane</i> =&gt; <i>result</i></a>
 <blockquote><br>
 
 
@@ -155,9 +221,81 @@ A reddish to white colormap.
 <!-- End of entry for CLEAR -->
 
 
+<!-- Entry for CMPLX-PARAMPLOT -->
+
+<p><br>[Function]<br><a class=none name='cmplx-paramplot'><b>cmplx-paramplot</b> <i>pane dom fn <tt>&amp;rest</tt> args <tt>&amp;key</tt> <tt>&amp;allow-other-keys</tt></i> =&gt; <i>result</i></a>
+<blockquote><br>
+
+
+
+</blockquote>
+
+<!-- End of entry for CMPLX-PARAMPLOT -->
+
+
+<!-- Entry for CMPLX-PLOT -->
+
+<p><br>[Function]<br><a class=none name='cmplx-plot'><b>cmplx-plot</b> <i>pane zs <tt>&amp;rest</tt> args <tt>&amp;key</tt> <tt>&amp;allow-other-keys</tt></i> =&gt; <i>result</i></a>
+<blockquote><br>
+
+
+
+</blockquote>
+
+<!-- End of entry for CMPLX-PLOT -->
+
+
+<!-- Entry for DISPLAY-CURSOR-READOUT -->
+
+<p><br>[Generic function]<br><a class=none name='display-cursor-readout'><b>display-cursor-readout</b> <i>intf name x y</i> =&gt; <i>result</i></a>
+<blockquote><br>
+
+
+
+</blockquote>
+
+<!-- End of entry for DISPLAY-CURSOR-READOUT -->
+
+
+<!-- Entry for DISPLAY-CURSOR-READOUT -->
+
+<p><br>[Method]<br><a class=none><b>display-cursor-readout</b> <i>(intf &lt;plotter-window&gt;) name x y</i> =&gt; <i>result</i></a>
+<blockquote><br>
+
+
+
+</blockquote>
+
+<!-- End of entry for DISPLAY-CURSOR-READOUT -->
+
+
+<!-- Entry for DISPLAY-CURSOR-READOUT -->
+
+<p><br>[Method]<br><a class=none><b>display-cursor-readout</b> <i>(intf simple-pane) name x y</i> =&gt; <i>result</i></a>
+<blockquote><br>
+
+
+
+</blockquote>
+
+<!-- End of entry for DISPLAY-CURSOR-READOUT -->
+
+
+<!-- Entry for DISPLAY-CURSOR-READOUT -->
+
+<p><br>[Method]<br><a class=none><b>display-cursor-readout</b> <i>intf name x y</i> =&gt; <i>result</i></a>
+<blockquote><br>
+
+
+
+</blockquote>
+
+<!-- End of entry for DISPLAY-CURSOR-READOUT -->
+
+
 <!-- Entry for DRAW-ARC -->
 
-<p><br>[Function]<br><a class=none name='draw-arc'><b>draw-arc</b> <i><tt>&amp;rest</tt> args</i> =&gt; <i>result</i></a>
+<p><br>[Function]<br><a class=none name='draw-arc'><b>draw-arc</b> <i>pane x0 y0 width height start-angle sweep-angle <tt>&amp;rest</tt> args</i> =&gt; <i>result</i></a>
 <blockquote><br>
 
 
@@ -167,9 +305,21 @@ A reddish to white colormap.
 <!-- End of entry for DRAW-ARC -->
 
 
+<!-- Entry for DRAW-CIRCLE -->
+
+<p><br>[Function]<br><a class=none name='draw-circle'><b>draw-circle</b> <i>pane x0 y0 radius <tt>&amp;rest</tt> args</i> =&gt; <i>result</i></a>
+<blockquote><br>
+
+
+
+</blockquote>
+
+<!-- End of entry for DRAW-CIRCLE -->
+
+
 <!-- Entry for DRAW-ELLIPSE -->
 
-<p><br>[Function]<br><a class=none name='draw-ellipse'><b>draw-ellipse</b> <i><tt>&amp;rest</tt> args</i> =&gt; <i>result</i></a>
+<p><br>[Function]<br><a class=none name='draw-ellipse'><b>draw-ellipse</b> <i>pane x0 y0 width height <tt>&amp;rest</tt> args</i> =&gt; <i>result</i></a>
 <blockquote><br>
 
 
@@ -179,9 +329,21 @@ A reddish to white colormap.
 <!-- End of entry for DRAW-ELLIPSE -->
 
 
+<!-- Entry for DRAW-LINE -->
+
+<p><br>[Function]<br><a class=none name='draw-line'><b>draw-line</b> <i>pane x0 y0 x1 y1 <tt>&amp;rest</tt> args</i> =&gt; <i>result</i></a>
+<blockquote><br>
+
+
+
+</blockquote>
+
+<!-- End of entry for DRAW-LINE -->
+
+
 <!-- Entry for DRAW-RECT -->
 
-<p><br>[Function]<br><a class=none name='draw-rect'><b>draw-rect</b> <i><tt>&amp;rest</tt> args</i> =&gt; <i>result</i></a>
+<p><br>[Function]<br><a class=none name='draw-rect'><b>draw-rect</b> <i>pane x0 y0 width height <tt>&amp;rest</tt> args</i> =&gt; <i>result</i></a>
 <blockquote><br>
 
 
@@ -203,6 +365,30 @@ A reddish to white colormap.
 <!-- End of entry for DRAW-TEXT -->
 
 
+<!-- Entry for DRAW-TEXT-BOX -->
+
+<p><br>[Function]<br><a class=none name='draw-text-box'><b>draw-text-box</b> <i>pane strs xorg yorg <tt>&amp;key</tt> font-size font text-color filled color alpha border-thick border-color border-alpha <tt>&amp;allow-other-keys</tt></i> =&gt; <i>result</i></a>
+<blockquote><br>
+
+
+
+</blockquote>
+
+<!-- End of entry for DRAW-TEXT-BOX -->
+
+
+<!-- Entry for FIND-NAMED-PLOTTER-PANE -->
+
+<p><br>[Function]<br><a class=none name='find-named-plotter-pane'><b>find-named-plotter-pane</b> <i>name</i> =&gt; <i>result</i></a>
+<blockquote><br>
+
+
+
+</blockquote>
+
+<!-- End of entry for FIND-NAMED-PLOTTER-PANE -->
+
+
 <!-- Entry for FPLOT -->
 
 <p><br>[Function]<br><a class=none name='fplot'><b>fplot</b> <i>pane domain fn <tt>&amp;rest</tt> args</i> =&gt; <i>result</i></a>
@@ -218,6 +404,66 @@ Functional plotting in pane of the function over the indicated domain.
 </blockquote>
 
 <!-- End of entry for FPLOT -->
+
+
+<!-- Entry for GET-CMAP -->
+
+<p><br>[Generic function]<br><a class=none name='get-cmap'><b>get-cmap</b> <i>nbr</i> =&gt; <i>result</i></a>
+<blockquote><br>
+
+
+
+</blockquote>
+
+<!-- End of entry for GET-CMAP -->
+
+
+<!-- Entry for GET-CMAP -->
+
+<p><br>[Method]<br><a class=none><b>get-cmap</b> <i>(nbr string)</i> =&gt; <i>result</i></a>
+<blockquote><br>
+
+
+
+</blockquote>
+
+<!-- End of entry for GET-CMAP -->
+
+
+<!-- Entry for GET-CMAP -->
+
+<p><br>[Method]<br><a class=none><b>get-cmap</b> <i>(nbr fixnum)</i> =&gt; <i>result</i></a>
+<blockquote><br>
+
+
+
+</blockquote>
+
+<!-- End of entry for GET-CMAP -->
+
+
+<!-- Entry for HELP -->
+
+<p><br>[Function]<br><a class=none name='help'><b>help</b> <i></i> =&gt; <i>result</i></a>
+<blockquote><br>
+
+
+
+</blockquote>
+
+<!-- End of entry for HELP -->
+
+
+<!-- Entry for HELPME -->
+
+<p><br>[Function]<br><a class=none name='helpme'><b>helpme</b> <i></i> =&gt; <i>result</i></a>
+<blockquote><br>
+
+
+
+</blockquote>
+
+<!-- End of entry for HELPME -->
 
 
 <!-- Entry for HISTOGRAM -->
@@ -290,6 +536,18 @@ Plot an image in the specified pane using the sequences xv and yv
 <!-- End of entry for PLOT-IMAGE -->
 
 
+<!-- Entry for POLAR-FPLOT -->
+
+<p><br>[Function]<br><a class=none name='polar-fplot'><b>polar-fplot</b> <i>pane dom fn <tt>&amp;rest</tt> args <tt>&amp;key</tt> <tt>&amp;allow-other-keys</tt></i> =&gt; <i>result</i></a>
+<blockquote><br>
+
+
+
+</blockquote>
+
+<!-- End of entry for POLAR-FPLOT -->
+
+
 <!-- Entry for READ-IMAGE -->
 
 <p><br>[Function]<br><a class=none name='read-image'><b>read-image</b> <i><tt>&amp;optional</tt> filename</i> =&gt; <i>result</i></a>
@@ -339,6 +597,42 @@ Render an external image in the specified window pane.
 <!-- End of entry for SAVE-PLOT -->
 
 
+<!-- Entry for SET-CMAP -->
+
+<p><br>[Generic function]<br><a class=none name='set-cmap'><b>set-cmap</b> <i>nbr</i> =&gt; <i>result</i></a>
+<blockquote><br>
+
+
+
+</blockquote>
+
+<!-- End of entry for SET-CMAP -->
+
+
+<!-- Entry for SET-CMAP -->
+
+<p><br>[Method]<br><a class=none><b>set-cmap</b> <i>(nbr string)</i> =&gt; <i>result</i></a>
+<blockquote><br>
+
+
+
+</blockquote>
+
+<!-- End of entry for SET-CMAP -->
+
+
+<!-- Entry for SET-CMAP -->
+
+<p><br>[Method]<br><a class=none><b>set-cmap</b> <i>(nbr fixnum)</i> =&gt; <i>result</i></a>
+<blockquote><br>
+
+
+
+</blockquote>
+
+<!-- End of entry for SET-CMAP -->
+
+
 <!-- Entry for SET-FULL-CROSSHAIR -->
 
 <p><br>[Function]<br><a class=none name='set-full-crosshair'><b>set-full-crosshair</b> <i>pane full-crosshair</i> =&gt; <i>result</i></a>
@@ -375,6 +669,30 @@ Render an external image in the specified window pane.
 <!-- End of entry for SET-Y-READOUT-HOOK -->
 
 
+<!-- Entry for SINC -->
+
+<p><br>[Function]<br><a class=none name='sinc'><b>sinc</b> <i>x</i> =&gt; <i>result</i></a>
+<blockquote><br>
+
+
+
+</blockquote>
+
+<!-- End of entry for SINC -->
+
+
+<!-- Entry for SPLINE -->
+
+<p><br>[Function]<br><a class=none name='spline'><b>spline</b> <i>pane <tt>&amp;rest</tt> args</i> =&gt; <i>result</i></a>
+<blockquote><br>
+
+
+
+</blockquote>
+
+<!-- End of entry for SPLINE -->
+
+
 <!-- Entry for TVSCL -->
 
 <p><br>[Function]<br><a class=none name='tvscl'><b>tvscl</b> <i>pane arr <tt>&amp;rest</tt> args</i> =&gt; <i>result</i></a>
@@ -388,18 +706,6 @@ Display an image array of z-values in the specified pane.
 </blockquote>
 
 <!-- End of entry for TVSCL -->
-
-
-<!-- Entry for WAIT-UNTIL-FINISHED -->
-
-<p><br>[Macro]<br><a class=none name='wait-until-finished'><b>wait-until-finished</b> <i>(pane <tt>&amp;key</tt> mbox timeout) declaration* statement*</i> =&gt; <i>result</i></a>
-<blockquote><br>
-
-
-
-</blockquote>
-
-<!-- End of entry for WAIT-UNTIL-FINISHED -->
 
 
 <!-- Entry for WCLOSE -->
@@ -416,7 +722,7 @@ Display an image array of z-values in the specified pane.
 
 <!-- Entry for WINDOW -->
 
-<p><br>[Function]<br><a class=none name='window'><b>window</b> <i>name <tt>&amp;key</tt> title background foreground width height xsize ysize x y xpos ypos best-width best-height best-x best-y visible-min-width visible-min-height visible-max-width visible-max-height cursor full-crosshair window-styles <tt>&amp;allow-other-keys</tt></i> =&gt; <i>result</i></a>
+<p><br>[Function]<br><a class=none name='window'><b>window</b> <i>name <tt>&amp;key</tt> title background foreground width height xsize ysize x y xpos ypos best-width best-height best-x best-y visible-min-width visible-min-height visible-max-width visible-max-height cursor full-crosshair window-styles window-class <tt>&amp;allow-other-keys</tt></i> =&gt; <i>result</i></a>
 <blockquote><br>
 
 
@@ -424,6 +730,18 @@ Display an image array of z-values in the specified pane.
 </blockquote>
 
 <!-- End of entry for WINDOW -->
+
+
+<!-- Entry for WITH-CACHED-GRAPHING -->
+
+<p><br>[Macro]<br><a class=none name='with-cached-graphing'><b>with-cached-graphing</b> <i>(pane ver) declaration* statement*</i> =&gt; <i>result</i></a>
+<blockquote><br>
+
+
+
+</blockquote>
+
+<!-- End of entry for WITH-CACHED-GRAPHING -->
 
 
 <!-- Entry for WITH-DEFAULT-ARGS -->
@@ -440,7 +758,7 @@ Display an image array of z-values in the specified pane.
 
 <!-- Entry for WITH-DELAYED-UPDATE -->
 
-<p><br>[Macro]<br><a class=none name='with-delayed-update'><b>with-delayed-update</b> <i>(pane) declaration* statement*</i> =&gt; <i>result</i></a>
+<p><br>[Macro]<br><a class=none name='with-delayed-update'><b>with-delayed-update</b> <i>(pane <tt>&amp;key</tt> notifying) declaration* statement*</i> =&gt; <i>result</i></a>
 <blockquote><br>
 
 
@@ -478,7 +796,7 @@ Display an image array of z-values in the specified pane.
 
 <p>
 This documentation was prepared with a locally modified version of Edi Weitz's <a href="http://weitz.de/documentation-template/">DOCUMENTATION-TEMPLATE</a>.
-This document is Copyright (C) 2008 by SpectroDynamics, LLC. All rights reserved.
+This document is Copyright (C) 2008-2011 by SpectroDynamics, LLC. All rights reserved.
 </p>
 </body>
 </html>

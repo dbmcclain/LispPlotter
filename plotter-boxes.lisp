@@ -2,13 +2,15 @@
 (in-package :plotter)
 
 ;; ------------------------------------------
+;; gp rectangles are list ltrb
 (defun inset-box-sides (box dxleft dytop 
                             &optional (dxright dxleft)
                                       (dybottom dytop))
-  (list (+ (gp:rectangle-left   box) dxleft)
-        (+ (gp:rectangle-top    box) dytop)
-        (- (gp:rectangle-right  box) dxright)
-        (- (gp:rectangle-bottom box) dybottom)))
+  (let ((lf (+ (gp:rectangle-left box) dxleft))
+        (tp (+ (gp:rectangle-top  box) dytop)))
+    (list lf tp
+          (- (gp:rectangle-right  box) dxright)
+          (- (gp:rectangle-bottom box) dybottom))))
 
 (defmacro box-left (box)
   `(gp:rectangle-left ,box))

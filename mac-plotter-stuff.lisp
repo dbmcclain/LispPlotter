@@ -12,8 +12,7 @@
 ;; -----------------------------------------------------------------------
 
 (defparameter *pltstuff-lib*
-  (translate-logical-pathname #+:LISPWORKS-32BIT "PROJECTS:DYLIB;libLispPlotterStuff.dylib"
-                              #+:LISPWORKS-64BIT "PROJECTS:DYLIB64;libLispPlotterStuff-64.dylib"))
+  (translate-logical-pathname "PROJECTS:LIB;libLispPlotterStuff.dylib"))
 
 (fli:register-module *pltstuff-lib*)
 #|
@@ -21,6 +20,7 @@
 (fli:disconnect-module *pltstuff-lib*)
 |#
 
+#| -- unused? ----
 (fli:define-c-struct (color-struct (:foreign-name "colorStruct"))
   (red      :float)
   (green    :float)
@@ -45,9 +45,6 @@
   :language    :ansi-c
   :result-type :void)
 
-(defun sfloat (v)
-  (float v 1e0))
-
 (defun fill-color-spec (port color-struct color &optional alpha)
   (let ((rgb  (color:get-color-spec (color:unconvert-color port color))))
     (labels ((fill (component fn)
@@ -61,6 +58,7 @@
                        (constantly alpha)
                      #'color:color-alpha))
       )))
+|# ;; ---- unused ----
                                       
 (defmethod ns-view ((pane capi:output-pane))
   (objc:objc-object-pointer
@@ -69,6 +67,35 @@
 (defmethod ns-view ((pane gp:pixmap-port))
   (gp::gp-representation-view (gp:port-representation pane)))
 
+#| -- unused? ----
+(defun add-label (pane text x y
+                       &key
+                       (font "Times-Roman")
+                       (font-size 12)
+                       (color :black)
+                       ;;(alpha 1.0)
+                       alpha
+                       (x-alignment :left)
+                       (y-alignment :baseline)
+                       (angle 0.0)
+                       box
+                       (transparent t)
+                       (bgcolor     (gp:graphics-state-background
+                                     (gp:get-graphics-state pane)))
+                       &allow-other-keys)
+  (gp:with-graphics-state (pane
+                           :mask (or box
+                                     (list 0 0 (gp:port-width pane)
+                                           (gp:port-height pane))))
+    ;; (gp:draw-line pane -1 -1 -1 -1) ;; force the cliprect to take effect
+    
+    (gp:draw-string pane text
+                    (sfloat x) 
+                    (sfloat (- (gp:port-height pane) y)))
+    ))
+|# ;; ---- unused ----
+
+#|
 (defun add-label (pane text x y
                        &key
                        (font "Times-Roman")
@@ -97,6 +124,7 @@
                                          (list 0 0 (gp:port-width pane)
                                                (gp:port-height pane))))
         (gp:draw-line pane -1 -1 -1 -1) ;; force the cliprect to take effect
+
         (_add-label (ns-view pane)
                     text
                     (sfloat x)
@@ -120,11 +148,11 @@
                     (if transparent 1 0)
                     bg-color-struct)
         ))))
-
-
+|#
 ;; ---------------------------------------------------------
 ;; Copy pane as PDF image
 ;;
+
 (fli:define-foreign-function (_copy-pdf-plot "pltstuff_copy_pdf_plot" :source)
     ((view :pointer))
   :language :ansi-c
@@ -142,6 +170,7 @@
 ;; -------------------------------------------------------
 ;; Save pane as PDF file
 ;;
+
 (fli:define-foreign-function (_save-pdf-plot "pltstuff_save_pdf_plot" :source)
     ((view :pointer)
      (filename (:reference-pass

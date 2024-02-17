@@ -4,81 +4,6 @@
 ;; ------------------------------------------
 ;; these callbacks are only called from the capi process
 ;;
-;; For COCOA the backing store is a pixmap image
-;; For Win32 the backing store is a pixmap
-
-(defun save-backing-pixmap (pane port)
-  (with-accessors ((backing-pixmap  plotter-backing-pixmap )) pane
-    (when backing-pixmap
-      (gp:destroy-pixmap-port backing-pixmap))
-    (setf backing-pixmap port)))
-  
-(defun discard-backing-pixmap (pane)
-  (with-accessors ((backing-pixmap plotter-backing-pixmap)) pane
-    (when backing-pixmap
-      (gp:destroy-pixmap-port backing-pixmap)
-      (setf backing-pixmap nil))
-    ))
-
-;; ---------------------------------------------------
-;;
-#+:COCOA
-(defun save-backing-image (pane port)
-  (with-accessors ((backing-image  plotter-backing-image )
-                   (sf             plotter-sf            )
-                   (nominal-width  plotter-nominal-width )
-                   (nominal-height plotter-nominal-height)) pane
-    (when backing-image
-      (gp:free-image pane backing-image))
-    (setf backing-image
-          (gp:make-image-from-port port
-                                   0 0
-                                   (* sf nominal-width)
-                                   (* sf nominal-height)))
-    ))
-
-#+:WIN32 ;; Vista
-(defun save-backing-image (pane port)
-  (with-accessors ((backing-image  plotter-backing-image )
-                   (sf             plotter-sf            )
-                   (nominal-width  plotter-nominal-width )
-                   (nominal-height plotter-nominal-height)) pane
-    (when backing-image
-      (gp:free-image pane backing-image))
-    (setf backing-image
-          (gp:make-image-from-port port
-                                   0 0
-                                   (round (* sf nominal-width))
-                                   (round (* sf nominal-height))))
-    ))
-
-;;#+:COCOA
-(defun discard-backing-image (pane)
-  (with-accessors ((backing-image  plotter-backing-image)) pane
-    (when backing-image
-      (gp:free-image pane backing-image)
-      (setf backing-image nil)
-      (discard-backing-pixmap pane))
-    ))
-
-;; --------------------------------------------------
-#+:WIN32x
-(defun save-backing-image (pane port)
-  (with-accessors ((backing-image  plotter-backing-image)) pane
-    (when backing-image
-      (gp:destroy-pixmap-port backing-image))
-    (setf backing-image port)))
-
-#+:WIN32x
-(defun discard-backing-image (pane)
-  (with-accessors ((backing-image plotter-backing-image)) pane
-    (when backing-image
-      (gp:destroy-pixmap-port backing-image)
-      (setf backing-image nil)
-      (discard-backing-pixmap pane))
-    ))
-
-
 ;; --------------------------------------------------
 #+:WIN32
 (defun draw-crosshair-lines (pane color x y)
@@ -91,13 +16,14 @@
       (gp:draw-line pane 0 y (gp:port-width  pane) y))
     ))
 
-#+:COCOA
+#-:WIN32
 (defun redraw-legend (pane)
   (let ((legend (plotter-legend pane)))
     (when (activep legend)
-      (draw-existing-legend pane pane))))
+      (restore-legend-background pane legend)
+      (draw-existing-legend pane legend))))
   
-#+:COCOA
+#-:WIN32
 (defun draw-crosshair-lines (pane color x y)
   (when (and x y)
     (with-color (pane color)
@@ -161,145 +87,117 @@
   (when (gp:port-representation pane)
     (display-callback pane x y width height)))
 
-(defmethod redraw-display-list ((pane <plotter-pane>) port x y width height &key legend)
+(defvar *needs-recompute*  nil)
+
+(defstruct stashed-data
+  fn stashed legend)
+
+(defun replay-stashed-items (pane port x y width height legend)
+  ;; for now - just dummy up
   (discard-legends pane)
-  (dolist (item (display-list-items pane))
-    (funcall item pane port x y width height))
+  (dolist (item (display-list-items pane :discard t))
+    (let ((fn (if (stashed-data-p item)
+                  (stashed-data-fn item)
+                item))
+          (stashed (if (stashed-data-p item)
+                       item
+                     (make-stashed-data
+                      :fn  item))))
+      (funcall fn pane port x y width height)
+      (append-display-list pane stashed)))
   (if legend
       (draw-accumulated-legend pane port)))
+
+(defun discard-stashes (pane)
+  (dolist (item (display-list-items pane :discard t))
+    (append-display-list pane (if (stashed-data-p item)
+                                  (stashed-data-fn item)
+                                item))
+    ))
+
+(defmethod redraw-display-list ((pane <plotter-pane>) port x y width height &key legend)
+  (cond (*needs-recompute*
+         (discard-stashes pane)
+         (discard-legends pane)
+         (dolist (item (display-list-items pane :discard t))
+           (funcall item pane port x y width height)
+           (append-display-list pane (make-stashed-data
+                                      :fn  item)))
+         (if legend
+             (draw-accumulated-legend pane port)))
+        
+        (t
+         (replay-stashed-items pane port x y width height legend))
+        ))
   
 (defmethod display-callback ((pane <plotter-pane>) x y width height)
   (with-accessors ((nominal-width   plotter-nominal-width )
                    (nominal-height  plotter-nominal-height)
+                   (box             plotter-box           )
                    (sf              plotter-sf            )
                    (magn            plotter-magn          )
-                   (xform           plotter-xform         )
                    (port-width      gp:port-width         )
                    (port-height     gp:port-height        )
-                   (backing-pixmap  plotter-backing-pixmap)
-                   (backing-image   plotter-backing-image )
                    (full-crosshair  plotter-full-crosshair)
                    (delay-backing   plotter-delay-backing )
-                   (dirty           plotter-dirty         )
-                   (needs-legend    plotter-needs-legend  )
                    (prev-x          plotter-prev-x        )
                    (prev-y          plotter-prev-y        )
-                   (reply-mbox      reply-mbox            )) pane
+                   (prev-frame      plotter-prev-frame    )
+                   (notify-cust     plotter-notify-cust   )) pane
 
-    ;;(gp:clear-graphics-port-state pane)
-    
-    (setf xform '(1 0 0 1 0 0)
-          magn  1
-          sf    (min (/ port-height nominal-height)
-                     (/ port-width  nominal-width)))
-    
-    
-    #|
-     (print (list x y width height sf
-                  nominal-width port-width
-                  nominal-height port-height))
-     |#
-    
-    (cond  (backing-image
-            (gp:draw-image pane backing-image 0 0
-                           :from-width  (gp:image-width  backing-image)
-                           :from-height (gp:image-height backing-image)
-                           :to-width    (* sf nominal-width)
-                           :to-height   (* sf nominal-height)))
-           
-           (delay-backing
-            (redraw-display-list pane pane x y width height :legend t))
-           
-           (t
-            (when (and backing-pixmap
-                       (or (/= port-width  (gp:port-width backing-pixmap))
-                           (/= port-height (gp:port-height backing-pixmap))))
-              (discard-backing-pixmap pane))
-            
-            (unless backing-pixmap
-              (let* ((gs   (gp:get-graphics-state pane))
-                     (fg   (gp:graphics-state-foreground gs))
-                     (bg   (gp:graphics-state-background gs))
-                     (port (create-pixmap-port pane port-width port-height
-                                               :background bg
-                                               :foreground fg
-                                               :clear      nil)))
-                (save-backing-pixmap pane port)
-                (setf dirty t)))
-            
-            (when dirty
-              (gp:clear-graphics-port backing-pixmap)
-              (redraw-display-list pane backing-pixmap x y width height))
-            
-            (gp:copy-pixels pane backing-pixmap 0 0 port-width port-height 0 0)
-            
-            (when (or dirty needs-legend)
-              (draw-accumulated-legend pane pane)
-              (setf dirty nil
-                    needs-legend nil))
-            
-            (when full-crosshair
-              (draw-crosshair-lines pane full-crosshair prev-x prev-y))
-            
-            (when (or (mark-x pane)
-                      (mark-y pane))
-              (draw-mark pane))
-            
-            ))
-    (let ((mbox reply-mbox))
-      (when mbox
-        (setf reply-mbox nil)
-        (mp:mailbox-send mbox :done)))
-    ))
-    
+    (let ((*needs-recompute*  t)) ;; change to NIL when we have stashed streams in place...
+      
+      ;; check if frame has moved or resized
+      (capi:with-geometry pane
+        (let ((frame  (list capi:%x% capi:%y% capi:%width% capi:%height%)))
+          (unless (equalp frame prev-frame)
+            ;; if so, then we need to recompute cached plotting info
+            (setf prev-frame        frame
+                  *needs-recompute* t
+                  magn              1
+                  sf                (min (/ port-height nominal-height)
+                                         (/ port-width  nominal-width))
+                  box               nil) ;; to force a recomputation of box
+            (recompute-transform pane)
+            (recompute-plotting-state pane pane)
+            )))
+
+      (redraw-display-list pane pane x y width height :legend t)
+      (unless delay-backing
+        (when full-crosshair
+          (draw-crosshair-lines pane full-crosshair prev-x prev-y))
+        
+        (when (or (mark-x pane)
+                  (mark-y pane))
+          (draw-mark pane)))
+      
+      (ac:send notify-cust :done)
+      )))
+
 (defun resize-callback (pane x y width height)
   (declare (ignore x y width height))
-  (with-accessors ((resize-timer  plotter-resize-timer   )
-                   (backing-image plotter-backing-image  )
-                   (backing-pixmap plotter-backing-pixmap)) pane
-    (unless backing-image
-      ;; if we already have a backing image then this is another call
-      ;; in the same resize operation
-      (if backing-pixmap
-          ;; but if we don't already have a backing pixmap then we
-          ;; probably haven't been instantiated just yet, so don't do anything.
-          (save-backing-image pane pane)))
-    (unless resize-timer
-      (setf resize-timer
-            (mp:make-timer
-             (lambda ()
-               (capi:apply-in-pane-process pane
-                                           (lambda ()
-                                             (discard-backing-image  pane)
-                                             (redraw-entire-pane pane)
-                                             )))
-             )))
-    (mp:schedule-timer-relative-milliseconds resize-timer 100)
-    ))
+  (capi:redisplay-element pane))
 
 (defun compute-x-y-at-cursor (pane x y)
-  (with-accessors  ((sf         plotter-sf                 )
-                    ;; (magn       plotter-magn               )
-                    (inv-xform  plotter-inv-xform          )
-                    (xlog       plotter-xlog               )
-                    (ylog       plotter-ylog               )
+  (with-accessors  ((inv-xform       plotter-inv-xform     )
+                    (xlog            plotter-xlog          )
+                    (ylog            plotter-ylog          )
                     (x-readout-hook  plotter-x-readout-hook)
                     (y-readout-hook  plotter-y-readout-hook)) pane
-    (let ((eff-sf sf)) ;; (* sf magn)))
-      (multiple-value-bind (xx yy)
-          (gp:transform-point inv-xform (/ x eff-sf) (/ y eff-sf))
-        (list (funcall ;;real-eval-with-nans
-               (if xlog
-                   (um:compose x-readout-hook #'pow10)
-                 x-readout-hook)
-               xx)
-              (funcall ;;real-eval-with-nans
-               (if ylog
-                   (um:compose y-readout-hook #'pow10)
-                 y-readout-hook)
-               yy)
-              ))
-      )))
+    (multiple-value-bind (xx yy)
+        (gp:transform-point inv-xform x y)
+      (list (funcall ;;real-eval-with-nans
+                     (if xlog
+                         (um:compose x-readout-hook (alogfn xlog))
+                       x-readout-hook)
+                     xx)
+            (funcall ;;real-eval-with-nans
+                     (if ylog
+                         (um:compose y-readout-hook (alogfn ylog))
+                       y-readout-hook)
+                     yy)
+            ))
+    ))
 
 (defmethod display-cursor-readout (intf name x y)
   (declare (ignore intf name x y))
@@ -312,9 +210,12 @@
 
 (defun mouse-move (pane x y &rest args)
   (declare (ignore args))
-  (cond ((on-legend pane x y) (highlight-legend pane))
+  (cond ((on-legend pane x y)
+         ;; (ac:send ac:fmt-println "on legend: ~A ~A" x y)
+         (highlight-legend pane))
         (t  (unhighlight-legend pane)
-            #+:COCOA (capi:display-tooltip pane)
+            #-:WIN32
+            (capi:display-tooltip pane)
             ;; #+:WIN32 (capi:display-tooltip pane)
             (destructuring-bind (xx yy) (compute-x-y-at-cursor pane x y)
               (display-cursor-readout pane
@@ -326,26 +227,23 @@
               
               (when full-crosshair ;; NIL or a color spec
                 
-                #+(AND :WIN32 (NOT :LISPWORKS6.1))
+                #+(AND :WIN32 (NOT :LISPWORKS6+))
                 (progn
                   (draw-crosshair-lines pane full-crosshair prev-x prev-y)
-                  (draw-crosshair-lines pane full-crosshair x      y)
-                  
+                  (draw-crosshair-lines pane full-crosshair x      y)                 
                   (setf prev-x x
                         prev-y y))
                 
-                #+(OR :COCOA :LISPWORKS6.1)
+                #+(OR :COCOA :LISPWORKS6+)
                 (let ((xx (shiftf prev-x x))
                       (yy (shiftf prev-y y)))
                   (when (and xx yy)
                     (let ((wd (gp:port-width pane))
                           (ht (gp:port-height pane)))
-                      (if (plotter-backing-pixmap pane)
-                          (progn
-                            (gp:invalidate-rectangle pane (1- xx) 0 3 ht)
-                            (gp:invalidate-rectangle pane 0 (1- yy) wd 3))
-                        (gp:invalidate-rectangle pane)) ))))
-              ))))
+                      (capi:redisplay-element pane (1- xx) 0 3 ht)
+                      (capi:redisplay-element pane 0 (1- yy) wd 3))
+                    ))
+                )))))
 
 (defun show-x-y-at-cursor (pane x y &rest _)
   (declare (ignore _))
@@ -454,7 +352,7 @@
 
 (defun do-with-bare-pdf-image (pane fn)
   (setf (plotter-delay-backing pane) t)
-  (gp:invalidate-rectangle pane)
+  (capi:redisplay-element pane)
   (unwind-protect
       (funcall fn)
     (setf (plotter-delay-backing pane) nil)
@@ -477,7 +375,7 @@
           (progn
             (gp:clear-graphics-port-state pane)
             
-            (setf xform '(1 0 0 1 0 0)
+            (setf xform (gp:make-transform)
                   magn  1
                   sf    1)
 
@@ -503,18 +401,20 @@
     (values xpane (gp:make-image-from-port xpane))
     ))
 
+(defun do-with-nominal-image (pane fn)
+  (multiple-value-bind (xpane img)
+      (get-nominal-image pane)
+    (unwind-protect
+        (funcall fn img)
+      (progn
+        (gp:free-image xpane img)
+        (gp:destroy-pixmap-port xpane))
+      )))
+
 (defmacro with-nominal-image ((pane img) &body body)
   ;; should only be used by functions called by the capi process
-  (let ((xpane (gensym)))
-    `(multiple-value-bind (,xpane ,img)
-         (get-nominal-image ,pane)
-       (unwind-protect
-           (progn
-             ,@body)
-         (progn
-           (gp:free-image ,xpane ,img)
-           (gp:destroy-pixmap-port ,xpane))))
-    ))
+  `(do-with-nominal-image ,pane (lambda (,img)
+                                  ,@body)))
 
 ;; ----------------------------------------------------------
 ;;
@@ -525,7 +425,7 @@
   (let ((path (capi:prompt-for-file
                "Write Image to File"
                :operation :save
-               :filter #+:COCOA "*.pdf"
+               :filter #-:WIN32 "*.pdf"
                        #+:WIN32 "*.bmp"
                :pathname *last-save-path*)))
     (if path
@@ -540,7 +440,7 @@
     (when dest
       (let ((pane (plotter-mixin-of pane)))
         (sync-with-capi pane
-                        #+:COCOA
+                        #-:WIN32
                         (lambda ()
                           (with-bare-pdf-image (pane)
                             (save-pdf-plot pane (namestring dest))
@@ -564,7 +464,7 @@
   (declare (ignore args))
   (let ((dest (get-dest-path)))
     (when dest
-      #+:COCOA
+      #-:WIN32
       (with-bare-pdf-image (pane)
         (save-pdf-plot pane (namestring dest)))
       #+:WIN32
@@ -574,7 +474,7 @@
 (defun copy-image-to-clipboard (pane &rest args)
   ;; called only as a callback in the capi process
   (declare (ignore args))
-  #+:COCOA
+  #-:WIN32
   (with-bare-pdf-image (pane)
     (copy-pdf-plot pane))
   #+:WIN32
@@ -585,7 +485,7 @@
 (defun print-plotter-pane (pane &rest args)
   (declare (ignore args))
   ;; executed in the process of the capi pane
-  #+:COCOA
+  #-:WIN32
   (with-bare-pdf-image (pane)
     (capi:simple-print-port pane
                             :interactive t))
@@ -596,13 +496,13 @@
   )
 
 ;; user callable function
-#-:LISPWORKS6.1
+#-:LISPWORKS6+
 (defun set-full-crosshair (pane full-crosshair)
   (let ((pane (plotter-mixin-of pane)))
     (sync-with-capi pane
                     (lambda ()
                       (setf (plotter-full-crosshair pane)
-                            #+:COCOA full-crosshair
+                            #-:WIN32 full-crosshair
                             #+:WIN32
                             (and full-crosshair
                                  (complementary-color pane full-crosshair
@@ -615,7 +515,7 @@
                       (redraw-entire-pane pane))
                     )))
 
-#+:LISPWORKS6.1
+#+:LISPWORKS6+
 (defun set-full-crosshair (pane full-crosshair)
   (let ((pane (plotter-mixin-of pane)))
     (sync-with-capi pane
@@ -630,20 +530,20 @@
                     )))
 
 ;; called only from the plotter-window menu (CAPI process)
-#-:LISPWORKS6.1
+#-:LISPWORKS6+
 (defun toggle-full-crosshair (pane &rest args)
   (declare (ignore args))
   (setf (plotter-full-crosshair pane)
         (if (plotter-full-crosshair pane)
             (setf (plotter-prev-x pane) nil
                   (plotter-prev-y pane) nil)
-          #+:COCOA :red
+          #-:WIN32 :red
           #+:WIN32 (complementary-color pane :red
                                         (background-color pane))))
   (redraw-entire-pane pane)
   )
 
-#+:LISPWORKS6.1
+#+:LISPWORKS6+
 (defun toggle-full-crosshair (pane &rest args)
   (declare (ignore args))
   (setf (plotter-full-crosshair pane)

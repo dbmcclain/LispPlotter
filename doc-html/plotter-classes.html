@@ -42,6 +42,32 @@ Table of Contents</a>
 <h2>
 plotter-classes.lisp
 </h2>
+<table style="width: 100%;" class="external-summary-table">
+<tr class="table-heading-color">
+<th class="summary" colspan="3">
+External symbol summary</th>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="plotter-classes.html#_g11572">
+plotter:&lt;plotter-mixin&gt;</a>
+</td>
+<td class="summary">
+</td>
+<td class="summary-type">
+Class</td>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="plotter-classes.html#_g11602">
+plotter:&lt;plotter-pane&gt;</a>
+</td>
+<td class="summary">
+inherits from <a href="plotter-classes.html#_g11572"><em class="cl">&lt;plotter-mixin&gt;</em></a> and <em class="cl">output-pane</em></td>
+<td class="summary-type">
+Class</td>
+</tr>
+</table>
 <table style="width: 100%;" class="summary-table">
 <tr class="table-heading-color">
 <th class="summary" colspan="2">
@@ -49,18 +75,25 @@ Variable summary</th>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3247">
+<a href="plotter-classes.html#_g11541">
 *cross-cursor*</a>
 </td>
 <td class="summary">
-(ignore-errors (capi:load-cursor '((:win32
-                                    (translate-logical-pathname &quot;PROJECTS:LIB;crosshair.cur&quot;))
-                                   (:cocoa
-                                    (translate-logical-pathname &quot;PROJECTS:LIB;crosshair.gif&quot;))
-                                   :x-hot
-                                   7
-                                   :y-hot
-                                   7)))</td>
+(progn
+  (capi:load-cursor `((:win32
+                       ,(namestring (translate-logical-pathname &quot;PROJECTS:LIB;cross-i.cur&quot;)))
+                      (:cocoa
+                       ,(namestring (translate-logical-pathname &quot;PROJECTS:LIB;crosshair.gif&quot;))
+                       :x-hot
+                       7
+                       :y-hot
+                       7)
+                      (:gtk
+                       #P&quot;/Users/davidmcclain/Linux-stuff/crosshair.gif&quot;
+                       :x-hot
+                       7
+                       :y-hot
+                       7))))</td>
 </tr>
 </table>
 <table style="width: 100%;" class="summary-table">
@@ -70,7 +103,7 @@ Class summary</th>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3267">
+<a href="plotter-classes.html#_g11561">
 &lt;legend&gt;</a>
 </td>
 <td class="summary">
@@ -78,7 +111,7 @@ Class summary</th>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3248">
+<a href="plotter-classes.html#_g11542">
 &lt;line-style&gt;</a>
 </td>
 <td class="summary">
@@ -86,7 +119,7 @@ Class summary</th>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3263">
+<a href="plotter-classes.html#_g11557">
 &lt;plot-style&gt;</a>
 </td>
 <td class="summary">
@@ -94,7 +127,7 @@ Class summary</th>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3278">
+<a href="plotter-classes.html#_g11572">
 &lt;plotter-mixin&gt;</a>
 </td>
 <td class="summary">
@@ -102,15 +135,15 @@ Class summary</th>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3304">
+<a href="plotter-classes.html#_g11602">
 &lt;plotter-pane&gt;</a>
 </td>
 <td class="summary">
-inherits from <a href="plotter-classes.html#_g3278"><em class="cl">&lt;plotter-mixin&gt;</em></a> and <em class="cl">output-pane</em></td>
+inherits from <a href="plotter-classes.html#_g11572"><em class="cl">&lt;plotter-mixin&gt;</em></a> and <em class="cl">output-pane</em></td>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3254">
+<a href="plotter-classes.html#_g11548">
 &lt;symbol-style&gt;</a>
 </td>
 <td class="summary">
@@ -124,7 +157,7 @@ Method summary</th>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3277">
+<a href="plotter-classes.html#_g11571">
 activep</a>
 </td>
 <td class="summary">
@@ -132,7 +165,7 @@ activep</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3255">
+<a href="plotter-classes.html#_g11549">
 bar-offset</a>
 </td>
 <td class="summary">
@@ -140,7 +173,7 @@ bar-offset</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3256">
+<a href="plotter-classes.html#_g11550">
 bar-width</a>
 </td>
 <td class="summary">
@@ -148,7 +181,7 @@ bar-width</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3258">
+<a href="plotter-classes.html#_g11552">
 border-alpha</a>
 </td>
 <td class="summary">
@@ -156,7 +189,7 @@ border-alpha</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3259">
+<a href="plotter-classes.html#_g11553">
 border-color</a>
 </td>
 <td class="summary">
@@ -164,7 +197,7 @@ border-color</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3257">
+<a href="plotter-classes.html#_g11551">
 border-thick</a>
 </td>
 <td class="summary">
@@ -172,7 +205,15 @@ border-thick</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3324">
+<a href="plotter-classes.html#_g11607">
+cached-cmap</a>
+</td>
+<td class="summary">
+&lt;plotter-pane&gt;</td>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="plotter-classes.html#_g11624">
 display-pane-of</a>
 </td>
 <td class="summary">
@@ -180,7 +221,7 @@ pane</td>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3325">
+<a href="plotter-classes.html#_g11625">
 display-pane-of</a>
 </td>
 <td class="summary">
@@ -188,7 +229,7 @@ display-pane-of</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3270">
+<a href="plotter-classes.html#_g11564">
 dragging</a>
 </td>
 <td class="summary">
@@ -196,7 +237,7 @@ dragging</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3269">
+<a href="plotter-classes.html#_g11563">
 dx</a>
 </td>
 <td class="summary">
@@ -204,7 +245,7 @@ dx</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3268">
+<a href="plotter-classes.html#_g11562">
 dy</a>
 </td>
 <td class="summary">
@@ -212,7 +253,7 @@ dy</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3260">
+<a href="plotter-classes.html#_g11554">
 fill-alpha</a>
 </td>
 <td class="summary">
@@ -220,7 +261,7 @@ fill-alpha</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3261">
+<a href="plotter-classes.html#_g11555">
 fill-color</a>
 </td>
 <td class="summary">
@@ -228,7 +269,7 @@ fill-color</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3276">
+<a href="plotter-classes.html#_g11570">
 has-content</a>
 </td>
 <td class="summary">
@@ -236,7 +277,7 @@ has-content</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3271">
+<a href="plotter-classes.html#_g11565">
 height</a>
 </td>
 <td class="summary">
@@ -244,7 +285,7 @@ height</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3275">
+<a href="plotter-classes.html#_g11569">
 highlighted</a>
 </td>
 <td class="summary">
@@ -252,7 +293,7 @@ highlighted</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3264">
+<a href="plotter-classes.html#_g11558">
 legend</a>
 </td>
 <td class="summary">
@@ -260,7 +301,7 @@ legend</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3250">
+<a href="plotter-classes.html#_g11544">
 line-alpha</a>
 </td>
 <td class="summary">
@@ -268,7 +309,7 @@ line-alpha</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3251">
+<a href="plotter-classes.html#_g11545">
 line-color</a>
 </td>
 <td class="summary">
@@ -276,7 +317,7 @@ line-color</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3252">
+<a href="plotter-classes.html#_g11546">
 line-dashing</a>
 </td>
 <td class="summary">
@@ -284,7 +325,7 @@ line-dashing</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3266">
+<a href="plotter-classes.html#_g11560">
 line-style</a>
 </td>
 <td class="summary">
@@ -292,7 +333,7 @@ line-style</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3253">
+<a href="plotter-classes.html#_g11547">
 line-thick</a>
 </td>
 <td class="summary">
@@ -300,7 +341,7 @@ line-thick</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3249">
+<a href="plotter-classes.html#_g11543">
 line-type</a>
 </td>
 <td class="summary">
@@ -308,7 +349,7 @@ line-type</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3308">
+<a href="plotter-classes.html#_g11611">
 mark-x</a>
 </td>
 <td class="summary">
@@ -316,7 +357,7 @@ mark-x</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3306">
+<a href="plotter-classes.html#_g11609">
 mark-x-raw</a>
 </td>
 <td class="summary">
@@ -324,7 +365,7 @@ mark-x-raw</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3307">
+<a href="plotter-classes.html#_g11610">
 mark-y</a>
 </td>
 <td class="summary">
@@ -332,7 +373,7 @@ mark-y</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3305">
+<a href="plotter-classes.html#_g11608">
 mark-y-raw</a>
 </td>
 <td class="summary">
@@ -340,7 +381,7 @@ mark-y-raw</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3262">
+<a href="plotter-classes.html#_g11556">
 plot-symbol</a>
 </td>
 <td class="summary">
@@ -348,23 +389,15 @@ plot-symbol</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3318">
-plotter-backing-image</a>
+<a href="plotter-classes.html#_g11587">
+plotter-aspect</a>
 </td>
 <td class="summary">
-&lt;plotter-pane&gt;</td>
+&lt;plotter-mixin&gt;</td>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3316">
-plotter-backing-pixmap</a>
-</td>
-<td class="summary">
-&lt;plotter-pane&gt;</td>
-</tr>
-<tr class="table-row-color">
-<td class="summary-name">
-<a href="plotter-classes.html#_g3296">
+<a href="plotter-classes.html#_g11594">
 plotter-box</a>
 </td>
 <td class="summary">
@@ -372,7 +405,31 @@ plotter-box</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3315">
+<a href="plotter-classes.html#_g11605">
+plotter-cache-pixmap</a>
+</td>
+<td class="summary">
+&lt;plotter-pane&gt;</td>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="plotter-classes.html#_g11604">
+plotter-cache-state</a>
+</td>
+<td class="summary">
+&lt;plotter-pane&gt;</td>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="plotter-classes.html#_g11606">
+plotter-cache-ver</a>
+</td>
+<td class="summary">
+&lt;plotter-pane&gt;</td>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="plotter-classes.html#_g11618">
 plotter-delay-backing</a>
 </td>
 <td class="summary">
@@ -380,7 +437,15 @@ plotter-delay-backing</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3292">
+<a href="plotter-classes.html#_g11588">
+plotter-delayed-damage</a>
+</td>
+<td class="summary">
+&lt;plotter-mixin&gt;</td>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="plotter-classes.html#_g11589">
 plotter-delayed-update</a>
 </td>
 <td class="summary">
@@ -388,15 +453,7 @@ plotter-delayed-update</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3280">
-plotter-dirty</a>
-</td>
-<td class="summary">
-&lt;plotter-mixin&gt;</td>
-</tr>
-<tr class="table-row-color">
-<td class="summary-name">
-<a href="plotter-classes.html#_g3293">
+<a href="plotter-classes.html#_g11590">
 plotter-display-list</a>
 </td>
 <td class="summary">
@@ -404,7 +461,7 @@ plotter-display-list</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3314">
+<a href="plotter-classes.html#_g11617">
 plotter-full-crosshair</a>
 </td>
 <td class="summary">
@@ -412,7 +469,15 @@ plotter-full-crosshair</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3294">
+<a href="plotter-classes.html#_g11574">
+plotter-initial-gs</a>
+</td>
+<td class="summary">
+&lt;plotter-mixin&gt;</td>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="plotter-classes.html#_g11592">
 plotter-inv-xform</a>
 </td>
 <td class="summary">
@@ -420,7 +485,7 @@ plotter-inv-xform</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3283">
+<a href="plotter-classes.html#_g11578">
 plotter-legend</a>
 </td>
 <td class="summary">
@@ -428,7 +493,7 @@ plotter-legend</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3284">
+<a href="plotter-classes.html#_g11579">
 plotter-legend-anchor</a>
 </td>
 <td class="summary">
@@ -436,7 +501,7 @@ plotter-legend-anchor</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3287">
+<a href="plotter-classes.html#_g11582">
 plotter-legend-info</a>
 </td>
 <td class="summary">
@@ -444,7 +509,7 @@ plotter-legend-info</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3286">
+<a href="plotter-classes.html#_g11581">
 plotter-legend-x</a>
 </td>
 <td class="summary">
@@ -452,7 +517,7 @@ plotter-legend-x</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3285">
+<a href="plotter-classes.html#_g11580">
 plotter-legend-y</a>
 </td>
 <td class="summary">
@@ -460,7 +525,7 @@ plotter-legend-y</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3303">
+<a href="plotter-classes.html#_g11601">
 plotter-lock</a>
 </td>
 <td class="summary">
@@ -468,7 +533,7 @@ plotter-lock</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3288">
+<a href="plotter-classes.html#_g11583">
 plotter-magn</a>
 </td>
 <td class="summary">
@@ -476,7 +541,15 @@ plotter-magn</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3322">
+<a href="plotter-classes.html#_g11591">
+plotter-mask</a>
+</td>
+<td class="summary">
+&lt;plotter-mixin&gt;</td>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="plotter-classes.html#_g11622">
 plotter-mixin-of</a>
 </td>
 <td class="summary">
@@ -484,7 +557,7 @@ pane-rep <em>&amp;optional</em> args</td>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3290">
+<a href="plotter-classes.html#_g11585">
 plotter-nominal-height</a>
 </td>
 <td class="summary">
@@ -492,7 +565,7 @@ plotter-nominal-height</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3291">
+<a href="plotter-classes.html#_g11586">
 plotter-nominal-width</a>
 </td>
 <td class="summary">
@@ -500,7 +573,31 @@ plotter-nominal-width</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3313">
+<a href="plotter-classes.html#_g11575">
+plotter-notify-cust</a>
+</td>
+<td class="summary">
+&lt;plotter-mixin&gt;</td>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="plotter-classes.html#_g11573">
+plotter-plotting-gs</a>
+</td>
+<td class="summary">
+&lt;plotter-mixin&gt;</td>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="plotter-classes.html#_g11603">
+plotter-prev-frame</a>
+</td>
+<td class="summary">
+&lt;plotter-pane&gt;</td>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="plotter-classes.html#_g11616">
 plotter-prev-x</a>
 </td>
 <td class="summary">
@@ -508,7 +605,7 @@ plotter-prev-x</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3312">
+<a href="plotter-classes.html#_g11615">
 plotter-prev-y</a>
 </td>
 <td class="summary">
@@ -516,15 +613,7 @@ plotter-prev-y</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3317">
-plotter-resize-timer</a>
-</td>
-<td class="summary">
-&lt;plotter-pane&gt;</td>
-</tr>
-<tr class="table-row-color">
-<td class="summary-name">
-<a href="plotter-classes.html#_g3289">
+<a href="plotter-classes.html#_g11584">
 plotter-sf</a>
 </td>
 <td class="summary">
@@ -532,7 +621,7 @@ plotter-sf</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3309">
+<a href="plotter-classes.html#_g11612">
 plotter-valid</a>
 </td>
 <td class="summary">
@@ -540,7 +629,7 @@ plotter-valid</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3311">
+<a href="plotter-classes.html#_g11614">
 plotter-x-readout-hook</a>
 </td>
 <td class="summary">
@@ -548,7 +637,7 @@ plotter-x-readout-hook</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3295">
+<a href="plotter-classes.html#_g11593">
 plotter-xform</a>
 </td>
 <td class="summary">
@@ -556,7 +645,7 @@ plotter-xform</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3302">
+<a href="plotter-classes.html#_g11600">
 plotter-xlog</a>
 </td>
 <td class="summary">
@@ -564,7 +653,7 @@ plotter-xlog</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3300">
+<a href="plotter-classes.html#_g11598">
 plotter-xmax</a>
 </td>
 <td class="summary">
@@ -572,7 +661,7 @@ plotter-xmax</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3301">
+<a href="plotter-classes.html#_g11599">
 plotter-xmin</a>
 </td>
 <td class="summary">
@@ -580,7 +669,7 @@ plotter-xmin</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3310">
+<a href="plotter-classes.html#_g11613">
 plotter-y-readout-hook</a>
 </td>
 <td class="summary">
@@ -588,7 +677,7 @@ plotter-y-readout-hook</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3299">
+<a href="plotter-classes.html#_g11597">
 plotter-ylog</a>
 </td>
 <td class="summary">
@@ -596,7 +685,7 @@ plotter-ylog</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3297">
+<a href="plotter-classes.html#_g11595">
 plotter-ymax</a>
 </td>
 <td class="summary">
@@ -604,7 +693,7 @@ plotter-ymax</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3298">
+<a href="plotter-classes.html#_g11596">
 plotter-ymin</a>
 </td>
 <td class="summary">
@@ -612,7 +701,7 @@ plotter-ymin</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3282">
+<a href="plotter-classes.html#_g11577">
 preferred-x</a>
 </td>
 <td class="summary">
@@ -620,7 +709,7 @@ preferred-x</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3281">
+<a href="plotter-classes.html#_g11576">
 preferred-y</a>
 </td>
 <td class="summary">
@@ -628,15 +717,7 @@ preferred-y</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3279">
-reply-mbox</a>
-</td>
-<td class="summary">
-&lt;plotter-mixin&gt;</td>
-</tr>
-<tr class="table-row-color">
-<td class="summary-name">
-<a href="plotter-classes.html#_g3265">
+<a href="plotter-classes.html#_g11559">
 symbol-style</a>
 </td>
 <td class="summary">
@@ -644,7 +725,7 @@ symbol-style</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3272">
+<a href="plotter-classes.html#_g11566">
 width</a>
 </td>
 <td class="summary">
@@ -652,7 +733,7 @@ width</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3274">
+<a href="plotter-classes.html#_g11568">
 x</a>
 </td>
 <td class="summary">
@@ -660,7 +741,7 @@ x</a>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3273">
+<a href="plotter-classes.html#_g11567">
 y</a>
 </td>
 <td class="summary">
@@ -674,15 +755,23 @@ Function summary</th>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3331">
+<a href="plotter-classes.html#_g11631">
 all-legends</a>
 </td>
 <td class="summary">
-pane</td>
+pane <em>&amp;key</em> discard</td>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3326">
+<a href="plotter-classes.html#_g11638">
+alogfn</a>
+</td>
+<td class="summary">
+islog</td>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="plotter-classes.html#_g11626">
 append-display-list</a>
 </td>
 <td class="summary">
@@ -690,7 +779,7 @@ pane item</td>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3330">
+<a href="plotter-classes.html#_g11630">
 append-legend</a>
 </td>
 <td class="summary">
@@ -698,7 +787,7 @@ pane item</td>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3319">
+<a href="plotter-classes.html#_g11619">
 destroy-callback</a>
 </td>
 <td class="summary">
@@ -706,7 +795,15 @@ pane</td>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3327">
+<a href="plotter-classes.html#_g11634">
+dfloat</a>
+</td>
+<td class="summary">
+v</td>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="plotter-classes.html#_g11627">
 discard-display-list</a>
 </td>
 <td class="summary">
@@ -714,7 +811,15 @@ pane</td>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3329">
+<a href="plotter-classes.html#_g11632">
+discard-legends</a>
+</td>
+<td class="summary">
+pane</td>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="plotter-classes.html#_g11629">
 display-list-empty-p</a>
 </td>
 <td class="summary">
@@ -722,7 +827,7 @@ pane</td>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3328">
+<a href="plotter-classes.html#_g11628">
 display-list-items</a>
 </td>
 <td class="summary">
@@ -730,7 +835,23 @@ pane <em>&amp;key</em> discard</td>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3321">
+<a href="plotter-classes.html#_g11635">
+log10</a>
+</td>
+<td class="summary">
+x</td>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="plotter-classes.html#_g11637">
+logfn</a>
+</td>
+<td class="summary">
+islog</td>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="plotter-classes.html#_g11621">
 maybe-remove-legend</a>
 </td>
 <td class="summary">
@@ -738,16 +859,32 @@ pane x y <em>&amp;rest</em> args</td>
 </tr>
 <tr class="table-row-color">
 <td class="summary-name">
-<a href="plotter-classes.html#_g3320">
+<a href="plotter-classes.html#_g11620">
 popup-menu</a>
 </td>
 <td class="summary">
 pane selection x y</td>
 </tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="plotter-classes.html#_g11636">
+pow10</a>
+</td>
+<td class="summary">
+x</td>
+</tr>
+<tr class="table-row-color">
+<td class="summary-name">
+<a href="plotter-classes.html#_g11633">
+sfloat</a>
+</td>
+<td class="summary">
+v</td>
+</tr>
 </table>
 <div class="defclass">
 <div class="defunsignatures">
-<a id="_g3267">
+<a id="_g11561">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -776,7 +913,7 @@ Package: PLOTTER</div>
 <div class="defclass-generics">
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3277">
+<a id="_g11571">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -806,7 +943,7 @@ Returns and (with setf) changes the activep of the specified &lt;legend&gt;
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3270">
+<a id="_g11564">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -836,7 +973,7 @@ Returns and (with setf) changes the dragging of the specified &lt;legend&gt;
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3269">
+<a id="_g11563">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -866,7 +1003,7 @@ Returns and (with setf) changes the dx of the specified &lt;legend&gt;
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3268">
+<a id="_g11562">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -896,7 +1033,7 @@ Returns and (with setf) changes the dy of the specified &lt;legend&gt;
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3276">
+<a id="_g11570">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -926,7 +1063,7 @@ Returns and (with setf) changes the has-content of the specified &lt;legend&gt;
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3271">
+<a id="_g11565">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -956,7 +1093,7 @@ Returns and (with setf) changes the height of the specified &lt;legend&gt;
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3275">
+<a id="_g11569">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -986,7 +1123,7 @@ Returns and (with setf) changes the highlighted of the specified &lt;legend&gt;
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3272">
+<a id="_g11566">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -1016,7 +1153,7 @@ Returns and (with setf) changes the width of the specified &lt;legend&gt;
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3274">
+<a id="_g11568">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -1046,7 +1183,7 @@ Returns and (with setf) changes the x of the specified &lt;legend&gt;
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3273">
+<a id="_g11567">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -1078,7 +1215,7 @@ Returns and (with setf) changes the y of the specified &lt;legend&gt;
 </div>
 <div class="defclass">
 <div class="defunsignatures">
-<a id="_g3248">
+<a id="_g11542">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -1212,7 +1349,7 @@ Package: PLOTTER</div>
 <div class="defclass-generics">
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3250">
+<a id="_g11544">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -1242,7 +1379,7 @@ Returns and (with setf) changes the line-alpha of the specified &lt;line-style&g
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3251">
+<a id="_g11545">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -1272,7 +1409,7 @@ Returns and (with setf) changes the line-color of the specified &lt;line-style&g
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3252">
+<a id="_g11546">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -1302,7 +1439,7 @@ Returns and (with setf) changes the line-dashing of the specified &lt;line-style
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3253">
+<a id="_g11547">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -1332,7 +1469,7 @@ Returns and (with setf) changes the line-thick of the specified &lt;line-style&g
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3249">
+<a id="_g11543">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -1364,7 +1501,7 @@ Returns and (with setf) changes the line-type of the specified &lt;line-style&gt
 </div>
 <div class="defclass">
 <div class="defunsignatures">
-<a id="_g3263">
+<a id="_g11557">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -1456,7 +1593,7 @@ Package: PLOTTER</div>
 <div class="defclass-generics">
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3264">
+<a id="_g11558">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -1486,7 +1623,7 @@ Returns and (with setf) changes the legend of the specified &lt;plot-style&gt;
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3266">
+<a id="_g11560">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -1516,7 +1653,7 @@ Returns and (with setf) changes the line-style of the specified &lt;plot-style&g
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3265">
+<a id="_g11559">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -1548,7 +1685,7 @@ Returns and (with setf) changes the symbol-style of the specified &lt;plot-style
 </div>
 <div class="defclass">
 <div class="defunsignatures">
-<a id="_g3278">
+<a id="_g11572">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -1619,7 +1756,37 @@ Package: PLOTTER</div>
 <div class="defclass-generics">
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3296">
+<a id="_g11587">
+</a>
+<table cellpadding="0" cellspacing="0" width="100%">
+<colgroup span="3">
+<col width="0*"/>
+<col width="1*"/>
+<col width="0*"/>
+</colgroup>
+<tbody>
+<tr>
+<td class="symbol-name">
+plotter-aspect&nbsp;&nbsp;</td>
+<td class="lambda-list">
+&lt;plotter-mixin&gt;</td>
+<td class="symbol-type">
+&nbsp;[Generic&nbsp;function]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="doc-package">
+Package: PLOTTER</div>
+<div class="doc-body">
+<p>
+Returns and (with setf) changes the aspect of the specified &lt;plotter-mixin&gt; 
+ </p>
+</div>
+</div>
+<div class="defun">
+<div class="defunsignatures">
+<a id="_g11594">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -1649,7 +1816,37 @@ Returns and (with setf) changes the box of the specified &lt;plotter-mixin&gt;
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3292">
+<a id="_g11588">
+</a>
+<table cellpadding="0" cellspacing="0" width="100%">
+<colgroup span="3">
+<col width="0*"/>
+<col width="1*"/>
+<col width="0*"/>
+</colgroup>
+<tbody>
+<tr>
+<td class="symbol-name">
+plotter-delayed-damage&nbsp;&nbsp;</td>
+<td class="lambda-list">
+&lt;plotter-mixin&gt;</td>
+<td class="symbol-type">
+&nbsp;[Generic&nbsp;function]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="doc-package">
+Package: PLOTTER</div>
+<div class="doc-body">
+<p>
+Returns and (with setf) changes the damage of the specified &lt;plotter-mixin&gt; 
+ </p>
+</div>
+</div>
+<div class="defun">
+<div class="defunsignatures">
+<a id="_g11589">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -1679,37 +1876,7 @@ Returns and (with setf) changes the delayed of the specified &lt;plotter-mixin&g
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3280">
-</a>
-<table cellpadding="0" cellspacing="0" width="100%">
-<colgroup span="3">
-<col width="0*"/>
-<col width="1*"/>
-<col width="0*"/>
-</colgroup>
-<tbody>
-<tr>
-<td class="symbol-name">
-plotter-dirty&nbsp;&nbsp;</td>
-<td class="lambda-list">
-&lt;plotter-mixin&gt;</td>
-<td class="symbol-type">
-&nbsp;[Generic&nbsp;function]</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="doc-package">
-Package: PLOTTER</div>
-<div class="doc-body">
-<p>
-Returns and (with setf) changes the dirty of the specified &lt;plotter-mixin&gt; 
- </p>
-</div>
-</div>
-<div class="defun">
-<div class="defunsignatures">
-<a id="_g3293">
+<a id="_g11590">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -1739,7 +1906,37 @@ Returns and (with setf) changes the dlist of the specified &lt;plotter-mixin&gt;
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3294">
+<a id="_g11574">
+</a>
+<table cellpadding="0" cellspacing="0" width="100%">
+<colgroup span="3">
+<col width="0*"/>
+<col width="1*"/>
+<col width="0*"/>
+</colgroup>
+<tbody>
+<tr>
+<td class="symbol-name">
+plotter-initial-gs&nbsp;&nbsp;</td>
+<td class="lambda-list">
+&lt;plotter-mixin&gt;</td>
+<td class="symbol-type">
+&nbsp;[Generic&nbsp;function]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="doc-package">
+Package: PLOTTER</div>
+<div class="doc-body">
+<p>
+Returns and (with setf) changes the initial-gs of the specified &lt;plotter-mixin&gt; 
+ </p>
+</div>
+</div>
+<div class="defun">
+<div class="defunsignatures">
+<a id="_g11592">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -1769,7 +1966,7 @@ Returns and (with setf) changes the inv-xform of the specified &lt;plotter-mixin
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3283">
+<a id="_g11578">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -1799,7 +1996,7 @@ Returns and (with setf) changes the legend of the specified &lt;plotter-mixin&gt
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3284">
+<a id="_g11579">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -1829,7 +2026,7 @@ Returns and (with setf) changes the legend-anchor of the specified &lt;plotter-m
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3287">
+<a id="_g11582">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -1859,7 +2056,7 @@ Returns and (with setf) changes the legend-info of the specified &lt;plotter-mix
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3286">
+<a id="_g11581">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -1889,7 +2086,7 @@ Returns and (with setf) changes the legend-x of the specified &lt;plotter-mixin&
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3285">
+<a id="_g11580">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -1919,7 +2116,7 @@ Returns and (with setf) changes the legend-y of the specified &lt;plotter-mixin&
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3303">
+<a id="_g11601">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -1949,7 +2146,7 @@ Returns and (with setf) changes the lock of the specified &lt;plotter-mixin&gt;
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3288">
+<a id="_g11583">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -1979,7 +2176,37 @@ Returns and (with setf) changes the magn of the specified &lt;plotter-mixin&gt;
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3290">
+<a id="_g11591">
+</a>
+<table cellpadding="0" cellspacing="0" width="100%">
+<colgroup span="3">
+<col width="0*"/>
+<col width="1*"/>
+<col width="0*"/>
+</colgroup>
+<tbody>
+<tr>
+<td class="symbol-name">
+plotter-mask&nbsp;&nbsp;</td>
+<td class="lambda-list">
+&lt;plotter-mixin&gt;</td>
+<td class="symbol-type">
+&nbsp;[Generic&nbsp;function]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="doc-package">
+Package: PLOTTER</div>
+<div class="doc-body">
+<p>
+Returns and (with setf) changes the mask of the specified &lt;plotter-mixin&gt; 
+ </p>
+</div>
+</div>
+<div class="defun">
+<div class="defunsignatures">
+<a id="_g11585">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -2009,7 +2236,7 @@ Returns and (with setf) changes the def-ht of the specified &lt;plotter-mixin&gt
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3291">
+<a id="_g11586">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -2039,7 +2266,67 @@ Returns and (with setf) changes the def-wd of the specified &lt;plotter-mixin&gt
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3289">
+<a id="_g11575">
+</a>
+<table cellpadding="0" cellspacing="0" width="100%">
+<colgroup span="3">
+<col width="0*"/>
+<col width="1*"/>
+<col width="0*"/>
+</colgroup>
+<tbody>
+<tr>
+<td class="symbol-name">
+plotter-notify-cust&nbsp;&nbsp;</td>
+<td class="lambda-list">
+&lt;plotter-mixin&gt;</td>
+<td class="symbol-type">
+&nbsp;[Generic&nbsp;function]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="doc-package">
+Package: PLOTTER</div>
+<div class="doc-body">
+<p>
+Returns and (with setf) changes the notify-cust of the specified &lt;plotter-mixin&gt; 
+ </p>
+</div>
+</div>
+<div class="defun">
+<div class="defunsignatures">
+<a id="_g11573">
+</a>
+<table cellpadding="0" cellspacing="0" width="100%">
+<colgroup span="3">
+<col width="0*"/>
+<col width="1*"/>
+<col width="0*"/>
+</colgroup>
+<tbody>
+<tr>
+<td class="symbol-name">
+plotter-plotting-gs&nbsp;&nbsp;</td>
+<td class="lambda-list">
+&lt;plotter-mixin&gt;</td>
+<td class="symbol-type">
+&nbsp;[Generic&nbsp;function]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="doc-package">
+Package: PLOTTER</div>
+<div class="doc-body">
+<p>
+Returns and (with setf) changes the plotting-gs of the specified &lt;plotter-mixin&gt; 
+ </p>
+</div>
+</div>
+<div class="defun">
+<div class="defunsignatures">
+<a id="_g11584">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -2069,7 +2356,7 @@ Returns and (with setf) changes the sf of the specified &lt;plotter-mixin&gt;
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3295">
+<a id="_g11593">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -2099,7 +2386,7 @@ Returns and (with setf) changes the xform of the specified &lt;plotter-mixin&gt;
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3302">
+<a id="_g11600">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -2129,7 +2416,7 @@ Returns and (with setf) changes the xlog of the specified &lt;plotter-mixin&gt;
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3300">
+<a id="_g11598">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -2159,7 +2446,7 @@ Returns and (with setf) changes the xmax of the specified &lt;plotter-mixin&gt;
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3301">
+<a id="_g11599">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -2189,7 +2476,7 @@ Returns and (with setf) changes the xmin of the specified &lt;plotter-mixin&gt;
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3299">
+<a id="_g11597">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -2219,7 +2506,7 @@ Returns and (with setf) changes the ylog of the specified &lt;plotter-mixin&gt;
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3297">
+<a id="_g11595">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -2249,7 +2536,7 @@ Returns and (with setf) changes the ymax of the specified &lt;plotter-mixin&gt;
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3298">
+<a id="_g11596">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -2279,7 +2566,7 @@ Returns and (with setf) changes the ymin of the specified &lt;plotter-mixin&gt;
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3282">
+<a id="_g11577">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -2309,7 +2596,7 @@ Returns and (with setf) changes the preferred-x of the specified &lt;plotter-mix
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3281">
+<a id="_g11576">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -2337,41 +2624,11 @@ Returns and (with setf) changes the preferred-y of the specified &lt;plotter-mix
  </p>
 </div>
 </div>
-<div class="defun">
-<div class="defunsignatures">
-<a id="_g3279">
-</a>
-<table cellpadding="0" cellspacing="0" width="100%">
-<colgroup span="3">
-<col width="0*"/>
-<col width="1*"/>
-<col width="0*"/>
-</colgroup>
-<tbody>
-<tr>
-<td class="symbol-name">
-reply-mbox&nbsp;&nbsp;</td>
-<td class="lambda-list">
-&lt;plotter-mixin&gt;</td>
-<td class="symbol-type">
-&nbsp;[Generic&nbsp;function]</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="doc-package">
-Package: PLOTTER</div>
-<div class="doc-body">
-<p>
-Returns and (with setf) changes the reply-mbox of the specified &lt;plotter-mixin&gt; 
- </p>
-</div>
-</div>
 </div>
 </div>
 <div class="defclass">
 <div class="defunsignatures">
-<a id="_g3304">
+<a id="_g11602">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -2384,7 +2641,7 @@ Returns and (with setf) changes the reply-mbox of the specified &lt;plotter-mixi
 <td class="symbol-name">
 &lt;plotter-pane&gt;&nbsp;&nbsp;</td>
 <td class="lambda-list">
-inherits from <a href="plotter-classes.html#_g3278"><em class="cl">&lt;plotter-mixin&gt;</em></a> and <em class="cl">output-pane</em></td>
+inherits from <a href="plotter-classes.html#_g11572"><em class="cl">&lt;plotter-mixin&gt;</em></a> and <em class="cl">output-pane</em></td>
 <td class="symbol-type">
 &nbsp;[Class]</td>
 </tr>
@@ -2421,7 +2678,37 @@ Package: PLOTTER</div>
 <div class="defclass-generics">
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3308">
+<a id="_g11607">
+</a>
+<table cellpadding="0" cellspacing="0" width="100%">
+<colgroup span="3">
+<col width="0*"/>
+<col width="1*"/>
+<col width="0*"/>
+</colgroup>
+<tbody>
+<tr>
+<td class="symbol-name">
+cached-cmap&nbsp;&nbsp;</td>
+<td class="lambda-list">
+&lt;plotter-pane&gt;</td>
+<td class="symbol-type">
+&nbsp;[Generic&nbsp;function]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="doc-package">
+Package: PLOTTER</div>
+<div class="doc-body">
+<p>
+Returns and (with setf) changes the cached-cmap of the specified &lt;plotter-pane&gt; 
+ </p>
+</div>
+</div>
+<div class="defun">
+<div class="defunsignatures">
+<a id="_g11611">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -2451,7 +2738,7 @@ Returns and (with setf) changes the mark-x of the specified &lt;plotter-pane&gt;
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3306">
+<a id="_g11609">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -2481,7 +2768,7 @@ Returns and (with setf) changes the mark-x-raw of the specified &lt;plotter-pane
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3307">
+<a id="_g11610">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -2511,7 +2798,7 @@ Returns and (with setf) changes the mark-y of the specified &lt;plotter-pane&gt;
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3305">
+<a id="_g11608">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -2541,7 +2828,7 @@ Returns and (with setf) changes the mark-y-raw of the specified &lt;plotter-pane
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3318">
+<a id="_g11605">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -2552,7 +2839,7 @@ Returns and (with setf) changes the mark-y-raw of the specified &lt;plotter-pane
 <tbody>
 <tr>
 <td class="symbol-name">
-plotter-backing-image&nbsp;&nbsp;</td>
+plotter-cache-pixmap&nbsp;&nbsp;</td>
 <td class="lambda-list">
 &lt;plotter-pane&gt;</td>
 <td class="symbol-type">
@@ -2565,13 +2852,13 @@ plotter-backing-image&nbsp;&nbsp;</td>
 Package: PLOTTER</div>
 <div class="doc-body">
 <p>
-Returns and (with setf) changes the backing-image of the specified &lt;plotter-pane&gt; 
+Returns and (with setf) changes the cache-pixmap of the specified &lt;plotter-pane&gt; 
  </p>
 </div>
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3316">
+<a id="_g11604">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -2582,7 +2869,7 @@ Returns and (with setf) changes the backing-image of the specified &lt;plotter-p
 <tbody>
 <tr>
 <td class="symbol-name">
-plotter-backing-pixmap&nbsp;&nbsp;</td>
+plotter-cache-state&nbsp;&nbsp;</td>
 <td class="lambda-list">
 &lt;plotter-pane&gt;</td>
 <td class="symbol-type">
@@ -2595,13 +2882,43 @@ plotter-backing-pixmap&nbsp;&nbsp;</td>
 Package: PLOTTER</div>
 <div class="doc-body">
 <p>
-Returns and (with setf) changes the backing-pixmap of the specified &lt;plotter-pane&gt; 
+Returns and (with setf) changes the cache-state of the specified &lt;plotter-pane&gt; 
  </p>
 </div>
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3315">
+<a id="_g11606">
+</a>
+<table cellpadding="0" cellspacing="0" width="100%">
+<colgroup span="3">
+<col width="0*"/>
+<col width="1*"/>
+<col width="0*"/>
+</colgroup>
+<tbody>
+<tr>
+<td class="symbol-name">
+plotter-cache-ver&nbsp;&nbsp;</td>
+<td class="lambda-list">
+&lt;plotter-pane&gt;</td>
+<td class="symbol-type">
+&nbsp;[Generic&nbsp;function]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="doc-package">
+Package: PLOTTER</div>
+<div class="doc-body">
+<p>
+Returns and (with setf) changes the cache-pixmap-ver of the specified &lt;plotter-pane&gt; 
+ </p>
+</div>
+</div>
+<div class="defun">
+<div class="defunsignatures">
+<a id="_g11618">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -2631,7 +2948,7 @@ Returns and (with setf) changes the delay-backing of the specified &lt;plotter-p
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3314">
+<a id="_g11617">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -2661,7 +2978,37 @@ Returns and (with setf) changes the full-crosshair of the specified &lt;plotter-
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3313">
+<a id="_g11603">
+</a>
+<table cellpadding="0" cellspacing="0" width="100%">
+<colgroup span="3">
+<col width="0*"/>
+<col width="1*"/>
+<col width="0*"/>
+</colgroup>
+<tbody>
+<tr>
+<td class="symbol-name">
+plotter-prev-frame&nbsp;&nbsp;</td>
+<td class="lambda-list">
+&lt;plotter-pane&gt;</td>
+<td class="symbol-type">
+&nbsp;[Generic&nbsp;function]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="doc-package">
+Package: PLOTTER</div>
+<div class="doc-body">
+<p>
+Returns and (with setf) changes the prev-frame of the specified &lt;plotter-pane&gt; 
+ </p>
+</div>
+</div>
+<div class="defun">
+<div class="defunsignatures">
+<a id="_g11616">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -2691,7 +3038,7 @@ Returns and (with setf) changes the prev-x of the specified &lt;plotter-pane&gt;
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3312">
+<a id="_g11615">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -2721,37 +3068,7 @@ Returns and (with setf) changes the prev-y of the specified &lt;plotter-pane&gt;
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3317">
-</a>
-<table cellpadding="0" cellspacing="0" width="100%">
-<colgroup span="3">
-<col width="0*"/>
-<col width="1*"/>
-<col width="0*"/>
-</colgroup>
-<tbody>
-<tr>
-<td class="symbol-name">
-plotter-resize-timer&nbsp;&nbsp;</td>
-<td class="lambda-list">
-&lt;plotter-pane&gt;</td>
-<td class="symbol-type">
-&nbsp;[Generic&nbsp;function]</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="doc-package">
-Package: PLOTTER</div>
-<div class="doc-body">
-<p>
-Returns and (with setf) changes the timer of the specified &lt;plotter-pane&gt; 
- </p>
-</div>
-</div>
-<div class="defun">
-<div class="defunsignatures">
-<a id="_g3309">
+<a id="_g11612">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -2781,7 +3098,7 @@ Returns and (with setf) changes the plotter-valid of the specified &lt;plotter-p
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3311">
+<a id="_g11614">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -2811,7 +3128,7 @@ Returns and (with setf) changes the x-ro-hook of the specified &lt;plotter-pane&
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3310">
+<a id="_g11613">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -2843,7 +3160,7 @@ Returns and (with setf) changes the y-ro-hook of the specified &lt;plotter-pane&
 </div>
 <div class="defclass">
 <div class="defunsignatures">
-<a id="_g3254">
+<a id="_g11548">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -3040,7 +3357,7 @@ Package: PLOTTER</div>
 <div class="defclass-generics">
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3255">
+<a id="_g11549">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -3070,7 +3387,7 @@ Returns and (with setf) changes the bar-offset of the specified &lt;symbol-style
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3256">
+<a id="_g11550">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -3100,7 +3417,7 @@ Returns and (with setf) changes the bar-width of the specified &lt;symbol-style&
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3258">
+<a id="_g11552">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -3130,7 +3447,7 @@ Returns and (with setf) changes the border-alpha of the specified &lt;symbol-sty
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3259">
+<a id="_g11553">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -3160,7 +3477,7 @@ Returns and (with setf) changes the border-color of the specified &lt;symbol-sty
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3257">
+<a id="_g11551">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -3190,7 +3507,7 @@ Returns and (with setf) changes the border-thick of the specified &lt;symbol-sty
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3260">
+<a id="_g11554">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -3220,7 +3537,7 @@ Returns and (with setf) changes the fill-alpha of the specified &lt;symbol-style
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3261">
+<a id="_g11555">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -3250,7 +3567,7 @@ Returns and (with setf) changes the fill-color of the specified &lt;symbol-style
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3262">
+<a id="_g11556">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -3282,7 +3599,7 @@ Returns and (with setf) changes the plot-symbol of the specified &lt;symbol-styl
 </div>
 <div class="defparam">
 <div class="defunsignatures">
-<a id="_g3247">
+<a id="_g11541">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -3307,7 +3624,7 @@ Package: PLOTTER</div>
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3322">
+<a id="_g11622">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -3332,7 +3649,7 @@ Package: PLOTTER</div>
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3324">
+<a id="_g11624">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -3357,7 +3674,7 @@ Package: PLOTTER</div>
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3325">
+<a id="_g11625">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -3382,7 +3699,7 @@ Package: PLOTTER</div>
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3331">
+<a id="_g11631">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -3395,7 +3712,7 @@ Package: PLOTTER</div>
 <td class="symbol-name">
 all-legends&nbsp;&nbsp;</td>
 <td class="lambda-list">
-pane</td>
+pane <em>&amp;key</em> discard</td>
 <td class="symbol-type">
 &nbsp;[Function]</td>
 </tr>
@@ -3407,7 +3724,32 @@ Package: PLOTTER</div>
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3326">
+<a id="_g11638">
+</a>
+<table cellpadding="0" cellspacing="0" width="100%">
+<colgroup span="3">
+<col width="0*"/>
+<col width="1*"/>
+<col width="0*"/>
+</colgroup>
+<tbody>
+<tr>
+<td class="symbol-name">
+alogfn&nbsp;&nbsp;</td>
+<td class="lambda-list">
+islog</td>
+<td class="symbol-type">
+&nbsp;[Function]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="doc-package">
+Package: PLOTTER</div>
+</div>
+<div class="defun">
+<div class="defunsignatures">
+<a id="_g11626">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -3432,7 +3774,7 @@ Package: PLOTTER</div>
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3330">
+<a id="_g11630">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -3457,7 +3799,7 @@ Package: PLOTTER</div>
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3319">
+<a id="_g11619">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -3482,7 +3824,32 @@ Package: PLOTTER</div>
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3327">
+<a id="_g11634">
+</a>
+<table cellpadding="0" cellspacing="0" width="100%">
+<colgroup span="3">
+<col width="0*"/>
+<col width="1*"/>
+<col width="0*"/>
+</colgroup>
+<tbody>
+<tr>
+<td class="symbol-name">
+dfloat&nbsp;&nbsp;</td>
+<td class="lambda-list">
+v</td>
+<td class="symbol-type">
+&nbsp;[Function]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="doc-package">
+Package: PLOTTER</div>
+</div>
+<div class="defun">
+<div class="defunsignatures">
+<a id="_g11627">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -3507,7 +3874,32 @@ Package: PLOTTER</div>
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3329">
+<a id="_g11632">
+</a>
+<table cellpadding="0" cellspacing="0" width="100%">
+<colgroup span="3">
+<col width="0*"/>
+<col width="1*"/>
+<col width="0*"/>
+</colgroup>
+<tbody>
+<tr>
+<td class="symbol-name">
+discard-legends&nbsp;&nbsp;</td>
+<td class="lambda-list">
+pane</td>
+<td class="symbol-type">
+&nbsp;[Function]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="doc-package">
+Package: PLOTTER</div>
+</div>
+<div class="defun">
+<div class="defunsignatures">
+<a id="_g11629">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -3532,7 +3924,7 @@ Package: PLOTTER</div>
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3328">
+<a id="_g11628">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -3557,7 +3949,57 @@ Package: PLOTTER</div>
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3321">
+<a id="_g11635">
+</a>
+<table cellpadding="0" cellspacing="0" width="100%">
+<colgroup span="3">
+<col width="0*"/>
+<col width="1*"/>
+<col width="0*"/>
+</colgroup>
+<tbody>
+<tr>
+<td class="symbol-name">
+log10&nbsp;&nbsp;</td>
+<td class="lambda-list">
+x</td>
+<td class="symbol-type">
+&nbsp;[Function]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="doc-package">
+Package: PLOTTER</div>
+</div>
+<div class="defun">
+<div class="defunsignatures">
+<a id="_g11637">
+</a>
+<table cellpadding="0" cellspacing="0" width="100%">
+<colgroup span="3">
+<col width="0*"/>
+<col width="1*"/>
+<col width="0*"/>
+</colgroup>
+<tbody>
+<tr>
+<td class="symbol-name">
+logfn&nbsp;&nbsp;</td>
+<td class="lambda-list">
+islog</td>
+<td class="symbol-type">
+&nbsp;[Function]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="doc-package">
+Package: PLOTTER</div>
+</div>
+<div class="defun">
+<div class="defunsignatures">
+<a id="_g11621">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -3582,7 +4024,7 @@ Package: PLOTTER</div>
 </div>
 <div class="defun">
 <div class="defunsignatures">
-<a id="_g3320">
+<a id="_g11620">
 </a>
 <table cellpadding="0" cellspacing="0" width="100%">
 <colgroup span="3">
@@ -3605,11 +4047,61 @@ pane selection x y</td>
 <div class="doc-package">
 Package: PLOTTER</div>
 </div>
+<div class="defun">
+<div class="defunsignatures">
+<a id="_g11636">
+</a>
+<table cellpadding="0" cellspacing="0" width="100%">
+<colgroup span="3">
+<col width="0*"/>
+<col width="1*"/>
+<col width="0*"/>
+</colgroup>
+<tbody>
+<tr>
+<td class="symbol-name">
+pow10&nbsp;&nbsp;</td>
+<td class="lambda-list">
+x</td>
+<td class="symbol-type">
+&nbsp;[Function]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="doc-package">
+Package: PLOTTER</div>
+</div>
+<div class="defun">
+<div class="defunsignatures">
+<a id="_g11633">
+</a>
+<table cellpadding="0" cellspacing="0" width="100%">
+<colgroup span="3">
+<col width="0*"/>
+<col width="1*"/>
+<col width="0*"/>
+</colgroup>
+<tbody>
+<tr>
+<td class="symbol-name">
+sfloat&nbsp;&nbsp;</td>
+<td class="lambda-list">
+v</td>
+<td class="symbol-type">
+&nbsp;[Function]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="doc-package">
+Package: PLOTTER</div>
+</div>
 </div>
 <div class="cludg-footer">
 Generated by a locally modified version of<a href="mailto:ihatchondo@common-lisp.net" lang="en">
 CLDOC</a>
-- 2008-08-08 19:11:58<br/>
-This document is Copyright (C) 2008 by SpectroDynamics, LLC. All rights reserved.</div>
+- 2024-02-17 06:13:38<br/>
+This document is Copyright (C) 2008-2022 by Refined Audiometrics Laboratory. MIT License terms apply.</div>
 </body>
 </html>
