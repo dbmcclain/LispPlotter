@@ -41,6 +41,6 @@ where a domain, `(-10 10), and function, follows the name of the window receivin
 
 There are many different styles of plotting, as demonstrated in the image above: function plots, line plots, point plots, histogram, filled vertical or horizontal bar charts, image plots for 2-D data, etc, etc... Plots done without :CLEAR T will be drawn on top of an existing plot. So the image above was formed from at least 5 separate PLOT styles on top of each other, plus an annotation added with DRAW-STRING. 
 
-Positions for annotation strings can be indicated with an anchor position: :N, :S, :E, :W, :NE, :NW, :SE, :SW, and a position: (:DATA x y), (:FRAC x y), or (:PIX x y) for data units, fraction of plotview units, or direct pixel measurement. 
+Positions for annotation strings can be indicated with an anchor position: :N, :S, :E, :W, :NE, :NW, :SE, :SW, and a location: (:DATA x y), (:FRAC x y), or (:PIX x y) for data units, fraction of plotview units, or direct pixel measurement. 
 
 Legends can be added automatically from each PLOT in the image, and the legend box can be dragged to any convenient location on the image, or removed with the popup menu. Measurements can be made with the cursor, setting a reference point somewhere, then clicking on the plot to show the data value at that location and its dx and dy from the reference point. Full-width crosshairs can be toggled on or off from the popup menu.
