@@ -2,10 +2,11 @@
 (in-package :plotter)
 
 ;; ------------------------------------------
+#|
 (defun draw-path (port &rest positions)
   (gp:draw-polygon port
                    (mapcan #'append positions)))
-
+|#
 ;; ------------------------------------------
 #|
 (defun zip (&rest seqs)
