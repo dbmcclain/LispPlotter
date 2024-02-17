@@ -21,8 +21,8 @@ The update rate of Plotter is sufficient for live video productions of time-vary
 
 The code defines a PLOTTER-PANE which can act alone in a Window, or be used within your own Interface designs, including those with several simultaneous PLOTTER-PANE displays. It is a CAPI:PANE object like any other. PLOTTER-PANE is an augmentation of a CAPI:OUTPUT-PANE.
 
-Plotting data from the keyboard is as simple as:
+Ad-hoc plotting of data from the keyboard is as simple as:
 ```
 (PLOT 'name xs ys :clear t :thick 2 :symbol :circle)
 ```
-where 'name is used to refer to a Window made on demand to plot the data in xs and ys. Any number of additional options can be added with keyword args, as shown here.
+where 'name is used to refer to a Window made on demand to plot the data in xs and ys. Any number of additional options can be added with keyword args, as shown here. The data in xs and ys can be any sequence of numnbers (LISTS, VECTORS). You can omit the xs, in which case some xs will be generated using an integer ordinal sequence against the provided ys data.
