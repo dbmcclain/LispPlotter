@@ -31,7 +31,11 @@ The data is scanned for its extrema and axes are automatially generated, leaving
 
 Functions can be plotted using:
 ```
-(FPLOT 'name '(-10 10) (lambda (x) (/ (sin x) x)) :clear t :thick 2)
+(FPLOT 'name '(-10 10)
+     (lambda (x)
+        (/ (sin x) x))
+     :clear t
+     :thick 2)
 ```
 where a domain, `(-10 10), and function, follows the name of the window receiving the plot. Data are generated for a PLOT using a variable density algorithm to present smooth looking curves of the function. We have PARAMPLOT for parametric function plots, COMPLEX-PLOT for complex-plane plots, and many others. You can force an :ASPECT 1 for complex plane plotting to keep the visual scaling on X and Y the same.
 
