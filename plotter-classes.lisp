@@ -339,7 +339,7 @@
         (plotter-delayed-update pane) 0)
   |#
   (setf (fill-pointer (plotter-display-list pane)) 0
-        (fill-pointer (plotter-legend-info pane)) 0))
+        (fill-pointer (plotter-legend-info  pane)) 0))
 
 (defun display-list-items (pane &key discard)
   (prog1

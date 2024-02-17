@@ -118,40 +118,44 @@
                      (filter-potential-nans-and-infinities yv ylog)))
             (t (values nil nil)))
     
-    (let* ((pane  (plotter-mixin-of pane args))
-           (style (apply 'get-plot-style args))
-           (fresh (or clear
-                      (display-list-empty-p pane)))
-           (augm-args (if fresh
-                          (list*
-                           :plot-style style
-                           ;; :color     color
-                           ;; :linewidth linewidth
-                           ;; :fullgrid  fullgrid
-                           :logo       logo
-                           :logo-alpha logo-alpha
-                           :cright1 cright1
-                           :cright2 cright2
-                           args)
-                        ;; else
-                        (list*
-                         :plot-style style
-                         ;; :color color
-                         args)))
-           (action    (if fresh
-                          (lambda (pane port x y width height)
-                            (declare (ignore x y width height))
-                            (apply 'pw-axes pane port augm-args)
-                            (apply 'pw-plot-xv-yv pane port xv yv augm-args))
-                        ;; else
-                        (lambda (pane port x y width height)
-                          (declare (ignore x y width height))
-                          (apply 'pw-plot-xv-yv pane port xv yv augm-args))
-                        )))
-      (when fresh
-        ;; no drawing in the init, so do it in my thread
-        (discard-display-list pane)
-        (apply 'pw-init-xv-yv pane xv yv augm-args))
+    (um:let+ ((pane  (plotter-mixin-of pane args))
+              (style (apply 'get-plot-style args))
+              (fresh (or clear
+                         (display-list-empty-p pane)))
+              (augm-args (if fresh
+                             (list*
+                              :plot-style style
+                              ;; :color     color
+                              ;; :linewidth linewidth
+                              ;; :fullgrid  fullgrid
+                              :logo       logo
+                              :logo-alpha logo-alpha
+                              :cright1    cright1
+                              :cright2    cright2
+                              args)
+                           ;; else
+                           (list*
+                            :plot-style style
+                            ;; :color color
+                            args)))
+              (_    (when fresh
+                      (discard-display-list pane)
+                      (apply 'pw-init-xv-yv pane xv yv augm-args)))
+              (:mvb (prepped symbol-fn)  (apply #'prep-vectors pane xv yv augm-args))
+              (action    (if fresh
+                             (lambda (pane port x y width height)
+                               (declare (ignore x y width height))
+                               (apply 'pw-axes pane port augm-args)
+                               ;; (apply 'pw-plot-xv-yv pane port xv yv augm-args)
+                               (apply 'pw-plot-prepped pane port prepped symbol-fn augm-args)
+                               )
+                           ;; else
+                           (lambda (pane port x y width height)
+                             (declare (ignore x y width height))
+                             ;; (apply 'pw-plot-xv-yv pane port xv yv augm-args)
+                             (apply 'pw-plot-prepped pane port prepped symbol-fn augm-args)
+                             )
+                           )))
       (add-to-work-order pane action)
       )))
 

@@ -19,6 +19,7 @@
                 (:file "graphics-state")
                 (:file "pane-locations")
                 (:file "plotter-strings")
+                (:file "prep-vectors")
                 (:file "plotter-drawing")
                 (:file "plotter-watermark")
                 (:file "plotter-axes")

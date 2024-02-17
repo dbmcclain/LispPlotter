@@ -403,3 +403,28 @@
 
 (loop for ix from 1 to 10 nconc (list ix))
  |#
+
+(defun hbar-rects (pairs wd off x0)
+  (let* ((ans  (list nil))
+         (tl   ans)
+         (wd/2 (/2 wd)))
+    (with-pairs (pairs x y)
+      (setf tl (last
+                (rplacd tl
+                        (list x0        (+ off (- y wd/2))
+                              (- x x0)  wd)
+                        ))))
+    (cdr ans)))
+
+(defun vbar-rects (pairs wd off y0)
+  (let* ((ans  (list nil))
+         (tl   ans)
+         (wd/2 (/2 wd)))
+    (with-pairs (pairs x y)
+      (setf tl (last
+                (rplacd tl
+                        (list (+ off (- x wd/2))  y0
+                              wd                  (- y y0))
+                        ))))
+    (cdr ans)))
+    

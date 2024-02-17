@@ -74,7 +74,6 @@
         (gp:draw-rectangle port prev-x 0 (- next-x prev-x) yprev :filled t)
         ))
     ))
-|#
 
 (defmethod draw-horizontal-bars (port (bars <pair-scanner>))
   (let* (xprev
@@ -105,6 +104,7 @@
         (gp:draw-rectangle port 0 prev-y xprev (- next-y prev-y) :filled t)
         ))
     ))
+|#
 
 ;; ----------------------------------------------------------  
 
@@ -228,6 +228,125 @@
          ))
       )))
 
+;; --------------------------------------------------------------------
+
+(defmethod pw-plot-prepped ((cpw <plotter-mixin>) port prepped symbol-fn
+                                   &key
+                                   ;; (color #.(color:make-rgb 0.0 0.5 0.0))
+                                   ;; alpha
+                                   ;; thick
+                                   ;; (linewidth (or thick 1))
+                                   ;; linedashing
+                                   ;; symbol
+                                   plot-joined
+                                   ;; legend
+                                   legend-x
+                                   legend-y
+                                   legend-anchor
+                                   ;; (border-color color)
+                                   ;; symbol-filled
+                                   ;; (fill-color color)
+                                   ;; (border-thick linewidth)
+                                   ;; barwidth
+                                   ;; bar-offset
+                                   plot-style
+                                   symbol-for-legend
+                                   &allow-other-keys)
+    (when (legend plot-style)
+      (append-legend cpw plot-style))
+
+    (when legend-x
+      (setf (plotter-legend-x cpw) legend-x))
+    (when legend-y
+      (setf (plotter-legend-y cpw) legend-y))
+    (when legend-anchor
+      (setf (plotter-legend-anchor cpw) legend-anchor))
+
+    (with-plotview-coords (cpw port)
+      
+      (gp:with-graphics-state (port
+                               ;; :thickness  linewidth
+                               ;; :dashed     (not (null linedashing))
+                               ;; :dash       linedashing
+                               ;; :foreground color
+                               :line-end-style   :butt
+                               :line-joint-style :miter
+                               ;; :scale-thickness  t  ;; already present form WITH-PLOTVIEW-COORDS
+                               :mask             (plotter-mask cpw))
+        (um:let+ ((xform        (plotter-xform cpw))
+                  (line-style   (line-style plot-style))
+                  (symbol-style (and (not symbol-for-legend)
+                                     (symbol-style plot-style)))
+                  (:mvb (x0 y0) (gp:transform-point xform 0 0)))
+          (flet ((draw-lines ()
+                   (gp:with-graphics-state (port
+                                            :thickness  (adjust-linewidth (line-thick line-style))
+                                            :foreground (adjust-color cpw
+                                                                      (line-color line-style)
+                                                                      (line-alpha line-style))
+                                            :dashed     (line-dashing line-style)
+                                            :dash       (line-dashing line-style))
+                     (gp:draw-polygon port prepped))
+                   ))
+            (cond (symbol-style
+                   (case (plot-symbol symbol-style)
+                     
+                     ((:vbars :hbars)
+                      (gp:with-graphics-state (port
+                                               :foreground (adjust-color port
+                                                                         (fill-color symbol-style)
+                                                                         (fill-alpha symbol-style)))
+                        (if (bar-width symbol-style)
+                            (with-rects (prepped x y wd ht)
+                              (gp:draw-rectangle port
+                                                 x y wd ht
+                                                 :filled t))
+                          ;; else
+                          (gp:draw-polygon port prepped :filled t)
+                          )))
+                     
+                     (:sampled-data
+                      (gp:with-graphics-state (port
+                                               :foreground (adjust-color port
+                                                                         (or (and line-style
+                                                                                  (line-color line-style))
+                                                                             :black)
+                                                                         (or (and line-style
+                                                                                  (line-alpha line-style))
+                                                                             1))
+                                               :thickness  (adjust-linewidth (or (and line-style
+                                                                                      (line-thick line-style))
+                                                                                 1)))
+                        (with-pts (prepped x y)
+                          (gp:draw-line port x y0 x y)
+                          (funcall symbol-fn x y))
+                        ))
+                     
+                     (otherwise
+                      (when line-style
+                        (draw-lines))                   
+                      (with-pts (prepped x y)
+                        (funcall symbol-fn x y)))
+                     ))
+                  
+                  (line-style
+                   (case (line-type line-style)
+                     ((:stepped :histo)
+                      (gp:with-graphics-state (port
+                                               :thickness  (adjust-linewidth (line-thick line-style))
+                                               :foreground (adjust-color port
+                                                                         (line-color line-style)
+                                                                         (line-alpha line-style)))
+                        (gp:draw-polygon port prepped)
+                        ))
+                     
+                     (otherwise
+                      (draw-lines))
+                     ))
+                  ))))))
+
+;; --------------------------------------------------------------------
+#|
 (defmethod unsafe-pw-plot-xv-yv ((cpw <plotter-mixin>) port xvector yvector 
                                  &key
                                  ;; (color #.(color:make-rgb 0.0 0.5 0.0))
@@ -253,34 +372,34 @@
   ;; this is the base plotting routine
   ;; called only from within the pane process
   ;; (return-from unsafe-pw-plot-xv-yv)
-  (let* ((xform     (plotter-xform cpw))
-         
-         ;; (color     (adjust-color cpw color alpha))
-         ;; (linewidth (adjust-linewidth linewidth))
-         (line-style   (line-style plot-style))
-         (symbol-style (and (not symbol-for-legend)
-                            (symbol-style plot-style)))
-
-         (nel       (if xvector
-                        (min (length-of xvector) (length-of yvector))
-                      (length-of yvector)))
-         (xlog      (plotter-xlog cpw))
-         (xlogfn    (logfn xlog))
-         (ylog      (plotter-ylog cpw))
-         (ylogfn    (logfn ylog))
-         (xs         (let ((scanner (make-scanner (or xvector
-                                                      nel))
-                                    ))
-                       (if xlog
-                           (make-transformer scanner xlogfn)
-                         scanner)))
-
-         (ys         (let ((scanner (make-scanner yvector)))
-                       (if ylog
-                           (make-transformer scanner ylogfn)
-                         scanner)))
-         (pairs     (make-pair-scanner xs ys))
-         (xfpairs    (make-gpxform-pairs xform pairs)))
+  (um:let+ (;; (color     (adjust-color cpw color alpha))
+            ;; (linewidth (adjust-linewidth linewidth))
+            (line-style   (line-style plot-style))
+            (symbol-style (and (not symbol-for-legend)
+                               (symbol-style plot-style)))
+            
+            (nel       (if xvector
+                           (min (length-of xvector) (length-of yvector))
+                         (length-of yvector)))
+            (xlog      (plotter-xlog cpw))
+            (xlogfn    (logfn xlog))
+            (ylog      (plotter-ylog cpw))
+            (ylogfn    (logfn ylog))
+            (xs         (let ((scanner (make-scanner (or xvector
+                                                         nel))
+                                       ))
+                          (if xlog
+                              (make-transformer scanner xlogfn)
+                            scanner)))
+            
+            (ys         (let ((scanner (make-scanner yvector)))
+                          (if ylog
+                              (make-transformer scanner ylogfn)
+                            scanner)))
+            (pairs     (make-pair-scanner xs ys))
+            (xform     (plotter-xform cpw))
+            (xfpairs   (make-gpxform-pairs xform pairs))
+            (:mvb (x0 y0) (gp:transform-point xform 0 0)))
 
     (when (legend plot-style)
       (append-legend cpw plot-style))
@@ -333,18 +452,16 @@
                                  (wd/2 (* 0.5 wd))
                                  (off  (if (bar-offset symbol-style)
                                            (get-x-width cpw (bar-offset symbol-style))
-                                         0)))
-                            (with-pairs (pairs x y)
-                              (um:let+ ((:mvb (xx yy) (gp:transform-point xform x y))
-                                        (:mvb (- yy0) (gp:transform-point xform x 0)))
-                                (gp:draw-rectangle port
-                                                   (+ off (- xx wd/2)) yy0
-                                                   wd (- yy yy0)
-                                                   :filled t)
-                                )))
-
-                        (um:let+ ((:mvb (_ y0) (gp:transform-point xform 0 0))
-                                  (xys (histo-vbars-pairs xfpairs y0)))
+                                         0)
+                                       ))
+                            (with-pairs (xfpairs x y)
+                              (gp:draw-rectangle port
+                                                 (+ off (- x wd/2)) y0
+                                                 wd (- y y0)
+                                                 :filled t)
+                              ))
+                        
+                        (let ((xys (histo-vbars-pairs xfpairs y0)))
                           (gp:draw-polygon port xys :filled t)
                           ))))
                  
@@ -358,21 +475,15 @@
                                  (wd/2 (* 0.5 wd))
                                  (off  (if (bar-offset symbol-style)
                                            (get-y-width port (bar-offset symbol-style))
-                                         0)))
-                            (with-pairs (pairs x y)
-                              (multiple-value-bind (xx yy)
-                                  (gp:transform-point xform x y)
-                                (multiple-value-bind (xx0 _)
-                                    (gp:transform-point xform 0 y)
-                                  (declare (ignore _))
-                                  (gp:draw-rectangle port
-                                                     xx0 (+ off (- yy wd/2))
-                                                     (- xx xx0) wd
-                                                     :filled t)
-                                  ))))
-                        ;; (draw-horizontal-bars port xfpairs)
-                        (let* ((x0  (gp:transform-point xform 0 0))
-                               (xys (histo-hbars-pairs xfpairs x0)))
+                                         0)
+                                       ))
+                            (with-pairs (xfpairs x y)
+                              (gp:draw-rectangle port
+                                                 x0 (+ off (- y wd/2))
+                                                 (- x x0) wd
+                                                 :filled t)
+                              ))
+                        (let ((xys (histo-hbars-pairs xfpairs x0)))
                           (gp:draw-polygon port xys :filled t)
                           ))))
                  
@@ -389,15 +500,9 @@
                                                                                     (line-thick line-style))
                                                                                1)))
                       (let ((dotfn (get-symbol-plotfn port (symbol-style plot-style))))
-                        (with-pairs (pairs x y)
-                          (multiple-value-bind (xx yy)
-                              (gp:transform-point xform x y)
-                            (multiple-value-bind (_ yy0)
-                                (gp:transform-point xform x 0)
-                              (declare (ignore _))
-                              (gp:draw-line port xx yy0 xx yy)
-                              (funcall dotfn xx yy))
-                            ))
+                        (with-pairs (xfpairs x y)
+                          (gp:draw-line port x y0 x y)
+                          (funcall dotfn x y))
                         )))
                  
                    (otherwise
@@ -430,8 +535,8 @@
                       (gp:draw-polygon port (histo-pairs xfpairs))
                       ))
                  
-                   (otherwise ;; :interpolated
-                              (draw-lines))
+                   (otherwise
+                    (draw-lines))
                    ))
                 )))
       )))
@@ -442,8 +547,8 @@
               (eql state (getf args :cache :drawing)))
       (progn ;; ignore-errors
         (apply #'unsafe-pw-plot-xv-yv cpw port xvector yvector args)))
-    ))
-          
+    ))          
+|#
 
 ;; ------------------------------------------------------------------------------
 (defun get-bar-symbol-plotfn (port symbol color neg-color bar-width testfn)
