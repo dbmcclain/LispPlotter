@@ -57,6 +57,7 @@
                              ))
                (collect-pairs xfpairs))
              ))
+      ;; Mirror the decision logic used by the renderer, PW-PLOT-PREPPED.
       (cond (symbol-style
              (case (plot-symbol symbol-style)
                (:vbars
@@ -109,6 +110,11 @@
             ))
     ))
 
+;; -------------------------------------------------------------
+;; Used by
+;;    :SYMBOL :SAMPLED-DATA
+;;    :SYMBOL <sym>
+
 (defun do-with-pts (lst fn)
   (um:nlet iter ((lst  lst))
     (unless (endp lst)
@@ -120,6 +126,13 @@
 (defmacro with-pts ((lst x y) &body body)
   `(do-with-pts ,lst (lambda (,x ,y)
                        ,@body)))
+
+;; ------------------------------------------------------
+;; Used by
+;;    :SYMBOL :VBARS
+;;    :SYMBOL :HBARS
+;;
+;; when the bars have user selected :BAR-WIDTH and :BAR-OFFSET.
 
 (defun do-with-rects (lst fn)
   (um:nlet iter ((lst lst))
