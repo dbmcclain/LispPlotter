@@ -31,7 +31,7 @@ where 'name is used to refer to a Window made on demand to plot the data in xs a
 
 The data is scanned for its extrema and axes are automatially generated, leaving 15% free space to keep them nice looking for publication, and not too crowded. Axis increments are carefully selected to be multiples of 1, 2, or 5, and not some arbitrary crappy increment so often seen. Axis labels are chosen to prevent overcrowding along the axis. And you can furnish your own labeling either with a collection of labels, or with a function that will generate a label given an abscissa. 
 
-You can specify logarithmic scaling on either axis using :XLOG T and/or :YLOG T. And you can specify overt axis ranges with :XRANGE and :YRANGE. The ranges can even be reverse order, as in :XRANGE '(10 -10), which labels the axis in the opposite direction from usual practice. And you can separately produce just an empty plot with axes, using a call to AXIS.
+You can specify logarithmic scaling on either axis using :XLOG T and/or :YLOG T. And you can specify overt axis ranges with :XRANGE and :YRANGE. The ranges can even be reverse order, as in :XRANGE '(10 -10), which labels the axis in the opposite direction from usual practice. And you can separately produce just an empty plot with axes, using a call to AXES.
 
 Functions can be plotted using:
 ```
