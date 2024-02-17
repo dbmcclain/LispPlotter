@@ -87,48 +87,14 @@
   (when (gp:port-representation pane)
     (display-callback pane x y width height)))
 
-(defvar *needs-recompute*  nil)
-
-(defstruct stashed-data
-  fn stashed legend)
-
-(defun replay-stashed-items (pane port x y width height legend)
-  ;; for now - just dummy up
-  (discard-legends pane)
-  (dolist (item (display-list-items pane :discard t))
-    (let ((fn (if (stashed-data-p item)
-                  (stashed-data-fn item)
-                item))
-          (stashed (if (stashed-data-p item)
-                       item
-                     (make-stashed-data
-                      :fn  item))))
-      (funcall fn pane port x y width height)
-      (append-display-list pane stashed)))
-  (if legend
-      (draw-accumulated-legend pane port)))
-
-(defun discard-stashes (pane)
-  (dolist (item (display-list-items pane :discard t))
-    (append-display-list pane (if (stashed-data-p item)
-                                  (stashed-data-fn item)
-                                item))
-    ))
+;; ----------------------------------------------------------------------
 
 (defmethod redraw-display-list ((pane <plotter-pane>) port x y width height &key legend)
-  (cond (*needs-recompute*
-         (discard-stashes pane)
-         (discard-legends pane)
-         (dolist (item (display-list-items pane :discard t))
-           (funcall item pane port x y width height)
-           (append-display-list pane (make-stashed-data
-                                      :fn  item)))
-         (if legend
-             (draw-accumulated-legend pane port)))
-        
-        (t
-         (replay-stashed-items pane port x y width height legend))
-        ))
+  (discard-legends pane)
+  (dolist (item (display-list-items pane))
+    (funcall item pane port x y width height))
+  (if legend
+      (draw-accumulated-legend pane port)) )
   
 (defmethod display-callback ((pane <plotter-pane>) x y width height)
   (with-accessors ((nominal-width   plotter-nominal-width )
@@ -145,38 +111,37 @@
                    (prev-frame      plotter-prev-frame    )
                    (notify-cust     plotter-notify-cust   )) pane
 
-    (let ((*needs-recompute*  t)) ;; change to NIL when we have stashed streams in place...
+    ;; check if frame has moved or resized
+    (capi:with-geometry pane
+      (let ((frame  (list capi:%x% capi:%y% capi:%width% capi:%height%)))
+        (unless (equalp frame prev-frame)
+          ;; if so, then we need to recompute cached plotting info
+          (setf prev-frame        frame
+                magn              1
+                sf                (min (/ port-height nominal-height)
+                                       (/ port-width  nominal-width))
+                box               nil) ;; to force a recomputation of box
+          (recompute-transform pane)
+          (recompute-plotting-state pane pane)
+          )))
+    
+    (redraw-display-list pane pane x y width height :legend t)
+    (unless delay-backing
+      (when full-crosshair
+        (draw-crosshair-lines pane full-crosshair prev-x prev-y))
       
-      ;; check if frame has moved or resized
-      (capi:with-geometry pane
-        (let ((frame  (list capi:%x% capi:%y% capi:%width% capi:%height%)))
-          (unless (equalp frame prev-frame)
-            ;; if so, then we need to recompute cached plotting info
-            (setf prev-frame        frame
-                  *needs-recompute* t
-                  magn              1
-                  sf                (min (/ port-height nominal-height)
-                                         (/ port-width  nominal-width))
-                  box               nil) ;; to force a recomputation of box
-            (recompute-transform pane)
-            (recompute-plotting-state pane pane)
-            )))
-
-      (redraw-display-list pane pane x y width height :legend t)
-      (unless delay-backing
-        (when full-crosshair
-          (draw-crosshair-lines pane full-crosshair prev-x prev-y))
-        
-        (when (or (mark-x pane)
-                  (mark-y pane))
-          (draw-mark pane)))
-      
-      (ac:send notify-cust :done)
-      )))
+      (when (or (mark-x pane)
+                (mark-y pane))
+        (draw-mark pane)))
+    
+    (ac:send notify-cust :done)
+    ))
 
 (defun resize-callback (pane x y width height)
   (declare (ignore x y width height))
   (capi:redisplay-element pane))
+
+;; ------------------------------------------------------------------
 
 (defun compute-x-y-at-cursor (pane x y)
   (with-accessors  ((inv-xform       plotter-inv-xform     )
