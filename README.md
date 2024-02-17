@@ -31,7 +31,7 @@ Functions can be plotted using:
 ```
 (FPLOT 'name '(-10 10) (lambda (x) (/ (sin x) x)) :clear t :thick 2)
 ```
-where a domain, `(-10 10), follows the name of the window receiving the plot. Data are generated for a PLOT using a variable density algorithm to present smooth looking curves of the function. We have PARAMPLOT for parametric function plots, COMPLEX-PLOT for complex-plane plots, and many others. You can force an :ASPECT 1 for complex plane plotting to keep the scaling on X and Y the same.
+where a domain, `(-10 10), and function, follows the name of the window receiving the plot. Data are generated for a PLOT using a variable density algorithm to present smooth looking curves of the function. We have PARAMPLOT for parametric function plots, COMPLEX-PLOT for complex-plane plots, and many others. You can force an :ASPECT 1 for complex plane plotting to keep the scaling on X and Y the same.
 
 There are many different styles of plotting as demonstrated in the image above: function plots, line plots, point plots, histogram, filled vertical or horizontal bar charts, image plots for 2-D data, etc, etc... Plots done without :CLEAR T will be drawn on top of an existing plot. So the image above was formed from at least 4 separate PLOT styles on top of each other, plus some annotations added with DRAW-STRING. 
 
