@@ -19,7 +19,7 @@ Using Actors, it would be trivial to invoke multiple concurrent parallel threads
 
 This Plotter code is not overtly Actor driven, but it is Actor-aware, and can usefully signal customer Actors waiting on the redraw to screen. Enclose a whole slew of plotting activity inside a WITH-DELAYED-UPDATE form, using :NOTIFYING for when it has completed. This avoids choppy partial drawings appearing, and presents the final image all in one go. A customer Actor will be sent a :DONE message when the screen has finished redrawing. 
 
-The update rate of Plotter is sufficient for live video productions of time-varying data. I get up to 30 Hz refresh rates in my live telemetry system, just performing a simple PLOT of the data, which completely clears out the previous plot and draws the whole thing all over again with fresh data.
+The update rate of Plotter is sufficient for live video productions of time-varying data. I get up to 30 Hz refresh rates in my live telemetry system, just performing a simple PLOT of the data, which completely clears out the previous plot and redraws the whole thing with fresh data.
 
 The code defines a PLOTTER-PANE which can act alone in a Window, or be used within your own Interface designs, including those with several simultaneous PLOTTER-PANE displays. It is a CAPI:PANE object like any other. PLOTTER-PANE is an augmentation of a CAPI:OUTPUT-PANE.
 
