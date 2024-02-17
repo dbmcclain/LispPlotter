@@ -17,7 +17,7 @@ The new code tries to avoid having unnecessary non-drawing activity take place i
 
 Using Actors, it would be trivial to invoke multiple concurrent parallel threads to perform much of this work. Just SEND to a FORK of all the actions needed. The JOIN is automatic, before sending final results to the customer Actor.
 
-This Plotter code is not overtly Actor driven, but it is Actor-aware, and can usefully signal customer Actors waiting on the redraw to screen. You can enclose a whole slew of plotting activity in WITH-DELAYED-UPDATE, using :NOTIFYING for when it has completed. This avoids choppy partial drawings appearing, and presents the final image all in one go. 
+This Plotter code is not overtly Actor driven, but it is Actor-aware, and can usefully signal customer Actors waiting on the redraw to screen. Enclose a whole slew of plotting activity inside a WITH-DELAYED-UPDATE form, using :NOTIFYING for when it has completed. This avoids choppy partial drawings appearing, and presents the final image all in one go. 
 
 The update rate of Plotter is sufficient for live video productions of time-varying data. I get up to 30 Hz refresh rates in my live telemetry system, just performing a simple PLOT of the data, which completely clears out the previous plot and draws the whole thing all over again with fresh data.
 
