@@ -99,7 +99,6 @@
 (defmethod display-callback ((pane <plotter-pane>) x y width height)
   (with-accessors ((nominal-width   plotter-nominal-width )
                    (nominal-height  plotter-nominal-height)
-                   (box             plotter-box           )
                    (sf              plotter-sf            )
                    (magn            plotter-magn          )
                    (port-width      gp:port-width         )
@@ -119,8 +118,7 @@
           (setf prev-frame        frame
                 magn              1
                 sf                (min (/ port-height nominal-height)
-                                       (/ port-width  nominal-width))
-                box               nil) ;; to force a recomputation of box
+                                       (/ port-width  nominal-width)))
           (recompute-transform pane)
           (recompute-plotting-state pane pane)
           )))
