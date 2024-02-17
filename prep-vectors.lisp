@@ -1,6 +1,22 @@
+;; prep-vectors.lisp - Preprocess data vectors into PlotView pixel-space vectors
+;;
+;; DM/RAL 02/24
+;; ---------------------------------------------------------------
 
 (in-package :plotter)
 
+;; Precompute a pixel-space list of PlotView (x,y) coords suitable for
+;; use by GP:DRAW-POLYGON.
+;;
+;; This transforms data points from data space to pixel space within
+;; the PlotView. That mapping does not change when the frame shrinks
+;; or grows, because that scaling occurs afterward during rendering.
+;;
+;; Doing this offloads a huge amount of work from the CAPI Main
+;; thread. All it needs to do is blast through the list of prepped
+;; coords and perform graphics state transforms along the way. That
+;; would happen in any event.
+;;
 (defun prep-vectors (pane xvector yvector
                           &key
                           plot-style
