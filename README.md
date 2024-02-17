@@ -25,7 +25,7 @@ Ad-hoc plotting of data from the keyboard is as simple as:
 ```
 (PLOT 'name xs ys :clear t :thick 2 :symbol :circle :plot-joined t)
 ```
-where 'name is used to refer to a Window made on demand to plot the data in xs and ys. Any number of additional options can be added with keyword args, as shown here. The data in xs and ys can be any sequence of numbers (LISTS, VECTORS). You can omit the xs, in which case some xs will be generated using an integer ordinal sequence against the provided ys data.
+where 'name is used to refer to a Window made on demand to plot the data in xs and ys. Any number of additional options can be added with keyword args, as shown here. The data in xs and ys can be any sequence of numbers (LIST, VECTOR). You can omit the xs, in which case some xs will be generated using an integer ordinal sequence against the provided ys data.
 
 The data is scanned for its extrema and axes are automatially generated, leaving 15% free space to keep them nice looking for publication, and not too crowded. Axis increments are carefully selected to be multiples of 1,2,and 5, and not some arbitrary crappy increment so often seen. Axis labels are chosen to prevent overcrowding along the axis. And you can furnish your own labeling either with a collection of labels, or with a function that will generate a label given an abscissa.
 
