@@ -78,7 +78,7 @@
 (defvar *cright1* "Copyright (c) 2006-2024 by Refined Audiometrics Laboratory")
 (defvar *cright2* "All rights reserved.")
 
-(defun stamp-logo (pane port logo logo-alpha)
+(defun stamp-logo (pane logo logo-alpha)
   ;; We are positioning inside the plotting region. Not the parent
   ;; frame. Position (0,0) refers to the top-left corner of the
   ;; plotting region. The axis labels are located outside of this
@@ -87,7 +87,7 @@
     (let* ((box (plotter-box pane))
            (bwd (box-width  box))
            (bht (box-height box)))
-      (with-converted-image (image logo port)
+      (with-converted-image (image logo pane)
         (unless (or (zerop (gp:image-width image))
                     (zerop (gp:image-height image)))
           (let* ((iwd  (gp:image-width  image))
@@ -98,9 +98,9 @@
                  (dht  (* sf iht))
                  (top  (* 0.5 (- bht dht)))
                  (left (* 0.5 (- bwd dwd))))
-            (gp:with-graphics-mask (port
+            (gp:with-graphics-mask (pane
                                     (plotter-mask pane))
-              (gp:draw-image port image left top
+              (gp:draw-image pane image left top
                              :from-width  iwd
                              :from-height iht
                              :to-width    dwd
@@ -111,21 +111,21 @@
             )))
       )))
 
-(defun watermark (pane port logo logo-alpha cright1 cright2)
+(defun watermark (pane logo logo-alpha cright1 cright2)
   (let* ((box     (plotter-box pane))
          (font2   (find-best-font pane
                                   :size $tiny-times-font-size))
          (color2  #.(color:make-gray 0.7)))    
-    (stamp-logo pane port logo logo-alpha)
+    (stamp-logo pane logo logo-alpha)
     (let* ((left   18)
            (bottom (- (box-height box) 30)))
-      (draw-string-x-y pane port cright1
+      (draw-string-x-y pane cright1
                        left (- bottom 11)
                        :x-alignment :left
                        :y-alignment :top
                        :font  font2
                        :color color2)
-      (draw-string-x-y pane port cright2
+      (draw-string-x-y pane cright2
                        left bottom
                        :x-alignment :left
                        :y-alignment :top

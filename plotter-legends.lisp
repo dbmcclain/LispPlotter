@@ -3,14 +3,14 @@
 
 ;; ----------------------------------------------------------------
 
-(defun internal-draw-existing-legend (pane port)
+(defun internal-draw-existing-legend (pane)
   (let* ((legend (plotter-legend pane))
          (items  (has-content legend)))
     (when items
-      (with-plotview-coords (pane port)
-        (let* ((font1 (find-best-font port
+      (with-plotview-coords (pane)
+        (let* ((font1 (find-best-font pane
                                       :size $tiny-times-font-size))
-               (font (find-best-font port
+               (font (find-best-font pane
                                      :size $tiny-times-font-size
                                      ;; :size $tiny-times-font-size
                                      ))
@@ -21,7 +21,7 @@
                     (maxht   0))
                 (dolist (item items)
                   (multiple-value-bind (lf tp rt bt)
-                      (gp:get-string-extent port (legend item) font)
+                      (gp:get-string-extent pane (legend item) font)
                     (setf maxwd   (max maxwd (- rt lf))
                           maxht   (max maxht (- bt tp))
                           )))
@@ -59,13 +59,13 @@
                     (width legend)  totwd
                     (height legend) totht)
                 
-              (gp:draw-rectangle port x y effwd effht
+              (gp:draw-rectangle pane x y effwd effht
                                  :filled t
-                                 :foreground (adjust-color port
-                                                           (background-color port)
+                                 :foreground (adjust-color pane
+                                                           (background-color pane)
                                                            0.75))
                 
-              (gp:draw-rectangle port x y effwd effht
+              (gp:draw-rectangle pane x y effwd effht
                                  :foreground (if (highlighted legend)
                                                  :magenta
                                                :black))
@@ -79,7 +79,7 @@
                         ;; ---------------------------------------------
                         (labels ((draw-line (&optional thickness)
                                    (gp:with-graphics-state
-                                       (port
+                                       (pane
                                         :thickness  (or thickness
                                                         (line-thick line-style))
                                         :dashed     (and line-style
@@ -87,14 +87,14 @@
                                         :dash       (and line-style
                                                          (line-dashing line-style))
                                         :foreground (if line-style
-                                                        (adjust-color port
+                                                        (adjust-color pane
                                                                       (line-color line-style)
                                                                       (line-alpha line-style))
-                                                      (adjust-color port
+                                                      (adjust-color pane
                                                                     (fill-color symbol-style)
                                                                     (fill-alpha symbol-style))))
                                      (let ((y (floor (- y (/ effht1 2)))))
-                                       (gp:draw-line port
+                                       (gp:draw-line pane
                                                      (+ x  3) y
                                                      (+ x 33) y)
                                        ))))
@@ -106,7 +106,7 @@
                                     (otherwise
                                      (when line-style
                                        (draw-line))
-                                     (funcall (get-symbol-plotfn port symbol-style)
+                                     (funcall (get-symbol-plotfn pane symbol-style)
                                               (+ x 18) (- y (/ effht1 2))
                                               ))
                                     ))
@@ -115,14 +115,14 @@
                                  ))
                           
                         ;; ---------------------------------------------
-                        (gp:draw-string port (legend item) (+ x 36) (- y 3)
+                        (gp:draw-string pane (legend item) (+ x 36) (- y 3)
                                         :font font1)
                         ))
               ))
           ))
       )))
 
-(defun draw-accumulated-legend (pane port)
+(defun draw-accumulated-legend (pane)
   (unless (eql (plotter-cache-state pane) :drawing)
     (let ((items  (all-legends pane))
           (legend (plotter-legend pane)))
@@ -132,7 +132,7 @@
             
             ((activep legend)
              (setf (has-content legend) items)
-             (internal-draw-existing-legend pane port))
+             (internal-draw-existing-legend pane))
             ))))
 
 (defun refresh-view (pane x y w h)

@@ -37,7 +37,7 @@
 
 ;; -----------------------------------------------------
 
-(defun do-convert-array-to-color-image-for-pane (arr pane port continuation
+(defun do-convert-array-to-color-image-for-pane (arr pane continuation
                                                       &key
                                                       (colormap *current-colormap*)
                                                       first-row
@@ -52,10 +52,10 @@
                         (1- ht))))
     (declare (fixnum wd ht first-row))
     
-    (with-image (port (img #-:WIN32 (gp:make-image port wd ht)
-                           #+:WIN32 (gp:make-image port wd ht :alpha nil)
+    (with-image (pane (img #-:WIN32 (gp:make-image pane wd ht)
+                           #+:WIN32 (gp:make-image pane wd ht :alpha nil)
                            ))
-      (with-image-access (acc (gp:make-image-access port img))
+      (with-image-access (acc (gp:make-image-access pane img))
         
         (labels ((z-value (z)
                    (if zlog
@@ -134,10 +134,10 @@
       
       (funcall continuation img)) ))
 
-(defmacro with-array-converted-to-color-image-for-pane ((arr pane port img args)
+(defmacro with-array-converted-to-color-image-for-pane ((arr pane img args)
                                                         &body body)
   `(apply #'do-convert-array-to-color-image-for-pane
-          ,arr ,pane ,port
+          ,arr ,pane ,pane
           (lambda (,img)
             ,@body)
           ,args))
@@ -154,12 +154,12 @@
                       &allow-other-keys)
   "Internal workhorse routine for TVSCL."
   (let* ((pane (plotter-mixin-of pane))
-         (action (lambda (pane port x y width height)
+         (action (lambda (pane x y width height)
                    (declare (ignore x y width height))
-                   (with-plotview-coords (pane port)
-                     (with-array-converted-to-color-image-for-pane (arr pane port img args)
-                       (gp:with-graphics-scale (port magn magn)
-                         (gp:draw-image port img 0 0))
+                   (with-plotview-coords (pane)
+                     (with-array-converted-to-color-image-for-pane (arr pane img args)
+                       (gp:with-graphics-scale (pane magn magn)
+                         (gp:draw-image pane img 0 0))
                        ))
                    (setf (plotter-magn pane) magn)
                    ))
@@ -191,14 +191,14 @@
                            &allow-other-keys)
   "Internal workhorse for image plotting."
   (let* ((pane    (plotter-mixin-of pane))
-         (action  (lambda (pane port x y width height)
+         (action  (lambda (pane x y width height)
                     (declare (ignore x y width height))
 
-                    (with-plotview-coords (pane port)
-                      (gp:clear-graphics-port port)
-                      (apply 'pw-axes pane port :clear nil args)
+                    (with-plotview-coords (pane)
+                      (gp:clear-graphics-port pane)
+                      (apply 'pw-axes pane :clear nil args)
            
-                      (with-array-converted-to-color-image-for-pane (arr pane port img args)
+                      (with-array-converted-to-color-image-for-pane (arr pane img args)
              
                         (let* ((wd     (array-dimension-of arr 1))
                                (ht     (array-dimension-of arr 0))
@@ -234,9 +234,9 @@
                                       (plt-ht (1+ (- py py2))))
                        
                                   ;; (print (list plt-wd plt-ht))
-                                  (gp:with-graphics-state (port
+                                  (gp:with-graphics-state (pane
                                                            :mask box)
-                                    (gp:draw-image port img
+                                    (gp:draw-image pane img
                                                    px py2
                                                    :from-width  wd
                                                    :from-height ht
@@ -299,21 +299,21 @@
                              &allow-other-keys)
   "Internal workhorse for image rendering."
   (let* ((pane   (plotter-mixin-of pane))
-         (action (lambda (pane port x y wd ht)
+         (action (lambda (pane x y wd ht)
                    (declare (ignore x y wd ht))
-                   (with-plotview-coords (pane port)
-                     (with-image (port (img (gp:convert-external-image port ext-img)))
+                   (with-plotview-coords (pane)
+                     (with-image (pane (img (gp:convert-external-image pane ext-img)))
                        (let* ((from-width  (or from-width  (gp:image-width  img)))
                               (from-height (or from-height (gp:image-height img)))
                               (to-width    (or to-width
                                                (if (>= from-width from-height)
-                                                   (gp:port-width port)
-                                                 (* (gp:port-height port)
+                                                   (gp:port-width pane)
+                                                 (* (gp:port-height pane)
                                                     (/ from-width from-height)))))
                               (to-height   (or to-height
                                                (if (>= from-height from-width)
-                                                   (gp:port-height port)
-                                                 (* (gp:port-width port)
+                                                   (gp:port-height pane)
+                                                 (* (gp:port-width pane)
                                                     (/ from-height from-width))))))
                          #|
                          (pdbg "i-wd: ~A, i-ht: ~A, p-wd: ~A, p-ht: ~A"
@@ -335,7 +335,7 @@
                            (setf (plotter-xform pane) xform
                                  (plotter-inv-xform pane) inv-xform))
                
-                         (gp:draw-image port img to-x to-y
+                         (gp:draw-image pane img to-x to-y
                                         :transform    transform
                                         :from-x       from-x
                                         :from-y       from-y

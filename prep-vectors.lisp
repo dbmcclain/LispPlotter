@@ -23,30 +23,30 @@
                           symbol-for-legend
                           plot-joined
                           &allow-other-keys)
-  (um:let+ ((line-style   (line-style plot-style))
-            (symbol-style (and (not symbol-for-legend)
-                               (symbol-style plot-style)))
-            (nel          (if xvector
-                              (min (length-of xvector) (length-of yvector))
-                            (length-of yvector)))
-            (xlog         (plotter-xlog pane))
-            (xlogfn       (logfn xlog))
-            (ylog         (plotter-ylog pane))
-            (ylogfn       (logfn ylog))
-            (xs           (let ((scanner (make-scanner (or xvector
-                                                           nel))
-                                         ))
-                            (if xlog
-                                (make-transformer scanner xlogfn)
-                              scanner)))
-            (ys           (let ((scanner (make-scanner yvector)))
-                            (if ylog
-                                (make-transformer scanner ylogfn)
-                              scanner)))
-            (pairs        (make-pair-scanner xs ys))
-            (xform        (plotter-xform pane))
-            (xfpairs      (make-gpxform-pairs xform pairs))
-            (:mvb (x0 y0) (gp:transform-point xform 0 0)))
+  (let+ ((line-style   (line-style plot-style))
+         (symbol-style (and (not symbol-for-legend)
+                            (symbol-style plot-style)))
+         (nel          (if xvector
+                           (min (length-of xvector) (length-of yvector))
+                         (length-of yvector)))
+         (xlog         (plotter-xlog pane))
+         (xlogfn       (logfn xlog))
+         (ylog         (plotter-ylog pane))
+         (ylogfn       (logfn ylog))
+         (xs           (let ((scanner (make-scanner (or xvector
+                                                        nel))
+                                      ))
+                         (if xlog
+                             (make-transformer scanner xlogfn)
+                           scanner)))
+         (ys           (let ((scanner (make-scanner yvector)))
+                         (if ylog
+                             (make-transformer scanner ylogfn)
+                           scanner)))
+         (pairs        (make-pair-scanner xs ys))
+         (xform        (plotter-xform pane))
+         (xfpairs      (make-gpxform-pairs xform pairs))
+         (:mvb (x0 y0) (gp:transform-point xform 0 0)))
     (flet ((line-pairs ()
              (let* ((xfpairs (case plot-joined
                                ((:spline)
@@ -118,7 +118,7 @@
 (defun do-with-pts (lst fn)
   (um:nlet iter ((lst  lst))
     (unless (endp lst)
-      (destructuring-bind (x y . rest) lst
+      (let+ (( (x y . rest) lst))
         (funcall fn x y)
         (go-iter rest))
       )))
@@ -137,7 +137,7 @@
 (defun do-with-rects (lst fn)
   (um:nlet iter ((lst lst))
     (unless (endp lst)
-      (destructuring-bind (x y w h . rest) lst
+      (let+ (( (x y w h . rest) lst))
         (funcall fn x y w h)
         (go-iter rest)))
     ))

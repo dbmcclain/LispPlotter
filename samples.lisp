@@ -183,3 +183,30 @@
 (plotter-mask *plt-l*)
 (plotter-mask *plt-r*)
 
+;; ----------------------------------------------------------
+
+(let* ((drawing-area  (make-instance '<plotter-pane>
+                                     :x  50
+                                     :y  50
+                                     :width 200
+                                     :height 150))
+       (pinboard (make-instance 'capi:pinboard-layout
+                                :description
+                                (list
+                                 drawing-area)
+                                :background :gray30
+                                :x 120
+                                :y 20
+                                :width 400
+                                :height 300))
+       (outer-pb (make-instance 'capi:pinboard-layout
+                                :description
+                                (list pinboard))))
+  (capi:contain outer-pb
+                :best-width  800
+                :best-height 600)
+  (fplot drawing-area '(-20 20)
+         #'sinc
+         :clear t
+         :title "Sinc(x)"
+         :thick 2))

@@ -157,16 +157,16 @@
              (symbol-function x)))
       ))
 
-(defmethod pw-axes ((cpw <plotter-mixin>) port &rest args)
-  (cond ((eql (plotter-cache-state cpw) :drawing)
-         (gp:copy-pixels port (plotter-cache-pixmap cpw)
-                         0 0 (gp:port-width cpw) (gp:port-height cpw) 0 0))
+(defmethod pw-axes ((pane <plotter-mixin>) &rest args)
+  (cond ((eql (plotter-cache-state pane) :drawing)
+         (gp:copy-pixels pane (plotter-cache-pixmap pane)
+                         0 0 (gp:port-width pane) (gp:port-height pane) 0 0))
         
         (t
-         (apply 'internal-pw-axes cpw port args))
+         (apply 'internal-pw-axes pane args))
         ))
 
-(defun internal-pw-axes (cpw port
+(defun internal-pw-axes (pane
                              &key
                              (fullgrid t)
                              (xtitle "X")
@@ -184,15 +184,15 @@
                              (clear t)
                              x-values
                              &allow-other-keys)
-  (recompute-transform cpw)
-  (let* ((box      (plotter-box cpw))
-         (xform    (plotter-xform cpw))
-         (xlog     (plotter-xlog cpw))
+  (recompute-transform pane)
+  (let* ((box      (plotter-box pane))
+         (xform    (plotter-xform pane))
+         (xlog     (plotter-xlog pane))
          (iqxalog  (alogfn xlog))
          (iqxlog   (logfn xlog))
          (iqxmin   (if xlog 1 0))
            
-         (ylog     (plotter-ylog cpw))
+         (ylog     (plotter-ylog pane))
          (iqyalog  (alogfn ylog))
          (iqylog   (logfn ylog))
          (iqymin   (if ylog 1 0)))
@@ -203,58 +203,58 @@
                         :foreground :white
                         :compositing-mode :copy
                         :shape-mode :plain)
-             port (bounding-region cpw))
+             pane (bounding-region pane))
 
       (when watermarkfn
         ;; watermark is affected by scaling and translation of the transform
-        (with-plotview-coords (cpw port)
-          (funcall watermarkfn cpw port logo logo-alpha
+        (with-plotview-coords (pane)
+          (funcall watermarkfn pane logo logo-alpha
                    cright1 cright2))))
     
-    (with-plotview-coords (cpw port)
+    (with-plotview-coords (pane)
       (when title
-        (draw-string-x-y cpw port title
+        (draw-string-x-y pane title
                          (floor (box-width box) 2)
                          -5
                          :x-alignment :center
                          :y-alignment :bottom
-                         :font        (find-best-font port
+                         :font        (find-best-font pane
                                                       :size $big-times-font-size)
                          ))
       
       (when axes
         ;; draw a bold frame from top-left to bottom-left to bottom-right
-        (gp:draw-polygon port `(0 0 0 ,(box-height box) ,(box-width box) ,(box-height box))))
+        (gp:draw-polygon pane `(0 0 0 ,(box-height box) ,(box-width box) ,(box-height box))))
     
       ;; draw a bold line representing the x-axis at y=0
-      (gp:with-graphics-state (port
-                               :mask (plotter-mask cpw)
+      (gp:with-graphics-state (pane
+                               :mask (plotter-mask pane)
                                :foreground :gray50
                                :thickness 2
                                :scale-thickness t)
         (when (and axis-values
                    y-axis-values)
-          ;; (ac:send ac:fmt-println "mask = ~A" (plotting-region cpw))
-          (ac:let+ ((:mvb (_ y0) (gp:transform-point xform 0 (funcall iqylog iqymin))))
-            (gp:draw-polygon port `(0 ,y0 ,(box-width box) ,y0))
+          ;; (ac:send ac:fmt-println "mask = ~A" (plotting-region pane))
+          (let+ ((:mvb (_ y0) (gp:transform-point xform 0 (funcall iqylog iqymin))))
+            (gp:draw-polygon pane `(0 ,y0 ,(box-width box) ,y0))
             ))
     
         ;; draw a bold line representing the y-axis at x=0
         (when (and axis-values
                    x-axis-values)
           (let ((x0  (gp:transform-point xform (funcall iqxlog iqxmin) 0)))
-            (gp:draw-polygon port `(,x0 0 ,x0 ,(box-height box)))
+            (gp:draw-polygon pane `(,x0 0 ,x0 ,(box-height box)))
             )))
         
       ;; ----------------------------------------------------------------
       ;; Label the x-axis
     
       ;; font is affected by transform scaling
-      (let ((font  (find-best-font port
+      (let ((font  (find-best-font pane
                                    :size $normal-times-font-size
                                    )))
         (when xtitle
-          (draw-string-x-y cpw port xtitle
+          (draw-string-x-y pane xtitle
                            (floor (box-width box) 2)
                            (+ (box-height box)
                               (if axis-values #+:WIN32 16 #-:WIN32 15 5))
@@ -263,8 +263,8 @@
                            :y-alignment :top)
           (when (and axis-values
                      x-axis-values)
-            (let* ((_xmin   (plotter-xmin cpw))
-                   (_xmax   (plotter-xmax cpw))
+            (let* ((_xmin   (plotter-xmin pane))
+                   (_xmax   (plotter-xmax pane))
                    (_xlast  nil)
                    (_xstart nil))
               (destructuring-bind (x0 dx nl nu) (calc-start-delta _xmin _xmax)
@@ -275,7 +275,7 @@
                            (let* ((xpos  (gp:transform-point xform xval 0))
                                   (ypos  (+ (box-height box) #+:WIN32 2 #-:WIN32 3))
                                   (xlast (draw-string-x-y
-                                          cpw port
+                                          pane
                                           (cond ((funcallable-p x-values)
                                                  (funcall x-values xval))
                                                 ((consp x-values)
@@ -292,26 +292,26 @@
                              
                              (when fullgrid
                                (when xlog
-                                 (with-color (port #.(color:make-gray 0.75))
+                                 (with-color (pane #.(color:make-gray 0.75))
                                    (loop for ix in *log-subdivs* do
                                            (let ((x (gp:transform-point xform (+ xval ix) 0)))
                                              (if (< 0 x (box-width box))
                                                  (gp:draw-line
-                                                  port
+                                                  pane
                                                   x 0
                                                   x (box-height box))
                                                )))
                                    ))
-                               (with-color (port (if (vectorp fullgrid)
+                               (with-color (pane (if (vectorp fullgrid)
                                                      fullgrid
                                                    (color:make-gray
                                                     (if xlog 0.5 0.75))))
-                                 (gp:draw-line port
+                                 (gp:draw-line pane
                                                xpos 0
                                                xpos (box-height box))
                                  ))
                              
-                             (gp:draw-line port
+                             (gp:draw-line pane
                                            xpos (- (box-height box) 2)
                                            xpos (+ (box-height box) 3))
                              
@@ -337,7 +337,7 @@
         ;; Label the y axis
         
         (when ytitle
-          (draw-vert-string-x-y cpw port ytitle
+          (draw-vert-string-x-y pane ytitle
                                 #+(AND :WIN32 (NOT (OR :LISPWORKS6.1 :LISPWORKS7 :LISPWORKS8))) 0
                                 #+(AND :COCOA (NOT (OR :LISPWORKS6.1 :LISPWORKS7 :LISPWORKS8))) (if axis-values  -3 -15)
                                 #+(OR :LISPWORKS6.1 :LISPWORKS7 :LISPWORKS8)                    (if axis-values -15 -20)
@@ -347,8 +347,8 @@
                                 :y-alignment :top)
           (when (and axis-values
                      y-axis-values)
-            (let* ((_ymin   (plotter-ymin cpw))
-                   (_ymax   (plotter-ymax cpw))
+            (let* ((_ymin   (plotter-ymin pane))
+                   (_ymax   (plotter-ymax pane))
                    (_ylast  nil)
                    (_ystart nil))
               (destructuring-bind (y0 dy nl nu) (calc-start-delta _ymin _ymax)
@@ -361,7 +361,7 @@
                              (declare (ignore xpos))
                              (let* ((xpos  #+:WIN32 -1 #-:WIN32 -3)
                                     (ylast (draw-vert-string-x-y
-                                            cpw port
+                                            pane
                                             (plabel (funcall iqyalog yval))
                                             xpos ypos
                                             :prev-bounds yprev
@@ -372,28 +372,28 @@
                                
                                (when fullgrid
                                  (when ylog
-                                   (with-color (port #.(color:make-gray 0.75))
+                                   (with-color (pane #.(color:make-gray 0.75))
                                      (loop for ix in *log-subdivs* do
                                              (multiple-value-bind (x y)
                                                  (gp:transform-point xform 0 (+ yval ix))
                                                (declare (ignore x))
                                                (if (> (box-height box) y 0)
                                                    (gp:draw-line
-                                                    port
+                                                    pane
                                                     1 y
                                                     (box-width box) y)
                                                  )))
                                      ))
-                                 (with-color (port (if (vectorp fullgrid)
+                                 (with-color (pane (if (vectorp fullgrid)
                                                        fullgrid
                                                      (color:make-gray
                                                       (if ylog 0.5 0.75))))
-                                   (gp:draw-line port
+                                   (gp:draw-line pane
                                                  1 ypos
                                                  (box-width box) ypos)
                                    ))
                                
-                               (gp:draw-line port
+                               (gp:draw-line pane
                                              -2 ypos
                                              3 ypos)
                                ylast))))

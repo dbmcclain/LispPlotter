@@ -36,23 +36,23 @@
         (list (if islog 0.1 0) 1))
       )))
 
-(defun nominal-box (cpw box)
+(defun nominal-box (pane box)
   (with-accessors ((nom-wd  plotter-nominal-width)
-                   (nom-ht  plotter-nominal-height)) cpw
+                   (nom-ht  plotter-nominal-height)) pane
     (or box
         (inset-box-sides
          (list 0 0 nom-wd nom-ht)
          +LEFT-INSET+ +TOP-INSET+ +RIGHT-INSET+ +BOTTOM-INSET+)
         )))
 
-(defmethod pw-init-xv-yv ((cpw <plotter-mixin>) xv yv
+(defmethod pw-init-xv-yv ((pane <plotter-mixin>) xv yv
                           &key xrange yrange box xlog ylog aspect
                           &allow-other-keys)
   ;; initialize basic plotting parameters -- log scale axes, axis ranges,
   ;; plotting interior region (the box), and the graphic transforms to/from
   ;; data space to "pixel" space.  Pixel in quotes because they are real pixels
   ;; on Win/XP, but something altogether different on OS/X Display PDF.
-  (let ((_box (nominal-box cpw box)))
+  (let ((_box (nominal-box pane box)))
     (destructuring-bind (_xmin _xmax)
         (if xv
             (get-range xrange xv xlog)
@@ -76,27 +76,27 @@
             (setf _xmax (min (+ _xmax dx) $largest-permissible-value))
             ))
         
-        (setf (plotter-box  cpw) _box
-              (plotter-xmin cpw) _xmin
-              (plotter-xmax cpw) _xmax
-              (plotter-ymin cpw) _ymin
-              (plotter-ymax cpw) _ymax
-              (plotter-xlog cpw) xlog
-              (plotter-ylog cpw) ylog
-              (plotter-aspect cpw) aspect)
-        (recompute-transform cpw)
+        (setf (plotter-box  pane) _box
+              (plotter-xmin pane) _xmin
+              (plotter-xmax pane) _xmax
+              (plotter-ymin pane) _ymin
+              (plotter-ymax pane) _ymax
+              (plotter-xlog pane) xlog
+              (plotter-ylog pane) ylog
+              (plotter-aspect pane) aspect)
+        (recompute-transform pane)
         ))))
 
-(defun recompute-transform (cpw)
+(defun recompute-transform (pane)
   (with-accessors ((box    plotter-box)
                    (xmin   plotter-xmin)
                    (xmax   plotter-xmax)
                    (ymin   plotter-ymin)
                    (ymax   plotter-ymax)
                    (aspect plotter-aspect)
-                   (sf     plotter-sf)) cpw
+                   (sf     plotter-sf)) pane
         
-    (let* ((_box   (nominal-box cpw box))
+    (let* ((_box   (nominal-box pane box))
            (dx     (- xmax xmin))
            (dy     (- ymin ymax))
            (xscale (qdiv (box-width  _box) dx))
@@ -174,15 +174,15 @@
         ;; transform which follows goes the extra mile of converting
         ;; from screen coords to function space coords.
         ;; ---------------------------------------------------------------
-        (setf (plotter-xform cpw) (gp:copy-transform xform)
-              (plotter-box   cpw) _box)
+        (setf (plotter-xform pane) (gp:copy-transform xform)
+              (plotter-box   pane) _box)
 
         (gp:apply-translation xform +LEFT-INSET+ +TOP-INSET+)
         (gp:apply-scale xform sf sf)
         (gp:invert-transform xform   inv-xform)
         
-        (setf (plotter-inv-xform cpw) inv-xform
-              (plotter-mask      cpw) (plotting-region cpw))
+        (setf (plotter-inv-xform pane) inv-xform
+              (plotter-mask      pane) (plotting-region pane))
       ))))
 
 #|
@@ -309,11 +309,11 @@
 (defun vector-group-max (yvecs)
   (reduce #'max (mapcar #'vmax-of yvecs)))
 
-(defun pw-init-bars-xv-yv (cpw xvec yvecs &rest args)
+(defun pw-init-bars-xv-yv (pane xvec yvecs &rest args)
   ;; just run the usual scaling initialization
   ;; but against a y-vector that contains those values
   ;; from the multiple vectors which have the largest absolute values
-  (apply #'pw-init-xv-yv cpw
+  (apply #'pw-init-xv-yv pane
          (or (and xvec
                   (list (vmin-of xvec) (vmax-of xvec)))
              (and yvecs

@@ -22,15 +22,15 @@
 ;; It seems sad that we need to know that graphics-state is a STRUCT.
 ;; This is not future-proof design.
 ;;
-(defun do-with-saved-graphics-state (port fn)
-  (let ((sav  (get-graphics-state port)))
+(defun do-with-saved-graphics-state (pane fn)
+  (let ((sav  (get-graphics-state pane)))
     (unwind-protect
         (funcall fn)
-      (set-graphics-state port sav))
+      (set-graphics-state pane sav))
     ))
         
-(defmacro with-saved-graphics-state (port &body body)
-  `(do-with-saved-graphics-state ,port (lambda ()
+(defmacro with-saved-graphics-state (pane &body body)
+  `(do-with-saved-graphics-state ,pane (lambda ()
                                          ,@body)))
 
 ;; -------------------------------------------------------
@@ -43,37 +43,37 @@
 (defstruct saved-gs
   state xform)
 
-(defun get-graphics-state (port)
-  (let* ((gs    (copy-structure (gp:port-graphics-state port)))
+(defun get-graphics-state (pane)
+  (let* ((gs    (copy-structure (gp:port-graphics-state pane)))
          (xform (gp:copy-transform (gp:graphics-state-transform gs))))
     (make-saved-gs
      :state gs
      :xform xform)
     ))
 
-(defun set-graphics-state (port saved)
+(defun set-graphics-state (pane saved)
   (let ((new-gs    (copy-structure (saved-gs-state saved)))
         (new-xform (gp:copy-transform (saved-gs-xform saved)))
-        (mask      (gp:graphics-state-mask (gp:port-graphics-state port))))
+        (mask      (gp:graphics-state-mask (gp:port-graphics-state pane))))
     (setf (gp:graphics-state-transform new-gs) new-xform ;; restore the transform
           (gp:graphics-state-mask      new-gs) mask      ;; carry along the current clipping mask
-          (gp:port-graphics-state      port)   new-gs)   ;; restore the state
+          (gp:port-graphics-state      pane)   new-gs)   ;; restore the state
     ))
 
 ;; -----------------------
 
-(defun do-with-new-graphics-state (port new-gs fn)
-  (with-saved-graphics-state port
-    (set-graphics-state port new-gs)
+(defun do-with-new-graphics-state (pane new-gs fn)
+  (with-saved-graphics-state pane
+    (set-graphics-state pane new-gs)
     (funcall fn)))
 
-(defmacro with-new-graphics-state ((port new-state) &body body)
-  `(do-with-new-graphics-state ,port ,new-state (lambda ()
+(defmacro with-new-graphics-state ((pane new-state) &body body)
+  `(do-with-new-graphics-state ,pane ,new-state (lambda ()
                                                   ,@body)))
 
 ; -------------------------------------------------------------
 
-(defun do-with-plotview-coords (pane port fn)
+(defun do-with-plotview-coords (pane fn)
   ;;
   ;; Inside here we should work, with unscaled screen-level coords
   ;; for, the plotview - a viewport that assumes origin at top-left
@@ -131,13 +131,13 @@
   ;; coordinates.
   ;;
   (with-accessors ((plot-state plotter-plotting-gs)) pane
-    (with-new-graphics-state (port plot-state)
+    (with-new-graphics-state (pane plot-state)
       (funcall fn))
     ))
 
-(defmacro with-plotview-coords ((pane port) &body body)
-  `(do-with-plotview-coords ,pane ,port (lambda ()
-                                          ,@body)))
+(defmacro with-plotview-coords ((pane) &body body)
+  `(do-with-plotview-coords ,pane (lambda ()
+                                    ,@body)))
 
 ;; ---------------------------------------------------
 ;; We don't have a PORT until we get called during REDRAW callback
@@ -145,43 +145,43 @@
 ;; save cycles in the main CAPI thread. But we can compute just once
 ;; during the REDRAW and save on repeated needs.
 ;;
-(defun compute-graphics-state (pane port)
+(defun compute-graphics-state (pane)
   ;; Precompute and cache state for the necessary plotting transforms
   ;; for use inside the PlotView region.
   (with-accessors ((sf    plotter-sf)) pane
-    (with-saved-graphics-state port
-      (gp:with-graphics-state (port
+    (with-saved-graphics-state pane
+      (gp:with-graphics-state (pane
                                ;; :transform (gp:make-transform)
                                :scale-thickness t)
-        (gp:with-graphics-scale (port sf sf)
-          (gp:with-graphics-translation (port +LEFT-INSET+ +TOP-INSET+)
-            (get-graphics-state port)
+        (gp:with-graphics-scale (pane sf sf)
+          (gp:with-graphics-translation (pane +LEFT-INSET+ +TOP-INSET+)
+            (get-graphics-state pane)
             )))
       )))
 
 ;; ------------------------------------------------------------
 ;; To be used at the top of the REDRAW callback
 
-(defun do-with-drawing-graphics-state (pane port fn)
+(defun do-with-drawing-graphics-state (pane fn)
   (with-accessors ((init-state  plotter-initial-gs)
                    (plot-state  plotter-plotting-gs)) pane
     (unless init-state
       ;; what else can we do? just grab first seen instance as our
       ;; initial state
-      (setf init-state (get-graphics-state port)))
-    (with-new-graphics-state (port init-state)
+      (setf init-state (get-graphics-state pane)))
+    (with-new-graphics-state (pane init-state)
       ;; we have to recompute because the port might have changed size
       ;; and scaling
-      (setf plot-state (compute-graphics-state pane port))
+      (setf plot-state (compute-graphics-state pane))
       (funcall fn))
     ))
 
-(defun recompute-plotting-state (pane port)
-  (do-with-drawing-graphics-state pane port #'lw:do-nothing))
+(defun recompute-plotting-state (pane)
+  (do-with-drawing-graphics-state pane #'lw:do-nothing))
 
-(defmacro with-drawing-graphics-state ((pane port) &body body)
-  `(do-with-drawing-graphics-state ,pane ,port (lambda ()
-                                                 ,@body)))
+(defmacro with-drawing-graphics-state ((pane) &body body)
+  `(do-with-drawing-graphics-state ,pane (lambda ()
+                                           ,@body)))
 
 ;; ---------------------------------------------------------
 #| ... Unused...

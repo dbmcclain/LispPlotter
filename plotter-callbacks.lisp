@@ -82,19 +82,19 @@
                   (hdraw yy 0 (gp:port-width pane)))) ))))
       (redraw-legend pane) )))
 
+;; ----------------------------------------------------------------------
+
 #+:WIN32
 (defmethod win32-display-callback ((pane <plotter-pane>) x y width height)
   (when (gp:port-representation pane)
     (display-callback pane x y width height)))
 
-;; ----------------------------------------------------------------------
-
-(defmethod redraw-display-list ((pane <plotter-pane>) port x y width height &key legend)
+(defmethod redraw-display-list ((pane <plotter-pane>) x y width height &key legend)
   (discard-legends pane)
   (dolist (item (display-list-items pane))
-    (funcall item pane port x y width height))
+    (funcall item pane x y width height))
   (if legend
-      (draw-accumulated-legend pane port)) )
+      (draw-accumulated-legend pane)) )
   
 (defmethod display-callback ((pane <plotter-pane>) x y width height)
   (with-accessors ((nominal-width   plotter-nominal-width )
@@ -120,10 +120,10 @@
                 sf                (min (/ port-height nominal-height)
                                        (/ port-width  nominal-width)))
           (recompute-transform pane)
-          (recompute-plotting-state pane pane)
+          (recompute-plotting-state pane)
           )))
     
-    (redraw-display-list pane pane x y width height :legend t)
+    (redraw-display-list pane x y width height :legend t)
     (unless delay-backing
       (when full-crosshair
         (draw-crosshair-lines pane full-crosshair prev-x prev-y))

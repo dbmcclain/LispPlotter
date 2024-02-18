@@ -10,7 +10,7 @@
    (#:vmath    #:com.ral.vectorized-math)
    ;; (#:vm       #:com.ral.vectorized-math)
    (#:interpolation #:com.ral.interpolation))
-  (:use   #:common-lisp #:vops) ;; #:com.ral.vector-ops)
+  (:use   #:common-lisp #:vops #:def*) ;; #:com.ral.vector-ops)
   (:export
    #:sinc
    #:find-named-plotter-pane
