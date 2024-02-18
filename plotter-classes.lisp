@@ -238,7 +238,7 @@
                                                                    :text "Copy to clipboard")
                                                    ,(make-instance 'capi:menu-item
                                                                    :data :print-image
-                                          :text "Print image")
+                                                                   :text "Print image")
                                                    ,(make-instance 'capi:menu-item
                                                                    :data :save-image
                                                                    :text "Save image")))

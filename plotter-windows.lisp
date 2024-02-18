@@ -22,6 +22,7 @@
          (plotter-mixin-of win))))
 
 ;; ---------------------------------------------------------------
+
 (defclass <plotter-window> (capi:interface)
   ((drawing-area  :accessor drawing-area  :initarg :drawing-area)))
 
@@ -35,14 +36,14 @@
                 name x y)))
   
 (defun make-plotter-window (&key
-                            (name       0)
-                            (title      "Plot")
-                            (fg         :black)
-                            (bg         :white)
-                            (foreground fg)
-                            (background bg)
-                            (xsize      400)
-                            (ysize      300)
+                            (name               0)
+                            (title              "Plot")
+                            (fg                 :black)
+                            (bg                 :white)
+                            (foreground         fg)
+                            (background         bg)
+                            (xsize              400)
+                            (ysize              300)
                             xpos
                             ypos
                             (best-width         xsize)
@@ -70,12 +71,14 @@
                              :visible-max-height visible-max-height
                              :cursor             cursor
                              :full-crosshair     full-crosshair
-                             )))
+                             ))
+        (wd    (1- xsize))
+        (ht    (1- ysize)))
     (setf (plotter-xmin pane) 0
           (plotter-ymin pane) 0
-          (plotter-xmax pane) (1- xsize)
-          (plotter-ymax pane) (1- ysize)
-          (plotter-box  pane) (list 0 0 (1- xsize) (1- ysize)))
+          (plotter-xmax pane) wd
+          (plotter-ymax pane) ht
+          (plotter-box  pane) (list 0 0 wd ht))
     (make-instance window-class
                    :name           name
                    :title          title
@@ -102,11 +105,11 @@
                                             :accelerator   "accelerator-p"))
                                    :callback-type :data
                                    :callback-data-function  (constantly pane)))
-                   :visible-min-width  #-:WIN32 visible-min-width #+:WIN32 (+ visible-min-width 4)
-                   :visible-max-width  #-:WIN32 visible-max-width #+:WIN32 (+ visible-max-width 4)
+                   :visible-min-width  #-:WIN32 visible-min-width  #+:WIN32 (+ visible-min-width  4)
+                   :visible-max-width  #-:WIN32 visible-max-width  #+:WIN32 (+ visible-max-width  4)
                    :visible-min-height #-:WIN32 visible-min-height #+:WIN32 (+ visible-min-height 4)
                    :visible-max-height #-:WIN32 visible-max-height #+:WIN32 (+ visible-max-height 4)
-                   :best-width         #-:WIN32 best-width #+:WIN32 (+ best-width 4)
+                   :best-width         #-:WIN32 best-width  #+:WIN32 (+ best-width  4)
                    :best-height        #-:WIN32 best-height #+:WIN32 (+ best-height 4)
                    :best-x             best-x
                    :best-y             best-y
@@ -117,17 +120,17 @@
 (defvar *plotter-window-class* '<plotter-window>)
 
 (defun window (name &key
-                    (title      (format nil "~A" name))
-                    (background #.(color:make-gray 1))
-                    (foreground #.(color:make-gray 0))
-                    (width      400)
-                    (height     300)
-                    (xsize      width)
-                    (ysize      height)
+                    (title              (format nil "~A" name))
+                    (background         #.(color:make-gray 1))
+                    (foreground         #.(color:make-gray 0))
+                    (width              400)
+                    (height             300)
+                    (xsize              width)
+                    (ysize              height)
                     x
                     y
-                    (xpos       x)
-                    (ypos       y)
+                    (xpos               x)
+                    (ypos               y)
                     (best-width         xsize)
                     (best-height        ysize)
                     (best-x             xpos)
@@ -139,8 +142,8 @@
                     (cursor             (or *cross-cursor*
                                             :crosshair))
                     full-crosshair
-                    (window-styles '(:internal-borderless))
-                    (window-class *plotter-window-class*)
+                    (window-styles      '(:internal-borderless))
+                    (window-class       *plotter-window-class*)
                     &allow-other-keys)
 
   (wclose name)
