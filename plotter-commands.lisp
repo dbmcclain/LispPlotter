@@ -12,16 +12,6 @@
 
 ;; -------------------------------------------------------------------
 
-#|
-(defun set-reply-mbox (pane mbox)
-  (unless (eq mp:*current-process* mp:*main-process*)
-    (when mbox
-      (loop until (mp:mailbox-empty-p mbox) do
-            (mp:mailbox-read mbox))
-      (push mbox (reply-mboxes pane))
-      )))
-|#
-
 (defun add-to-work-order (pane action fresh)
   ;; Set up the pane to peform work in the CAPI thread.
   (capi:apply-in-pane-process
@@ -118,51 +108,50 @@
                     ;;(fullgrid t)
                    
                     &allow-other-keys)
-  (multiple-value-bind (xv yv)
-      (cond (xv
-             (filter-potential-x-y-nans-and-infinities xv yv xlog ylog))
-            (yv
-             (values nil
-                     (filter-potential-nans-and-infinities yv ylog)))
-            (t (values nil nil)))
-    
-    (let+ ((pane  (plotter-mixin-of pane args))
-           (style (apply 'get-plot-style args))
-           (fresh (or clear
-                      (display-list-empty-p pane)))
-           (augm-args (if fresh
-                          (list*
-                           :plot-style style
-                           ;; :color     color
-                           ;; :linewidth linewidth
-                           ;; :fullgrid  fullgrid
-                           :logo       logo
-                           :logo-alpha logo-alpha
-                           :cright1    cright1
-                           :cright2    cright2
-                           args)
-                        ;; else
+  (let+ ((:mvb (xvf yvf)
+          (cond (xv
+                 (filter-potential-x-y-nans-and-infinities xv yv xlog ylog))
+                (yv
+                 (values nil
+                         (filter-potential-nans-and-infinities yv ylog)))
+                ))
+         (pane  (plotter-mixin-of pane args))
+         (style (apply 'get-plot-style args))
+         (fresh (or clear
+                    (display-list-empty-p pane)))
+         (augm-args (if fresh
                         (list*
                          :plot-style style
-                         ;; :color color
-                         args)))
-           (_    (when fresh
-                   (apply 'pw-init-xv-yv pane xv yv augm-args)))
-           (:mvb (prepped symbol-fn)  (apply #'prep-vectors pane xv yv augm-args))
-           (action    (if fresh
-                          (lambda (pane x y width height)
-                            (declare (ignore x y width height))
-                            (apply 'pw-axes pane augm-args)
-                            (apply 'pw-plot-prepped pane prepped symbol-fn augm-args)
-                            )
-                        ;; else
+                         ;; :color     color
+                         ;; :linewidth linewidth
+                         ;; :fullgrid  fullgrid
+                         :logo       logo
+                         :logo-alpha logo-alpha
+                         :cright1    cright1
+                         :cright2    cright2
+                         args)
+                      ;; else
+                      (list*
+                       :plot-style style
+                       ;; :color color
+                       args)))
+         (_    (when fresh
+                 (apply 'pw-init-xv-yv pane xvf yvf augm-args)))
+         (:mvb (prepped symbol-fn)  (apply #'prep-vectors pane xvf yvf augm-args))
+         (action    (if fresh
                         (lambda (pane x y width height)
                           (declare (ignore x y width height))
+                          (apply 'pw-axes pane augm-args)
                           (apply 'pw-plot-prepped pane prepped symbol-fn augm-args)
                           )
-                        )))
-      (add-to-work-order pane action fresh)
-      )))
+                      ;; else
+                      (lambda (pane x y width height)
+                        (declare (ignore x y width height))
+                        (apply 'pw-plot-prepped pane prepped symbol-fn augm-args)
+                        )
+                      )))
+    (add-to-work-order pane action fresh)
+    ))
 
 ;; -------------------------------------------------------------------
 

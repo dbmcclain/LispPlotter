@@ -231,6 +231,9 @@
       (fplot plt '(-20 20) #'sinc :clear t :thick 2))
     ))
      
+(let ((pane (make-instance 'thing)))
+  (sleep 1)
+  (capi:contain pane))
 
 (capi:contain (make-instance 'thing))
 
