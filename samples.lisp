@@ -210,3 +210,21 @@
          :clear t
          :title "Sinc(x)"
          :thick 2))
+
+;; -----------------------------------------------
+
+(defclass thing (capi:pinboard-layout)
+  ((plt    :accessor thing-plt)))
+
+(defmethod initialize-instance :after ((obj thing) &key &allow-other-keys)
+  (let ((plt  (make-instance '<plotter-pane>
+                             :x 30
+                             :y 20
+                             :width  200
+                             :height 150)))
+    (setf (thing-plt obj) plt)
+    (push plt (capi:layout-description obj))))
+
+(capi:contain (make-instance 'thing))
+
+                             

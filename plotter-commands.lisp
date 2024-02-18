@@ -301,6 +301,7 @@
                       (apply 'pw-axes pane augm-args))
                     ))
       ;; do the init setup in our own thread
+      (discard-display-list pane)
       (apply 'pw-init-xv-yv pane xv yv augm-args)
       (add-to-work-order pane action)
       )))
