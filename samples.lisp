@@ -11,6 +11,8 @@
            ;; :plot-joined t
            )
 
+(clear 'plt)
+
 ;; ---------------------------------------------
 
 (plt:fplot 'plt '(-5 5) #'exp
@@ -216,15 +218,40 @@
 (defclass thing (capi:pinboard-layout)
   ((plt    :accessor thing-plt)))
 
-(defmethod initialize-instance :after ((obj thing) &key &allow-other-keys)
+(defmethod initialize-instance :after ((obj thing) &key (pltx 30) (plty 10) (pltw 200) (plth 150) &allow-other-keys)
   (let ((plt  (make-instance '<plotter-pane>
-                             :x 30
-                             :y 20
-                             :width  200
-                             :height 150)))
+                             :x      pltx
+                             :y      plty
+                             :width  pltw
+                             :height plth
+                             )))
     (setf (thing-plt obj) plt)
-    (push plt (capi:layout-description obj))))
+    (push plt (capi:layout-description obj))
+    (ac:with-actors
+      (fplot plt '(-20 20) #'sinc :clear t :thick 2))
+    ))
+     
 
 (capi:contain (make-instance 'thing))
+
+(let ((athing (capi:contain (make-instance 'thing))))
+  (sleep 1)
+  (let ((plt2  (make-instance '<plotter-pane>
+                              :x       150
+                              :y       130
+                              :width   200
+                              :height  150)))
+    (capi:apply-in-pane-process
+     athing
+     (lambda ()
+       (push plt2 (capi:layout-description athing))
+       (ac:with-actors
+        (fplot plt2 '(-10 10) #'sinc :clear t :thick 2 :color :red))))
+    ))
+
+
+(let ((athing (capi:contain (make-instance 'thing))))
+  (inspect athing)
+  (fplot (thing-plt athing) '(-20 20) #'sinc :clear t :thick 2))
 
                              

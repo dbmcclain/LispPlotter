@@ -173,7 +173,7 @@
                    :xrange `(0 ,wd)
                    :yrange `(0 ,ht)
                    :box    `(0 0 ,(* magn wd) ,(* magn ht)))
-    (add-to-work-order pane action)
+    (add-to-work-order pane action clear)
     ))
 
 ;; user callable routine
@@ -246,10 +246,8 @@
                                 )))
                           ))))
                   ))
-    (when clear
-      (discard-display-list pane))
     (apply 'pw-init-xv-yv pane xv yv args)
-    (add-to-work-order pane action)
+    (add-to-work-order pane action clear)
     ))
 
 (defun plot-image (pane xv yv image-arr &rest args)
@@ -348,9 +346,7 @@
                      (setf (plotter-magn pane) magn)
                      ))
                  ))    
-    (when clear
-      (discard-display-list pane))
-    (add-to-work-order pane action)
+    (add-to-work-order pane action clear)
     ))
 
 ;; user callable routine

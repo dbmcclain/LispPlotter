@@ -181,7 +181,6 @@
                              (logo-alpha *ext-logo-alpha*)
                              (cright1 *cright1*)
                              (cright2 *cright2*)
-                             (clear t)
                              x-values
                              &allow-other-keys)
   (recompute-transform pane)
@@ -197,19 +196,18 @@
          (iqylog   (logfn ylog))
          (iqymin   (if ylog 1 0)))
 
-    (when clear
-      (apply (um:rcurry #'gp:draw-rectangle
-                        :filled t
-                        :foreground :white
-                        :compositing-mode :copy
-                        :shape-mode :plain)
-             pane (bounding-region pane))
-
-      (when watermarkfn
-        ;; watermark is affected by scaling and translation of the transform
-        (with-plotview-coords (pane)
-          (funcall watermarkfn pane logo logo-alpha
-                   cright1 cright2))))
+    (apply (um:rcurry #'gp:draw-rectangle
+                      :filled t
+                      :foreground :white
+                      :compositing-mode :copy
+                      :shape-mode :plain)
+           pane (bounding-region pane))
+    
+    (when watermarkfn
+      ;; watermark is affected by scaling and translation of the transform
+      (with-plotview-coords (pane)
+        (funcall watermarkfn pane logo logo-alpha
+                 cright1 cright2)))
     
     (with-plotview-coords (pane)
       (when title

@@ -329,9 +329,11 @@
   (display-pane-of (capi:element-parent obj)))
 
 ;; -------------------------------------------------------------------
+
 (defun append-display-list (pane item)
-  (vector-push-extend item (plotter-display-list pane))
-  (update-pane pane))
+  (when item
+    (vector-push-extend item (plotter-display-list pane))
+    (update-pane pane)))
 
 (defun discard-display-list (pane)
   #|

@@ -22,10 +22,18 @@
       )))
 |#
 
-(defun add-to-work-order (pane action)
+(defun add-to-work-order (pane action fresh)
   ;; Set up the pane to peform work in the CAPI thread.
-  (append-display-list pane action)
-  (redraw-entire-pane pane))
+  (capi:apply-in-pane-process
+   pane
+   (lambda ()
+     ;; it is probably a bad idea to mutate the display list from any
+     ;; but the CAPI thread. The pane might already be displayed and
+     ;; there could be an update in progress.
+     (when fresh
+       (discard-display-list pane))
+     (append-display-list pane action)
+     (redraw-entire-pane pane))))
 
 ;; -------------------------------------------------------------------
 
@@ -62,7 +70,7 @@
          (action    (lambda (pane _x _y _width _height)
                       (declare (ignore _x _y _width _height))
                       (plt-draw-shape pane shape x0 y0 augm-args))))
-    (add-to-work-order pane action)
+    (add-to-work-order pane action nil)
     ))
 
 ;; user callable function
@@ -139,7 +147,6 @@
                          ;; :color color
                          args)))
            (_    (when fresh
-                   (discard-display-list pane)
                    (apply 'pw-init-xv-yv pane xv yv augm-args)))
            (:mvb (prepped symbol-fn)  (apply #'prep-vectors pane xv yv augm-args))
            (action    (if fresh
@@ -154,7 +161,7 @@
                           (apply 'pw-plot-prepped pane prepped symbol-fn augm-args)
                           )
                         )))
-      (add-to-work-order pane action)
+      (add-to-work-order pane action fresh)
       )))
 
 ;; -------------------------------------------------------------------
@@ -206,9 +213,8 @@
                       )))
     (when fresh
       ;; no drawing in the init, so do it in my thread
-      (discard-display-list pane)
       (apply 'pw-init-bars-xv-yv pane xv yvs augm-args))
-    (add-to-work-order pane action)
+    (add-to-work-order pane action fresh)
     ))
 
 ;; ------------------------------------------
@@ -245,22 +251,8 @@
 ;; user callable function
 (defun clear (pane)
   (let ((pane (plotter-mixin-of pane)))
-    (discard-display-list pane)
-    (redraw-entire-pane pane)
-    ))
+    (add-to-work-order pane nil t)))
 
-;; -------------------------------------------------------------------
-
-(defun stuff-display-list (pane lst)
-  ;; be careful here... the list is expected to be a list of lambda forms
-  ;; as if from another plotter's display list...
-  (let ((pane (plotter-mixin-of pane)))
-    (discard-display-list pane)
-    (dolist (item lst)
-      (vector-push-extend item (plotter-display-list pane)))
-    (redraw-entire-pane pane)
-    ))
-      
 ;; -------------------------------------------------------------------
 
 (defun axes2 (pane xvector yvectors &rest args &key xrange xlog ylog
@@ -290,7 +282,6 @@
                 ))
     (let* ((pane (plotter-mixin-of pane args))
            (augm-args (list*
-                       :clear t
                        :logo logo
                        :logo-alpha logo-alpha
                        :cright1 cright1
@@ -301,9 +292,8 @@
                       (apply 'pw-axes pane augm-args))
                     ))
       ;; do the init setup in our own thread
-      (discard-display-list pane)
       (apply 'pw-init-xv-yv pane xv yv augm-args)
-      (add-to-work-order pane action)
+      (add-to-work-order pane action t)
       )))
 
 ;; user callable function
@@ -370,7 +360,7 @@
                        |#
                        )))
                  ))
-    (add-to-work-order pane action)
+    (add-to-work-order pane action nil)
     ))
 
 (defun draw-text-box (pane strs xorg yorg
@@ -436,7 +426,7 @@
                                                :block nil) )
                        )))
                  ))
-    (add-to-work-order pane action)
+    (add-to-work-order pane action nil)
     ))
 
 ;; --------------------------------------------
