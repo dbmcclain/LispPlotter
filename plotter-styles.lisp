@@ -1,8 +1,13 @@
-
+;; plotter-styles.lisp -- Normalize the various keyword options
+;;
+;; DM/RAL  02/24
+;; ----------------------------------------------------------------
 (in-package :plotter)
 
 ;; ----------------------------------------------------------------
-
+;; Take in the various keyword options and produce a summary
+;; PLOT-STYLE containing a LINE-STYLE, SYMBOL-STYLE, and LEGEND
+;; struct.
 (defun get-plot-style (&key
                        (color #.(color:make-rgb 0.0 0.5 0.0))
                        (line-color color)
