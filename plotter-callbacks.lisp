@@ -100,7 +100,6 @@
   (with-accessors ((nominal-width   plotter-nominal-width )
                    (nominal-height  plotter-nominal-height)
                    (sf              plotter-sf            )
-                   (magn            plotter-magn          )
                    (port-width      gp:port-width         )
                    (port-height     gp:port-height        )
                    (full-crosshair  plotter-full-crosshair)
@@ -116,7 +115,6 @@
         (unless (equalp frame prev-frame)
           ;; if so, then we need to recompute cached plotting info
           (setf prev-frame        frame
-                magn              1
                 sf                (min (/ port-height nominal-height)
                                        (/ port-width  nominal-width)))
           (recompute-transform pane)

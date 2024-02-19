@@ -52,76 +52,53 @@
   ;; plotting interior region (the box), and the graphic transforms to/from
   ;; data space to "pixel" space.  Pixel in quotes because they are real pixels
   ;; on Win/XP, but something altogether different on OS/X Display PDF.
-  (let ((_box (nominal-box pane box)))
-    (destructuring-bind (_xmin _xmax)
-        (if xv
-            (get-range xrange xv xlog)
-          (get-range xrange (list 0 (1- (length-of yv))) xlog))
-      (destructuring-bind (_ymin _ymax) (get-range yrange yv ylog)
-        
-        (setf _xmin (funcall (logfn xlog) _xmin)
-              _xmax (funcall (logfn xlog) _xmax)
-              _ymin (funcall (logfn ylog) _ymin)
-              _ymax (funcall (logfn ylog) _ymax))
-        
-        (unless yrange
-          (let ((dy (/ (qrange (- _ymax _ymin)) 18)))
-            (setf _ymin (max (- _ymin dy) (- $largest-permissible-value)))
-            (setf _ymax (min (+ _ymax dy) $largest-permissible-value))
-            ))
-        
-        (unless xrange
-          (let ((dx (/ (qrange (- _xmax _xmin)) 18)))
-            (setf _xmin (max (- _xmin dx) (- $largest-permissible-value)))
-            (setf _xmax (min (+ _xmax dx) $largest-permissible-value))
-            ))
-        
-        (setf (plotter-box  pane) _box
-              (plotter-xmin pane) _xmin
-              (plotter-xmax pane) _xmax
-              (plotter-ymin pane) _ymin
-              (plotter-ymax pane) _ymax
-              (plotter-xlog pane) xlog
-              (plotter-ylog pane) ylog
-              (plotter-aspect pane) aspect)
-        (recompute-transform pane)
-        ))))
-
-(defun recompute-transform (pane)
-  (with-accessors ((box    plotter-box)
-                   (xmin   plotter-xmin)
-                   (xmax   plotter-xmax)
-                   (ymin   plotter-ymin)
-                   (ymax   plotter-ymax)
-                   (aspect plotter-aspect)
-                   (sf     plotter-sf)) pane
-        
-    (let* ((_box   (nominal-box pane box))
-           (dx     (- xmax xmin))
-           (dy     (- ymin ymax))
-           (xscale (qdiv (box-width  _box) dx))
-           (yscale (qdiv (box-height _box) dy)))
+  (destructuring-bind (xmin xmax)
+      (if xv
+          (get-range xrange xv xlog)
+        (get-range xrange (list 0 (1- (length-of yv))) xlog))
+    (destructuring-bind (ymin ymax) (get-range yrange yv ylog)
       
-      (when (and (numberp aspect)
-                 (plusp aspect))
-        (let* ((x-squeeze (<= aspect 1))
-               (scale     (if x-squeeze
-                              (max xscale yscale)
-                            (min xscale yscale))))
-          (setf xscale (if x-squeeze
-                           (* aspect scale)
-                         scale)
-                yscale (if x-squeeze
-                           scale
-                         (/ scale aspect)))
+      (setf xmin (funcall (logfn xlog) xmin)
+            xmax (funcall (logfn xlog) xmax)
+            ymin (funcall (logfn ylog) ymin)
+            ymax (funcall (logfn ylog) ymax))
+      
+      (unless yrange
+        (let ((dy (/ (qrange (- ymax ymin)) 18)))
+          (setf ymin (max (- ymin dy) (- $largest-permissible-value)))
+          (setf ymax (min (+ ymax dy) $largest-permissible-value))
           ))
-
-      (setf (box-right  _box) (+ (box-left _box) (* xscale dx))
-            (box-bottom _box) (+ (box-top  _box) (* yscale dy)))
       
-      (let ((xform     (gp:make-transform))
-            (inv-xform (gp:make-transform)))
-
+      (unless xrange
+        (let ((dx (/ (qrange (- xmax xmin)) 18)))
+          (setf xmin (max (- xmin dx) (- $largest-permissible-value)))
+          (setf xmax (min (+ xmax dx) $largest-permissible-value))
+          ))
+      
+      (let* ((box    (nominal-box pane box))
+             (dx     (- xmax xmin))
+             (dy     (- ymin ymax))
+             (xscale (qdiv (box-width  box) dx))
+             (yscale (qdiv (box-height box) dy))
+             (xform  (gp:make-transform)))
+        
+        (when (and (numberp aspect)
+                   (plusp aspect))
+          (let* ((x-squeeze (<= aspect 1))
+                 (scale     (if x-squeeze
+                                (max xscale yscale)
+                              (min xscale yscale))))
+            (setf xscale (if x-squeeze
+                             (* aspect scale)
+                           scale)
+                  yscale (if x-squeeze
+                             scale
+                           (/ scale aspect)))
+            ))
+        
+        (setf (box-right  box) (+ (box-left box) (* xscale dx))
+              (box-bottom box) (+ (box-top  box) (* yscale dy)))
+      
         ;; NOTE: LW Docs imply that these operations pre-mult the
         ;; transform matrix - which I take to mean from-the-left.
         ;;
@@ -162,6 +139,7 @@
         ;; ----------------------------------------------------------------
         (gp:apply-translation xform  (- xmin) (- ymax))
         (gp:apply-scale xform        xscale   yscale)
+
         ;; ----------------------------------------------------------------
         ;; This, so far, now gets us to a viewport view for the
         ;; plotting area.  View is expressed using unscaled screen
@@ -174,16 +152,30 @@
         ;; transform which follows goes the extra mile of converting
         ;; from screen coords to function space coords.
         ;; ---------------------------------------------------------------
-        (setf (plotter-xform pane) (gp:copy-transform xform)
-              (plotter-box   pane) _box)
+        (setf (plotter-box  pane)   box
+              (plotter-xmin pane)   xmin
+              (plotter-xmax pane)   xmax
+              (plotter-ymin pane)   ymin
+              (plotter-ymax pane)   ymax
+              (plotter-xlog pane)   xlog
+              (plotter-ylog pane)   ylog
+              (plotter-aspect pane) aspect
+              (plotter-xform pane)  xform)
+        ))))
 
-        (gp:apply-translation xform +LEFT-INSET+ +TOP-INSET+)
-        (gp:apply-scale xform sf sf)
-        (gp:invert-transform xform   inv-xform)
+(defun recompute-transform (pane)
+  (with-accessors ((sf  plotter-sf)) pane
         
-        (setf (plotter-inv-xform pane) inv-xform
-              (plotter-mask      pane) (plotting-region pane))
-      ))))
+    (let ((xform     (gp:copy-transform (plotter-xform pane)))
+          (inv-xform (gp:make-transform)))
+
+      (gp:apply-translation xform +LEFT-INSET+ +TOP-INSET+)
+      (gp:apply-scale xform sf sf)
+      (gp:invert-transform xform   inv-xform)
+      
+      (setf (plotter-inv-xform pane) inv-xform
+            (plotter-mask      pane) (plotting-region pane))
+      )))
 
 #|
 (let* ((xform (gp:make-transform)))
