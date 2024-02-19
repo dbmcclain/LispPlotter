@@ -36,15 +36,16 @@
   ;; too closely together along the grid.
   (multiple-value-bind (left top right bottom)
       (gp:get-string-extent pane string font)
-    (let* ((dx (ecase x-alignment
+    (let* ((wd  (- right left))
+           (dx (ecase x-alignment
                  (:left     0)
-                 (:right    (- left right))
-                 (:center   (floor (- left right) 2))
+                 (:right    (- wd))
+                 (:center   (- (floor wd 2)))
                  ))
            (dy (ecase y-alignment
                  (:top      (- top))
                  (:bottom   0)
-                 (:center   (- (floor (- top bottom) 2) top))
+                 (:center   (- (floor (+ top bottom) 2)))
                  (:baseline 0)))
            (new-bounds (list (+ x left dx) (+ x right dx))))
       
@@ -83,7 +84,7 @@
       (gp:get-string-extent pane string font)
     (declare (ignore bt tp))
 
-    (let* ((wd (- rt lf -1))
+    (let* ((wd (- rt lf))
            (dx (ecase x-alignment
                  (:right    0)
                  (:left     (- wd))

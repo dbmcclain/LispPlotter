@@ -198,7 +198,7 @@
 
     (apply (um:rcurry #'gp:draw-rectangle
                       :filled t
-                      :foreground :white
+                      :foreground (capi:simple-pane-background pane)
                       :compositing-mode :copy
                       :shape-mode :plain)
            pane (bounding-region pane))
@@ -208,7 +208,7 @@
       (with-plotview-coords (pane)
         (funcall watermarkfn pane logo logo-alpha
                  cright1 cright2)))
-    
+
     (with-plotview-coords (pane)
       (when title
         (draw-string-x-y pane title
@@ -219,11 +219,11 @@
                          :font        (find-best-font pane
                                                       :size $big-times-font-size)
                          ))
-      
+
       (when axes
         ;; draw a bold frame from top-left to bottom-left to bottom-right
         (gp:draw-polygon pane `(0 0 0 ,(box-height box) ,(box-width box) ,(box-height box))))
-    
+      
       ;; draw a bold line representing the x-axis at y=0
       (gp:with-graphics-state (pane
                                :mask (plotter-mask pane)
@@ -235,15 +235,15 @@
           ;; (ac:send ac:fmt-println "mask = ~A" (plotting-region pane))
           (let+ ((:mvb (_ y0) (gp:transform-point xform 0 (funcall iqylog iqymin))))
             (gp:draw-polygon pane `(0 ,y0 ,(box-width box) ,y0))
-            ))
-    
+              ))
+        
         ;; draw a bold line representing the y-axis at x=0
         (when (and axis-values
                    x-axis-values)
           (let ((x0  (gp:transform-point xform (funcall iqxlog iqxmin) 0)))
             (gp:draw-polygon pane `(,x0 0 ,x0 ,(box-height box)))
             )))
-        
+    
       ;; ----------------------------------------------------------------
       ;; Label the x-axis
     
@@ -290,7 +290,7 @@
                              
                              (when fullgrid
                                (when xlog
-                                 (with-color (pane #.(color:make-gray 0.75))
+                                 (with-color (pane :gray75)
                                    (loop for ix in *log-subdivs* do
                                            (let ((x (gp:transform-point xform (+ xval ix) 0)))
                                              (if (< 0 x (box-width box))
@@ -354,31 +354,27 @@
                 (when ylog
                   (setf dy 1))
                 (labels ((ywork (yval yprev)
-                           (multiple-value-bind (xpos ypos)
-                               (gp:transform-point xform 0 yval)
-                             (declare (ignore xpos))
-                             (let* ((xpos  #+:WIN32 -1 #-:WIN32 -3)
-                                    (ylast (draw-vert-string-x-y
-                                            pane
-                                            (plabel (funcall iqyalog yval))
-                                            xpos ypos
-                                            :prev-bounds yprev
-                                            :margin 2
-                                            :x-alignment :center
-                                            :y-alignment :bottom
-                                            :font font)))
-                               
+                           (let+ ((:mvb (_ ypos) (gp:transform-point xform 0 yval))
+                                  (xpos  #+:WIN32 -1 #-:WIN32 -3)
+                                  (ylast (draw-vert-string-x-y
+                                          pane
+                                          (plabel (funcall iqyalog yval))
+                                          xpos ypos
+                                          :prev-bounds yprev
+                                          :margin      2
+                                          :x-alignment :center
+                                          :y-alignment :bottom
+                                          :font        font)))
+                             
                                (when fullgrid
                                  (when ylog
-                                   (with-color (pane #.(color:make-gray 0.75))
+                                   (with-color (pane :gray75)
                                      (loop for ix in *log-subdivs* do
-                                             (multiple-value-bind (x y)
-                                                 (gp:transform-point xform 0 (+ yval ix))
-                                               (declare (ignore x))
+                                             (let+ ((:mvb (_ y) (gp:transform-point xform 0 (+ yval ix)) ))
                                                (if (> (box-height box) y 0)
                                                    (gp:draw-line
                                                     pane
-                                                    1 y
+                                                    0 y
                                                     (box-width box) y)
                                                  )))
                                      ))
@@ -387,14 +383,14 @@
                                                      (color:make-gray
                                                       (if ylog 0.5 0.75))))
                                    (gp:draw-line pane
-                                                 1 ypos
+                                                 0 ypos
                                                  (box-width box) ypos)
                                    ))
                                
                                (gp:draw-line pane
                                              -2 ypos
-                                             3 ypos)
-                               ylast))))
+                                              3 ypos)
+                               ylast)))
                   
                   (loop for yval = y0 then (- yval dy)
                         until (< yval (min _ymin _ymax))

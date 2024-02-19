@@ -47,6 +47,7 @@
 
 (defmethod pw-init-xv-yv ((pane <plotter-mixin>) xv yv
                           &key xrange yrange box xlog ylog aspect
+                          (magn 1)
                           &allow-other-keys)
   ;; initialize basic plotting parameters -- log scale axes, axis ranges,
   ;; plotting interior region (the box), and the graphic transforms to/from
@@ -81,24 +82,21 @@
              (xscale (qdiv (box-width  box) dx))
              (yscale (qdiv (box-height box) dy))
              (xform  (gp:make-transform)))
-        
+
         (when (and (numberp aspect)
                    (plusp aspect))
-          (let* ((x-squeeze (<= aspect 1))
-                 (scale     (if x-squeeze
-                                (max xscale yscale)
-                              (min xscale yscale))))
-            (setf xscale (if x-squeeze
-                             (* aspect scale)
-                           scale)
-                  yscale (if x-squeeze
-                             scale
-                           (/ scale aspect)))
+          (let ((scale  (qdiv (min (box-width box) (box-height box))
+                              (max (abs dx) (abs dy)))))
+            (setf xscale (* scale (signum xscale))
+                  yscale (* scale (signum yscale)))
+            (if (>= aspect 1.0)
+                (setf yscale (/ yscale aspect))
+              (setf xscale (* xscale aspect)))
             ))
-        
+
         (setf (box-right  box) (+ (box-left box) (* xscale dx))
               (box-bottom box) (+ (box-top  box) (* yscale dy)))
-      
+        
         ;; NOTE: LW Docs imply that these operations pre-mult the
         ;; transform matrix - which I take to mean from-the-left.
         ;;
@@ -139,6 +137,7 @@
         ;; ----------------------------------------------------------------
         (gp:apply-translation xform  (- xmin) (- ymax))
         (gp:apply-scale xform        xscale   yscale)
+        (gp:apply-scale xform        magn     magn)
 
         ;; ----------------------------------------------------------------
         ;; This, so far, now gets us to a viewport view for the
@@ -152,23 +151,26 @@
         ;; transform which follows goes the extra mile of converting
         ;; from screen coords to function space coords.
         ;; ---------------------------------------------------------------
-        (setf (plotter-box  pane)   box
-              (plotter-xmin pane)   xmin
-              (plotter-xmax pane)   xmax
-              (plotter-ymin pane)   ymin
-              (plotter-ymax pane)   ymax
-              (plotter-xlog pane)   xlog
-              (plotter-ylog pane)   ylog
+        (setf (plotter-box    pane) box
+              (plotter-xmin   pane) xmin
+              (plotter-xmax   pane) xmax
+              (plotter-ymin   pane) ymin
+              (plotter-ymax   pane) ymax
+              (plotter-xlog   pane) xlog
+              (plotter-ylog   pane) ylog
               (plotter-aspect pane) aspect
-              (plotter-xform pane)  xform)
+              (plotter-magn   pane) magn
+              (plotter-xform  pane) xform)
+        (recompute-transform pane)
         ))))
 
 (defun recompute-transform (pane)
-  (with-accessors ((sf  plotter-sf)) pane
+  (with-accessors ((sf   plotter-sf)) pane
         
     (let ((xform     (gp:copy-transform (plotter-xform pane)))
           (inv-xform (gp:make-transform)))
-
+      ;; develop inv-xform to take raw pane coords and convert to data
+      ;; coords
       (gp:apply-translation xform +LEFT-INSET+ +TOP-INSET+)
       (gp:apply-scale xform sf sf)
       (gp:invert-transform xform   inv-xform)

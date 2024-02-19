@@ -137,7 +137,7 @@
 (defmacro with-array-converted-to-color-image-for-pane ((arr pane img args)
                                                         &body body)
   `(apply #'do-convert-array-to-color-image-for-pane
-          ,arr ,pane ,pane
+          ,arr ,pane
           (lambda (,img)
             ,@body)
           ,args))
@@ -154,25 +154,37 @@
                       &allow-other-keys)
   "Internal workhorse routine for TVSCL."
   (let* ((pane (plotter-mixin-of pane))
+         (wd (array-dimension-of arr 1))
+         (ht (array-dimension-of arr 0))
          (action (lambda (pane x y width height)
                    (declare (ignore x y width height))
-                   (with-plotview-coords (pane)
-                     (with-array-converted-to-color-image-for-pane (arr pane img args)
-                       (gp:with-graphics-scale (pane magn magn)
-                         (gp:draw-image pane img 0 0))
-                       ))
-                   (setf (plotter-magn pane) magn)
-                   ))
-         (wd (array-dimension-of arr 1))
-         (ht (array-dimension-of arr 0)))
-    (when clear
-      (discard-display-list pane))
+                   (when clear
+                     (apply (um:rcurry #'gp:draw-rectangle
+                                       :filled t
+                                       :foreground (capi:simple-pane-background pane)
+                                       :compositing-mode :copy
+                                       :shape-mode :plain)
+                            pane (bounding-region pane)))
+                   
+                   (with-array-converted-to-color-image-for-pane (arr pane img args)
+                     (let+ (( (lf bt rt tp) (gp:transform-points (plotter-xform pane)
+                                                                 (list 0 0 wd ht))
+                              ))
+                       (with-plotview-coords (pane)
+                         (gp:draw-image pane img lf tp
+                                        :to-width    (1+ (- rt lf))
+                                        :to-height   (1+ (- bt tp))
+                                        :from-width  wd
+                                        :from-height ht))
+                       )))
+                 ))
     ;; this scaling gives the unflipped origin at the LLC
     ;; with positive Y values upward, positive X values rightward
     (pw-init-xv-yv pane (vector 0 wd) (vector 0 ht)
                    :xrange `(0 ,wd)
                    :yrange `(0 ,ht)
-                   :box    `(0 0 ,(* magn wd) ,(* magn ht)))
+                   :magn   magn
+                   :aspect 1)
     (add-to-work-order pane action clear)
     ))
 
@@ -184,6 +196,58 @@
    for its X and Y values."
   (apply 'do-tvscl pane arr (append args *default-args*)))
 
+#|
+(let* ((xs   (map 'vector #'sinc (vops:voffset -50/5 (vops:vscale 1/5 (vm:framp 100)))))
+       (img  (vm:outer-prod xs xs)))
+  (tvscl 'plt img :clear t) :magn 2 :clear t)
+ |#
+
+(defun pw-plot-image (pane xv yv arr &rest args)
+  (with-array-converted-to-color-image-for-pane (arr pane img args)
+    (let* ((wd     (array-dimension-of arr 1))
+           (ht     (array-dimension-of arr 0))
+           #|
+             (box    (let ((box (plotter-box pane)))
+                       (adjust-box
+                        (list (1+ (box-left box))
+                              (box-top box)
+                              (1- (box-width box))
+                              (box-height box)))
+                       ))
+             |#
+           (xlog   (plotter-xlog pane))
+           (xlogfn (logfn xlog))
+           (ylog   (plotter-ylog pane))
+           (ylogfn (logfn ylog)))
+      (declare (fixnum wd ht))
+        
+      (flet ((x-value (x)
+               (funcall xlogfn x))
+             (y-value (y)
+               (funcall ylogfn y)))
+
+        (let+ ((xform  (plotter-xform pane))
+               ( (lf bt rt tp)
+                 (gp:transform-points xform
+                                      (list (x-value (elt xv 0)) (y-value (elt yv 0))
+                                            (x-value (elt xv 1)) (y-value (elt yv 1)))
+                                      ))
+                (plt-wd (1+ (- rt lf)))
+                (plt-ht (1+ (- bt tp))))
+          
+          ;; (print (list plt-wd plt-ht))
+          (with-plotview-coords (pane)
+            (gp:with-graphics-state (pane
+                                     :mask (plotter-mask pane))
+              (gp:draw-image pane img
+                             lf tp
+                             :from-width  wd
+                             :from-height ht
+                             :to-width    plt-wd
+                             :to-height   plt-ht)
+              )))))
+    ))
+
 (defun do-plot-image (pane xv yv arr
                            &rest args
                            &key
@@ -191,63 +255,19 @@
                            &allow-other-keys)
   "Internal workhorse for image plotting."
   (let* ((pane    (plotter-mixin-of pane))
-         (action  (lambda (pane x y width height)
-                    (declare (ignore x y width height))
-
-                    (with-plotview-coords (pane)
-                      (gp:clear-graphics-port pane)
-                      (apply 'pw-axes pane :clear nil args)
-           
-                      (with-array-converted-to-color-image-for-pane (arr pane img args)
-             
-                        (let* ((wd     (array-dimension-of arr 1))
-                               (ht     (array-dimension-of arr 0))
-                               (box    (let ((box (plotter-box pane)))
-                                         (adjust-box
-                                          (list (1+ (box-left box))
-                                                (box-top box)
-                                                (1- (box-width box))
-                                                (box-height box)))
-                                         ))
-                               (xlog   (plotter-xlog pane))
-                               (xlogfn (logfn xlog))
-                               (ylog   (plotter-ylog pane))
-                               (ylogfn (logfn ylog)))
-                          (declare (fixnum wd ht))
-             
-                          (labels ((x-value (x)
-                                     (funcall xlogfn x))
-                                   (y-value (y)
-                                     (funcall ylogfn y)))
-                 
-                            (multiple-value-bind (px py)
-                                (gp:transform-point (plotter-xform pane)
-                                                    (x-value (elt xv 0))
-                                                    (y-value (elt yv 0)))
-                   
-                              (multiple-value-bind (px2 py2)
-                                  (gp:transform-point (plotter-xform pane)
-                                                      (x-value (elt xv 1))
-                                                      (y-value (elt yv 1)))
-                     
-                                (let ((plt-wd (1+ (- px2 px)))
-                                      (plt-ht (1+ (- py py2))))
-                       
-                                  ;; (print (list plt-wd plt-ht))
-                                  (gp:with-graphics-state (pane
-                                                           :mask box)
-                                    (gp:draw-image pane img
-                                                   px py2
-                                                   :from-width  wd
-                                                   :from-height ht
-                                                   :to-width    plt-wd
-                                                   :to-height   plt-ht
-                                                   )))
-                                )))
-                          ))))
-                  ))
+         (fresh   (or clear
+                      (display-list-empty-p pane)))
+         (action  (if fresh
+                      (lambda (pane x y width height)
+                        (declare (ignore x y width height))
+                        (apply 'pw-axes pane args)
+                        (apply 'pw-plot-image pane xv yv arr args))
+                    (lambda (pane x y width height)
+                      (declare (ignore x y width height))
+                      (apply 'pw-plot-image pane xv yv arr args))
+                    )))
     (apply 'pw-init-xv-yv pane xv yv args)
-    (add-to-work-order pane action clear)
+    (add-to-work-order pane action fresh)
     ))
 
 (defun plot-image (pane xv yv image-arr &rest args)
@@ -261,15 +281,19 @@
        (ny  8)
        (arr (make-array (list (1+ ny) (1+ nx))
                        :element-type 'single-float
-                       :initial-element 0.0)))
+                       :initial-element 0.0f0)))
   (loop for iy from 0 to ny do
         (loop for ix from 0 to nx do
-              (setf (aref arr iy ix) (float (* ix iy) 1.0))))
-  ;; (loop for ix from 0 to 50 do (setf (aref arr ix (round ix 2)) 0.0))
+              (setf (aref arr iy ix) (float (* ix iy) 1.0f0))))
+  ;; (loop for ix from 0 to 50 do (setf (aref arr ix (round ix 2)) 0.0f0))
   (let ((plt (wset 'plt :background :black :foreground :white)))
-    (plot-image plt '(0 100) '(0 100) arr :watermarkfn nil)))
-|#
+    (plot-image plt '(0 100) '(0 100) arr :clear t :watermarkfn nil :aspect 1)))
 
+(let* ((xs   (map 'vector #'sinc (vops:voffset -50/5 (vops:vscale 1/5 (vm:framp 100)))))
+       (img  (vm:outer-prod xs xs)))
+  ;; (inspect img)
+  (plot-image 'plt '(-20 20) '(-20 20) img :clear t :aspect 1 :magn 1))
+|#
 #|
 (defvar *dbg* (debug-stream:make-debug-stream
                :display t
@@ -281,78 +305,105 @@
 |#
 
 (defun do-render-image (pane ext-img
+                             &rest args
                              &key
-                             (magn 1)
-                             (to-x 0)
-                             (to-y 0)
                              (from-x 0)
                              (from-y 0)
-                             to-width
-                             to-height
                              from-width
                              from-height
-                             transform
-                             global-alpha
                              clear
+                             (global-alpha 1.0)
                              &allow-other-keys)
   "Internal workhorse for image rendering."
-  (let* ((pane   (plotter-mixin-of pane))
+  (let+ ((pane     (plotter-mixin-of pane))
          (action (lambda (pane x y wd ht)
                    (declare (ignore x y wd ht))
-                   (with-plotview-coords (pane)
-                     (with-image (pane (img (gp:convert-external-image pane ext-img)))
-                       (let* ((from-width  (or from-width  (gp:image-width  img)))
-                              (from-height (or from-height (gp:image-height img)))
-                              (to-width    (or to-width
-                                               (if (>= from-width from-height)
-                                                   (gp:port-width pane)
-                                                 (* (gp:port-height pane)
-                                                    (/ from-width from-height)))))
-                              (to-height   (or to-height
-                                               (if (>= from-height from-width)
-                                                   (gp:port-height pane)
-                                                 (* (gp:port-width pane)
-                                                    (/ from-height from-width))))))
+                   (with-image (pane (img (gp:convert-external-image pane ext-img)))
+                     #|
+                     (ac:send ac:fmt-println "wd = ~A, ht = ~A"
+                              (gp:image-width img)
+                              (gp:image-height img))
+                     |#
+                     (let* ((iwd         (gp:image-width  img))
+                            (iht         (gp:image-height img))
+                            (from-x      (or (and from-x
+                                                  (min from-x iwd))
+                                             0))
+                            (from-y      (or (and from-y
+                                                  (min from-y iht))
+                                             0))
+                            (sub-wd      (- iwd from-x))
+                            (sub-ht      (- iht from-y))
+                            (from-width  (or (and from-width
+                                                  (min from-width sub-wd))
+                                             sub-wd))
+                            (from-height (or (and from-height
+                                                  (min from-height sub-ht))
+                                             sub-ht)))
+                       (apply 'pw-init-xv-yv pane
+                              (vector from-x (+ from-x from-width))
+                              (vector from-y (+ from-y from-height))
+                              :aspect 1
+                              (append args *default-args*))
+                       (apply 'pw-axes pane args)
+                       #|
+                       (ac:send ac:fmt-println "from-x = ~A, from-y = ~A, from-wd = ~A, from-ht = ~A"
+                                from-x from-y from-width from-height)
+                       |#
+                       (let+ (( (lf tp rt bt) (gp:transform-points (plotter-xform pane)
+                                                                   ;; bottom-left, top-right
+                                                                   (list from-x                 from-y
+                                                                         (+ from-x from-width)  (+ from-y from-height)))
+                                ))
                          #|
-                         (pdbg "i-wd: ~A, i-ht: ~A, p-wd: ~A, p-ht: ~A"
-                               from-width from-height
-                               to-width to-height)
+                         (ac:send ac:fmt-println "l = ~A, t = ~A, r = ~A, b = ~A" lf tp rt bt)
                          |#
-                         (setf (plotter-box pane) `(0 0 ,to-width ,to-height)
-                               (plotter-xmin pane) 0
-                               (plotter-ymin pane) 0
-                               (plotter-xmax pane) from-width
-                               (plotter-ymax pane) from-width
-                               (plotter-xlog pane) nil
-                               (plotter-ylog pane) nil)
-                         (let ((xform (gp:make-transform))
-                               (inv-xform (gp:make-transform)))
-                           (gp:apply-scale xform 1 -1)
-                           (gp:apply-translation xform 0 to-height)
-                           (gp:invert-transform xform inv-xform)
-                           (setf (plotter-xform pane) xform
-                                 (plotter-inv-xform pane) inv-xform))
-               
-                         (gp:draw-image pane img to-x to-y
-                                        :transform    transform
-                                        :from-x       from-x
-                                        :from-y       from-y
-                                        :to-width     to-width
-                                        :to-height    to-height
-                                        :from-width   from-width
-                                        :from-height  from-height
-                                        :global-alpha global-alpha)
+                         (with-plotview-coords (pane)
+                           #|
+                           (when clear
+                             (apply (um:rcurry #'gp:draw-rectangle
+                                               :filled t
+                                               :foreground :white
+                                               :compositing-mode :copy
+                                               :shape-mode :plain)
+                                    pane (bounding-region pane)))
+                           |#
+                           (gp:with-graphics-state (pane
+                                                    :mask  (plotter-mask pane))
+                             #|
+                             (pdbg "i-wd: ~A, i-ht: ~A, p-wd: ~A, p-ht: ~A"
+                                   from-width from-height
+                                   to-width to-height)
+                             |#
+                             (gp:draw-image pane img lf tp
+                                            :transform    nil ;; (or transform (plotter-xform pane))
+                                            :from-x       from-x
+                                            :from-y       from-y
+                                            :to-width     (- rt lf)
+                                            :to-height    (- bt tp)
+                                            :from-width   from-width
+                                            :from-height  from-height
+                                            :global-alpha global-alpha)
+                             ))
                          ))
-                     (setf (plotter-magn pane) magn)
                      ))
-                 ))    
+                 ))
     (add-to-work-order pane action clear)
     ))
+
+#|
+(render-image 'plt (read-image) :clear t :global-alpha 1.0)
+|#
 
 ;; user callable routine
 (defun render-image (pane ext-img &rest args)
   "Render an external image in the specified window pane."
-  (apply #'do-render-image pane ext-img (append args *default-args*)))
+  (when ext-img
+    (apply #'do-render-image pane ext-img
+           :logo nil
+           :cright1 nil
+           :cright2 nil
+           (append args *default-args*))))
 
 
 (defvar *last-image-path* nil
