@@ -28,6 +28,7 @@
 ;; -------------------------------------------------------------------
 
 (defun draw-shape (shape pane x0 y0
+                         &rest args
                          &key
                          (color :darkgreen)
                          (filled t)
@@ -56,10 +57,11 @@
                      :radius radius
                      :to     to
                      :start-angle  start-angle
-                     :sweep-angle  sweep-angle))
+                     :sweep-angle  sweep-angle
+                     args))
          (action    (lambda (pane _x _y _width _height)
                       (declare (ignore _x _y _width _height))
-                      (plt-draw-shape pane shape x0 y0 augm-args))))
+                      (apply 'plt-draw-shape pane shape x0 y0 augm-args))))
     (add-to-work-order pane action nil)
     ))
 

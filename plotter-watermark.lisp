@@ -63,7 +63,9 @@
   (cached-image
     (gp:read-external-image
      (translate-logical-pathname
+      ;; #+:COCOA "~/RAL_Logo 2 (transparent).png"
       #+:COCOA "PROJECTS:LIB;Logo75Img-Alpha25y.bmp"
+
       ;; #+:COCOA "PROJECTS:LIB;Logo75Img-Alpha25y.pdf"
       ;; #+:COCOA "PROJECTS:LIB;AcudoraLogo.pdf"
       ;; #+:COCOA "PROJECTS:LIB;Logo75Img-Alpha20y-BlackBG.pdf"

@@ -47,7 +47,7 @@
 
 ;; ---------------------------------------------
 
-(plt:histogram 'plt (vm:gnoise 10000)
+(plt:histogram 'plt (vm:gnoise 10_000)
                :clear t
                :thick 1)
 
