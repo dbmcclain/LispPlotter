@@ -151,17 +151,21 @@
         ;; transform which follows goes the extra mile of converting
         ;; from screen coords to function space coords.
         ;; ---------------------------------------------------------------
-        (setf (plotter-box    pane) box
-              (plotter-xmin   pane) xmin
-              (plotter-xmax   pane) xmax
-              (plotter-ymin   pane) ymin
-              (plotter-ymax   pane) ymax
-              (plotter-xlog   pane) xlog
-              (plotter-ylog   pane) ylog
-              (plotter-aspect pane) aspect
-              (plotter-magn   pane) magn
-              (plotter-xform  pane) xform)
-        (recompute-transform pane)
+        (capi:apply-in-pane-process
+         pane
+         (lambda ()
+           (setf (plotter-box    pane) box
+                 (plotter-xmin   pane) xmin
+                 (plotter-xmax   pane) xmax
+                 (plotter-ymin   pane) ymin
+                 (plotter-ymax   pane) ymax
+                 (plotter-xlog   pane) xlog
+                 (plotter-ylog   pane) ylog
+                 (plotter-aspect pane) aspect
+                 (plotter-magn   pane) magn
+                 (plotter-xform  pane) xform)
+           (recompute-transform pane)
+           ))
         ))))
 
 (defun recompute-transform (pane)
