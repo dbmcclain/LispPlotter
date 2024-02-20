@@ -170,7 +170,8 @@
                          (when mbox
                            (mp:mailbox-send mbox :done))
                          ))
-              (intf   (capi:element-interface pane)))
+              (intf   (ignore-errors
+                        (capi:element-interface pane))))
           (cond ((or in-capi-process-p
                      (null intf)
                      (not (capi:interface-visible-p intf)))
