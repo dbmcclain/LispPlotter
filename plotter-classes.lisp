@@ -108,7 +108,7 @@
    (ymin          :accessor plotter-ymin           :initform 0.0d0)
    (ymax          :accessor plotter-ymax           :initform 1.0d0)
    
-   (box           :accessor plotter-box            :initform nil)
+   (box           :accessor plotter-box            :initform '(0 0 1 1))
    (xform         :accessor plotter-xform          :initform (gp:make-transform))
    (inv-xform     :accessor plotter-inv-xform      :initform (gp:make-transform))
    (mask          :accessor plotter-mask           :initform '(0 0 0 0))

@@ -153,7 +153,7 @@
                       clear
                       &allow-other-keys)
   "Internal workhorse routine for TVSCL."
-  (let* ((pane (plotter-mixin-of pane))
+  (let+ ((pane (plotter-mixin-of pane))
          (wd (array-dimension-of arr 1))
          (ht (array-dimension-of arr 0))
          (action (lambda (pane x y width height)
@@ -176,8 +176,7 @@
                                         :to-height   (1+ (- bt tp))
                                         :from-width  wd
                                         :from-height ht))
-                       )))
-                 ))
+                       )))))
     ;; this scaling gives the unflipped origin at the LLC
     ;; with positive Y values upward, positive X values rightward
     (pw-init-xv-yv pane (vector 0 wd) (vector 0 ht)
@@ -254,7 +253,7 @@
                            clear
                            &allow-other-keys)
   "Internal workhorse for image plotting."
-  (let* ((pane    (plotter-mixin-of pane))
+  (let+ ((pane    (plotter-mixin-of pane))
          (fresh   (or clear
                       (display-list-empty-p pane)))
          (action  (if fresh
@@ -344,6 +343,7 @@
                               (vector from-x (+ from-x from-width))
                               (vector from-y (+ from-y from-height))
                               :aspect 1
+                              :in-capi-process-p t
                               (append args *default-args*))
                        (apply 'pw-axes pane args)
                        #|

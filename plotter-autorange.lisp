@@ -48,6 +48,7 @@
 (defmethod pw-init-xv-yv ((pane <plotter-mixin>) xv yv
                           &key xrange yrange box xlog ylog aspect
                           (magn 1)
+                          in-capi-process-p
                           &allow-other-keys)
   ;; initialize basic plotting parameters -- log scale axes, axis ranges,
   ;; plotting interior region (the box), and the graphic transforms to/from
@@ -151,22 +152,36 @@
         ;; transform which follows goes the extra mile of converting
         ;; from screen coords to function space coords.
         ;; ---------------------------------------------------------------
-        (capi:apply-in-pane-process
-         pane
-         (lambda ()
-           (setf (plotter-box    pane) box
-                 (plotter-xmin   pane) xmin
-                 (plotter-xmax   pane) xmax
-                 (plotter-ymin   pane) ymin
-                 (plotter-ymax   pane) ymax
-                 (plotter-xlog   pane) xlog
-                 (plotter-ylog   pane) ylog
-                 (plotter-aspect pane) aspect
-                 (plotter-magn   pane) magn
-                 (plotter-xform  pane) xform)
-           (recompute-transform pane)
-           ))
-        ))))
+
+        ;; Since we are mutating pane items, we need to be sure we
+        ;; aren't facing a potential race condition with CAPI.
+        (let ((init-fn (lambda (mbox)
+                         (setf (plotter-box    pane) box
+                               (plotter-xmin   pane) xmin
+                               (plotter-xmax   pane) xmax
+                               (plotter-ymin   pane) ymin
+                               (plotter-ymax   pane) ymax
+                               (plotter-xlog   pane) xlog
+                               (plotter-ylog   pane) ylog
+                               (plotter-aspect pane) aspect
+                               (plotter-magn   pane) magn
+                               (plotter-xform  pane) xform)
+                         (recompute-transform pane)
+                         (when mbox
+                           (mp:mailbox-send mbox :done))
+                         ))
+              (intf   (capi:element-interface pane)))
+          (cond ((or in-capi-process-p
+                     (null intf)
+                     (not (capi:interface-visible-p intf)))
+                 (funcall init-fn nil))
+                (t
+                 (let ((mbox (mp:make-mailbox)))
+                   (capi:apply-in-pane-process pane init-fn mbox)
+                   (mp:mailbox-read mbox)))
+                ))
+        ))
+    ))
 
 (defun recompute-transform (pane)
   (with-accessors ((sf   plotter-sf)) pane

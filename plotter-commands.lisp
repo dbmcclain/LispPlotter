@@ -137,8 +137,8 @@
                        :plot-style style
                        ;; :color color
                        args)))
-         (_    (when fresh
-                 (apply 'pw-init-xv-yv pane xvf yvf augm-args)))
+         (_      (when fresh
+                   (apply 'pw-init-xv-yv pane xvf yvf augm-args)))
          (:mvb (prepped symbol-fn)  (apply #'prep-vectors pane xvf yvf augm-args))
          (action    (if fresh
                         (lambda (pane x y width height)
@@ -173,7 +173,7 @@
                          (cright2 *cright2*)
                         
                          &allow-other-keys)
-  (let* ((pane  (plotter-mixin-of pane args))
+  (let+ ((pane  (plotter-mixin-of pane args))
          (fresh (or clear
                     (display-list-empty-p pane)))
          (augm-args (if fresh
@@ -271,7 +271,7 @@
                        (vector (vector-group-min ys)
                                (vector-group-max ys))))
                 ))
-    (let* ((pane (plotter-mixin-of pane args))
+    (let+ ((pane (plotter-mixin-of pane args))
            (augm-args (list*
                        :logo logo
                        :logo-alpha logo-alpha
