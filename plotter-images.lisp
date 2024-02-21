@@ -153,39 +153,40 @@
                       clear
                       &allow-other-keys)
   "Internal workhorse routine for TVSCL."
-  (let+ ((pane (plotter-mixin-of pane))
-         (wd (array-dimension-of arr 1))
-         (ht (array-dimension-of arr 0))
-         (action (lambda (pane x y width height)
-                   (declare (ignore x y width height))
-                   (when clear
-                     (apply (um:rcurry #'gp:draw-rectangle
-                                       :filled t
-                                       :foreground (capi:simple-pane-background pane)
-                                       :compositing-mode :copy
-                                       :shape-mode :plain)
-                            pane (bounding-region pane)))
-                   
-                   (with-array-converted-to-color-image-for-pane (arr pane img args)
-                     (let+ (( (lf bt rt tp) (gp:transform-points (plotter-xform pane)
-                                                                 (list 0 0 wd ht))
-                              ))
-                       (with-plotview-coords (pane)
-                         (gp:draw-image pane img lf tp
-                                        :to-width    (1+ (- rt lf))
-                                        :to-height   (1+ (- bt tp))
-                                        :from-width  wd
-                                        :from-height ht))
-                       )))))
-    ;; this scaling gives the unflipped origin at the LLC
-    ;; with positive Y values upward, positive X values rightward
-    (pw-init-xv-yv pane (vector 0 wd) (vector 0 ht)
-                   :xrange `(0 ,wd)
-                   :yrange `(0 ,ht)
-                   :magn   magn
-                   :aspect 1)
-    (add-to-work-order pane action clear)
-    ))
+  (let ((pane (plotter-mixin-of pane)))
+    (with-delayed-update (pane)
+      (let+ ((wd (array-dimension-of arr 1))
+             (ht (array-dimension-of arr 0))
+             (action (lambda (pane x y width height)
+                       (declare (ignore x y width height))
+                       (when clear
+                         (apply (um:rcurry #'gp:draw-rectangle
+                                           :filled t
+                                           :foreground (capi:simple-pane-background pane)
+                                           :compositing-mode :copy
+                                           :shape-mode :plain)
+                                pane (bounding-region pane)))
+                       
+                       (with-array-converted-to-color-image-for-pane (arr pane img args)
+                         (let+ (( (lf bt rt tp) (gp:transform-points (plotter-xform pane)
+                                                                     (list 0 0 wd ht))
+                                  ))
+                           (with-plotview-coords (pane)
+                             (gp:draw-image pane img lf tp
+                                            :to-width    (1+ (- rt lf))
+                                            :to-height   (1+ (- bt tp))
+                                            :from-width  wd
+                                            :from-height ht))
+                           )))))
+        ;; this scaling gives the unflipped origin at the LLC
+        ;; with positive Y values upward, positive X values rightward
+        (pw-init-xv-yv pane (vector 0 wd) (vector 0 ht)
+                       :xrange `(0 ,wd)
+                       :yrange `(0 ,ht)
+                       :magn   magn
+                       :aspect 1)
+        (add-to-work-order pane action clear)
+        ))))
 
 ;; user callable routine
 (defun tvscl (pane arr &rest args)
@@ -253,21 +254,22 @@
                            clear
                            &allow-other-keys)
   "Internal workhorse for image plotting."
-  (let+ ((pane    (plotter-mixin-of pane))
-         (fresh   (or clear
-                      (display-list-empty-p pane)))
-         (action  (if fresh
-                      (lambda (pane x y width height)
-                        (declare (ignore x y width height))
-                        (apply 'pw-axes pane args)
-                        (apply 'pw-plot-image pane xv yv arr args))
-                    (lambda (pane x y width height)
-                      (declare (ignore x y width height))
-                      (apply 'pw-plot-image pane xv yv arr args))
-                    )))
-    (apply 'pw-init-xv-yv pane xv yv args)
-    (add-to-work-order pane action fresh)
-    ))
+  (let ((pane (plotter-mixin-of pane)))
+    (with-delayed-update (pane)
+      (let+ ((fresh   (or clear
+                          (display-list-empty-p pane)))
+             (action  (if fresh
+                          (lambda (pane x y width height)
+                            (declare (ignore x y width height))
+                            (apply 'pw-axes pane args)
+                            (apply 'pw-plot-image pane xv yv arr args))
+                        (lambda (pane x y width height)
+                          (declare (ignore x y width height))
+                          (apply 'pw-plot-image pane xv yv arr args))
+                        )))
+        (apply 'pw-init-xv-yv pane xv yv args)
+        (add-to-work-order pane action fresh)
+        ))))
 
 (defun plot-image (pane xv yv image-arr &rest args)
   "Plot an image in the specified pane using the sequences xv and yv

@@ -108,50 +108,51 @@
                     ;;(fullgrid t)
                    
                     &allow-other-keys)
-  (let+ ((:mvb (xvf yvf)
-          (cond (xv
-                 (filter-potential-x-y-nans-and-infinities xv yv xlog ylog))
-                (yv
-                 (values nil
-                         (filter-potential-nans-and-infinities yv ylog)))
-                ))
-         (pane  (plotter-mixin-of pane args))
-         (style (apply 'get-plot-style args))
-         (fresh (or clear
-                    (display-list-empty-p pane)))
-         (augm-args (if fresh
-                        (list*
-                         :plot-style style
-                         ;; :color     color
-                         ;; :linewidth linewidth
-                         ;; :fullgrid  fullgrid
-                         :logo       logo
-                         :logo-alpha logo-alpha
-                         :cright1    cright1
-                         :cright2    cright2
-                         args)
-                      ;; else
-                      (list*
-                       :plot-style style
-                       ;; :color color
-                       args)))
-         (_      (when fresh
-                   (apply 'pw-init-xv-yv pane xvf yvf augm-args)))
-         (:mvb (prepped symbol-fn)  (apply #'prep-vectors pane xvf yvf augm-args))
-         (action    (if fresh
-                        (lambda (pane x y width height)
-                          (declare (ignore x y width height))
-                          (apply 'pw-axes pane augm-args)
-                          (apply 'pw-plot-prepped pane prepped symbol-fn augm-args)
-                          )
-                      ;; else
-                      (lambda (pane x y width height)
-                        (declare (ignore x y width height))
-                        (apply 'pw-plot-prepped pane prepped symbol-fn augm-args)
-                        )
-                      )))
-    (add-to-work-order pane action fresh)
-    ))
+  (let ((pane  (plotter-mixin-of pane args)))
+    (with-delayed-update (pane)
+      (let+ ((:mvb (xvf yvf)
+              (cond (xv
+                     (filter-potential-x-y-nans-and-infinities xv yv xlog ylog))
+                    (yv
+                     (values nil
+                             (filter-potential-nans-and-infinities yv ylog)))
+                    ))
+             (style (apply 'get-plot-style args))
+             (fresh (or clear
+                        (display-list-empty-p pane)))
+             (augm-args (if fresh
+                            (list*
+                             :plot-style style
+                             ;; :color     color
+                             ;; :linewidth linewidth
+                             ;; :fullgrid  fullgrid
+                             :logo       logo
+                             :logo-alpha logo-alpha
+                             :cright1    cright1
+                             :cright2    cright2
+                             args)
+                          ;; else
+                          (list*
+                           :plot-style style
+                           ;; :color color
+                           args)))
+             (_      (when fresh
+                       (apply 'pw-init-xv-yv pane xvf yvf augm-args)))
+             (:mvb (prepped symbol-fn)  (apply #'prep-vectors pane xvf yvf augm-args))
+             (action    (if fresh
+                            (lambda (pane x y width height)
+                              (declare (ignore x y width height))
+                              (apply 'pw-axes pane augm-args)
+                              (apply 'pw-plot-prepped pane prepped symbol-fn augm-args)
+                              )
+                          ;; else
+                          (lambda (pane x y width height)
+                            (declare (ignore x y width height))
+                            (apply 'pw-plot-prepped pane prepped symbol-fn augm-args)
+                            )
+                          )))
+        (add-to-work-order pane action fresh)
+        ))))
 
 ;; -------------------------------------------------------------------
 
@@ -171,40 +172,41 @@
                          (cright2 *cright2*)
                         
                          &allow-other-keys)
-  (let+ ((pane  (plotter-mixin-of pane args))
-         (fresh (or clear
-                    (display-list-empty-p pane)))
-         (augm-args (if fresh
-                        (list*
-                         :color     color
-                         :neg-color neg-color
-                         :linewidth linewidth
-                         ;; :fullgrid  fullgrid
-                         :logo logo
-                         :logo-alpha logo-alpha
-                         :cright1 cright1
-                         :cright2 cright2
-                         args)
-                      ;; else
-                      (list*
-                       :color color
-                       :neg-color neg-color
-                       args)))
-         (action    (if fresh
-                        (lambda (pane x y width height)
-                          (declare (ignore x y width height))
-                          (apply 'pw-axes pane augm-args)
-                          (apply 'pw-plot-bars-xv-yv pane xv yvs augm-args))
-                      ;; else
-                      (lambda (pane x y width height)
-                        (declare (ignore x y width height))
-                        (apply 'pw-plot-bars-xv-yv pane xv yvs augm-args))
-                      )))
-    (when fresh
-      ;; no drawing in the init, so do it in my thread
-      (apply 'pw-init-bars-xv-yv pane xv yvs augm-args))
-    (add-to-work-order pane action fresh)
-    ))
+  (let ((pane  (plotter-mixin-of pane args)))
+    (with-delayed-update (pane)
+      (let+ ((fresh (or clear
+                        (display-list-empty-p pane)))
+             (augm-args (if fresh
+                            (list*
+                             :color     color
+                             :neg-color neg-color
+                             :linewidth linewidth
+                             ;; :fullgrid  fullgrid
+                             :logo logo
+                             :logo-alpha logo-alpha
+                             :cright1 cright1
+                             :cright2 cright2
+                             args)
+                          ;; else
+                          (list*
+                           :color color
+                           :neg-color neg-color
+                           args)))
+             (action    (if fresh
+                            (lambda (pane x y width height)
+                              (declare (ignore x y width height))
+                              (apply 'pw-axes pane augm-args)
+                              (apply 'pw-plot-bars-xv-yv pane xv yvs augm-args))
+                          ;; else
+                          (lambda (pane x y width height)
+                            (declare (ignore x y width height))
+                            (apply 'pw-plot-bars-xv-yv pane xv yvs augm-args))
+                          )))
+        (when fresh
+          ;; no drawing in the init, so do it in my thread
+          (apply 'pw-init-bars-xv-yv pane xv yvs augm-args))
+        (add-to-work-order pane action fresh)
+        ))))
 
 ;; ------------------------------------------
 
@@ -253,37 +255,38 @@
                    &allow-other-keys)
   ;; allow a list of yvectors to be given
   ;; so that we can find the best fitting autoscale that accommodates all of them
-  (multiple-value-bind (xv yv)
-      (let ((ylist (remove nil (um:mklist yvectors))))
-        (unless (lw:sequencep (first ylist))
-          (setf ylist (list ylist)))
-        (values (or (and xvector
-                         (let ((xv (filter-potential-nans-and-infinities xvector xlog)))
-                           (vector (vmin-of xv) (vmax-of xv))))
-                    (and (null xrange)
-                         ylist
-                         (vector (if xlog 0.1 0) (1- (length-of (first ylist))))
-                         ))
-                (and ylist
-                     (let ((ys (mapcar (um:rcurry 'filter-potential-nans-and-infinities ylog) ylist)))
-                       (vector (vector-group-min ys)
-                               (vector-group-max ys))))
-                ))
-    (let+ ((pane (plotter-mixin-of pane args))
-           (augm-args (list*
-                       :logo logo
-                       :logo-alpha logo-alpha
-                       :cright1 cright1
-                       :cright2 cright2
-                       args))
-           (action  (lambda (pane x y width height)
-                      (declare (ignore x y width height))
-                      (apply 'pw-axes pane augm-args))
+  (let ((pane (plotter-mixin-of pane args)))
+    (with-delayed-update (pane)
+      (multiple-value-bind (xv yv)
+          (let ((ylist (remove nil (um:mklist yvectors))))
+            (unless (lw:sequencep (first ylist))
+              (setf ylist (list ylist)))
+            (values (or (and xvector
+                             (let ((xv (filter-potential-nans-and-infinities xvector xlog)))
+                               (vector (vmin-of xv) (vmax-of xv))))
+                        (and (null xrange)
+                             ylist
+                             (vector (if xlog 0.1 0) (1- (length-of (first ylist))))
+                             ))
+                    (and ylist
+                         (let ((ys (mapcar (um:rcurry 'filter-potential-nans-and-infinities ylog) ylist)))
+                           (vector (vector-group-min ys)
+                                   (vector-group-max ys))))
                     ))
-      ;; do the init setup in our own thread
-      (apply 'pw-init-xv-yv pane xv yv augm-args)
-      (add-to-work-order pane action t)
-      )))
+        (let+ ((augm-args (list*
+                           :logo logo
+                           :logo-alpha logo-alpha
+                           :cright1 cright1
+                           :cright2 cright2
+                           args))
+               (action  (lambda (pane x y width height)
+                          (declare (ignore x y width height))
+                          (apply 'pw-axes pane augm-args))
+                        ))
+          ;; do the init setup in our own thread
+          (apply 'pw-init-xv-yv pane xv yv augm-args)
+          (add-to-work-order pane action t)
+          )))))
 
 ;; user callable function
 (defun axes (pane &rest args)
@@ -303,54 +306,55 @@
                     alpha
                    
                     &allow-other-keys)
-  (let* ((pane   (plotter-mixin-of pane))
-         (action (lambda (pane xarg yarg width height)
-                   (declare (ignore xarg yarg width height))
-                   (with-plotview-coords (pane)
-                     (let* ((xx (+ offset-x (get-x-location pane x)))
-                            (yy (+ offset-y (get-y-location pane y)))
-                            (font (find-best-font pane
-                                                  :family font
-                                                  :size   font-size))
-                            (x-align (ecase (or anchor align)
-                                       ((:nw :w :sw) :left)
-                                       ((:n :s :ctr) :center)
-                                       ((:ne :e :se) :right)))
-                            (y-align (ecase (or anchor align)
-                                       ((:nw :n :ne) :top)
-                                       ((:w :ctr :e) :center)
-                                       ((:sw :s :se) :baseline)))
-                            (color (adjust-color pane color alpha)))
-                               
-                       ;; #+:WIN32
-                       (with-mask (pane (plotter-mask pane))
-                         (apply 'draw-string-x-y pane str
-                                xx yy
-                                :font font
-                                :x-alignment x-align
-                                :y-alignment y-align
-                                :color       color
-                                args))
-                       #|
-                       #-:WIN32
-                       (let* ((font-attrs (gp:font-description-attributes
-                                           (gp:font-description font)))
-                              (font-name  (getf font-attrs :name))
-                              (font-size  (getf font-attrs :size)))
-                         (apply 'add-label port str (* sf xx) (* sf yy)
-                                :font        font-name
-                                :font-size   font-size
-                                :color       color
-                                :x-alignment x-align
-                                :y-alignment y-align
-                                :box         mask
-                                args)
-                         )
-                       |#
-                       )))
-                 ))
-    (add-to-work-order pane action nil)
-    ))
+  (let ((pane   (plotter-mixin-of pane)))
+    (with-delayed-update (pane)
+      (let* ((action (lambda (pane xarg yarg width height)
+                       (declare (ignore xarg yarg width height))
+                       (with-plotview-coords (pane)
+                         (let* ((xx (+ offset-x (get-x-location pane x)))
+                                (yy (+ offset-y (get-y-location pane y)))
+                                (font (find-best-font pane
+                                                      :family font
+                                                      :size   font-size))
+                                (x-align (ecase (or anchor align)
+                                           ((:nw :w :sw) :left)
+                                           ((:n :s :ctr) :center)
+                                           ((:ne :e :se) :right)))
+                                (y-align (ecase (or anchor align)
+                                           ((:nw :n :ne) :top)
+                                           ((:w :ctr :e) :center)
+                                           ((:sw :s :se) :baseline)))
+                                (color (adjust-color pane color alpha)))
+                           
+                           ;; #+:WIN32
+                           (with-mask (pane (plotter-mask pane))
+                             (apply 'draw-string-x-y pane str
+                                    xx yy
+                                    :font font
+                                    :x-alignment x-align
+                                    :y-alignment y-align
+                                    :color       color
+                                    args))
+                           #|
+                            #-:WIN32
+                            (let* ((font-attrs (gp:font-description-attributes
+                                                (gp:font-description font)))
+                                   (font-name  (getf font-attrs :name))
+                                   (font-size  (getf font-attrs :size)))
+                              (apply 'add-label port str (* sf xx) (* sf yy)
+                                     :font        font-name
+                                     :font-size   font-size
+                                     :color       color
+                                     :x-alignment x-align
+                                     :y-alignment y-align
+                                     :box         mask
+                                     args)
+                              )
+                            |#
+                           )))
+                     ))
+        (add-to-work-order pane action nil)
+        ))))
 
 (defun draw-text-box (pane strs xorg yorg
                            &key
@@ -365,58 +369,59 @@
                            border-alpha
                           
                            &allow-other-keys)
-  (let* ((pane  (plotter-mixin-of pane))
-         (action (lambda (pane xarg yarg width height)
-                   (declare (ignore xarg yarg width height))
-                   (with-plotview-coords (pane)
-                     (let* ((font (find-best-font pane
-                                                  :size   font-size
-                                                  :family font))
-                            (width (loop for s in strs maximize
-                                           (multiple-value-bind (left top right bottom)
-                                               (gp:get-string-extent pane s font)
-                                             (declare (ignore top bottom))
-                                             (- right left))))
-                            (height (multiple-value-bind (left top right bottom)
-                                        (gp:get-string-extent pane (car strs) font)
-                                      (declare (ignore left right))
-                                      (- bottom top)))
-                            (x0        (get-x-location pane xorg))
-                            (y0        (get-y-location pane yorg))
-                            (color     (adjust-color pane color alpha))
-                            (bcolor    (adjust-color pane border-color border-alpha))
-                            (linewidth (adjust-linewidth (or border-thick 0))))
-                               
-                       (gp:with-graphics-state (pane
-                                                :foreground color
-                                                :thickness  linewidth
-                                                :line-end-style   :butt
-                                                :line-joint-style :miter
-                                                :mask  (plotter-mask pane))
-                         (when filled
-                           (gp:draw-rectangle pane x0 y0
-                                              (+ width 4)
-                                              (* (length strs) height)
-                                              :filled color))
-                         (when border-thick
-                           (with-color (pane bcolor)
-                             (gp:draw-rectangle pane x0 y0
-                                                (+ width 4)
-                                                (* (length strs) height)
-                                                :filled nil))))
-                               
-                       (loop for y from (+ height y0 -2) by height
-                             for s in strs
-                             for x = (+ x0 2)
-                             do
-                               (gp:draw-string pane s x y
-                                               :font font
-                                               :foreground text-color
-                                               :block nil) )
-                       )))
-                 ))
-    (add-to-work-order pane action nil)
-    ))
+  (let ((pane  (plotter-mixin-of pane)))
+    (with-delayed-update (pane)
+      (let* ((action (lambda (pane xarg yarg width height)
+                       (declare (ignore xarg yarg width height))
+                       (with-plotview-coords (pane)
+                         (let* ((font (find-best-font pane
+                                                      :size   font-size
+                                                      :family font))
+                                (width (loop for s in strs maximize
+                                               (multiple-value-bind (left top right bottom)
+                                                   (gp:get-string-extent pane s font)
+                                                 (declare (ignore top bottom))
+                                                 (- right left))))
+                                (height (multiple-value-bind (left top right bottom)
+                                            (gp:get-string-extent pane (car strs) font)
+                                          (declare (ignore left right))
+                                          (- bottom top)))
+                                (x0        (get-x-location pane xorg))
+                                (y0        (get-y-location pane yorg))
+                                (color     (adjust-color pane color alpha))
+                                (bcolor    (adjust-color pane border-color border-alpha))
+                                (linewidth (adjust-linewidth (or border-thick 0))))
+                           
+                           (gp:with-graphics-state (pane
+                                                    :foreground color
+                                                    :thickness  linewidth
+                                                    :line-end-style   :butt
+                                                    :line-joint-style :miter
+                                                    :mask  (plotter-mask pane))
+                             (when filled
+                               (gp:draw-rectangle pane x0 y0
+                                                  (+ width 4)
+                                                  (* (length strs) height)
+                                                  :filled color))
+                             (when border-thick
+                               (with-color (pane bcolor)
+                                 (gp:draw-rectangle pane x0 y0
+                                                    (+ width 4)
+                                                    (* (length strs) height)
+                                                    :filled nil))))
+                           
+                           (loop for y from (+ height y0 -2) by height
+                                 for s in strs
+                                 for x = (+ x0 2)
+                                 do
+                                   (gp:draw-string pane s x y
+                                                   :font font
+                                                   :foreground text-color
+                                                   :block nil) )
+                           )))
+                     ))
+        (add-to-work-order pane action nil)
+        ))))
 
 ;; --------------------------------------------
 
@@ -443,7 +448,7 @@
   (let ((rfn (lambda (th)
                (let ((r (funcall fn th)))
                  (complex (* r (cos th)) (* r (sin th)))))))
-    (apply 'plt:cmplx-paramplot pane dom rfn args)))
+    (apply 'cmplx-paramplot pane dom rfn args)))
 
 ;; ----------------------------------------------
 
