@@ -306,55 +306,54 @@
                     alpha
                    
                     &allow-other-keys)
-  (let ((pane   (plotter-mixin-of pane)))
-    (with-delayed-update (pane)
-      (let* ((action (lambda (pane xarg yarg width height)
-                       (declare (ignore xarg yarg width height))
-                       (with-plotview-coords (pane)
-                         (let* ((xx (+ offset-x (get-x-location pane x)))
-                                (yy (+ offset-y (get-y-location pane y)))
-                                (font (find-best-font pane
-                                                      :family font
-                                                      :size   font-size))
-                                (x-align (ecase (or anchor align)
-                                           ((:nw :w :sw) :left)
-                                           ((:n :s :ctr) :center)
-                                           ((:ne :e :se) :right)))
-                                (y-align (ecase (or anchor align)
-                                           ((:nw :n :ne) :top)
-                                           ((:w :ctr :e) :center)
-                                           ((:sw :s :se) :baseline)))
-                                (color (adjust-color pane color alpha)))
-                           
-                           ;; #+:WIN32
-                           (with-mask (pane (plotter-mask pane))
-                             (apply 'draw-string-x-y pane str
-                                    xx yy
-                                    :font font
-                                    :x-alignment x-align
-                                    :y-alignment y-align
-                                    :color       color
-                                    args))
-                           #|
-                            #-:WIN32
-                            (let* ((font-attrs (gp:font-description-attributes
-                                                (gp:font-description font)))
-                                   (font-name  (getf font-attrs :name))
-                                   (font-size  (getf font-attrs :size)))
-                              (apply 'add-label port str (* sf xx) (* sf yy)
-                                     :font        font-name
-                                     :font-size   font-size
-                                     :color       color
-                                     :x-alignment x-align
-                                     :y-alignment y-align
-                                     :box         mask
-                                     args)
-                              )
-                            |#
-                           )))
-                     ))
-        (add-to-work-order pane action nil)
-        ))))
+  (let* ((pane   (plotter-mixin-of pane))
+         (action (lambda (pane xarg yarg width height)
+                   (declare (ignore xarg yarg width height))
+                   (with-plotview-coords (pane)
+                     (let* ((xx (+ offset-x (get-x-location pane x)))
+                            (yy (+ offset-y (get-y-location pane y)))
+                            (font (find-best-font pane
+                                                  :family font
+                                                  :size   font-size))
+                            (x-align (ecase (or anchor align)
+                                       ((:nw :w :sw) :left)
+                                       ((:n :s :ctr) :center)
+                                       ((:ne :e :se) :right)))
+                            (y-align (ecase (or anchor align)
+                                       ((:nw :n :ne) :top)
+                                       ((:w :ctr :e) :center)
+                                       ((:sw :s :se) :baseline)))
+                            (color (adjust-color pane color alpha)))
+                       
+                       ;; #+:WIN32
+                       (with-mask (pane (plotter-mask pane))
+                         (apply 'draw-string-x-y pane str
+                                xx yy
+                                :font font
+                                :x-alignment x-align
+                                :y-alignment y-align
+                                :color       color
+                                args))
+                       #|
+                        #-:WIN32
+                        (let* ((font-attrs (gp:font-description-attributes
+                                            (gp:font-description font)))
+                               (font-name  (getf font-attrs :name))
+                               (font-size  (getf font-attrs :size)))
+                          (apply 'add-label port str (* sf xx) (* sf yy)
+                                 :font        font-name
+                                 :font-size   font-size
+                                 :color       color
+                                 :x-alignment x-align
+                                 :y-alignment y-align
+                                 :box         mask
+                                 args)
+                          )
+                        |#
+                       )))
+                 ))
+    (add-to-work-order pane action nil)
+    ))
 
 (defun draw-text-box (pane strs xorg yorg
                            &key
@@ -369,59 +368,58 @@
                            border-alpha
                           
                            &allow-other-keys)
-  (let ((pane  (plotter-mixin-of pane)))
-    (with-delayed-update (pane)
-      (let* ((action (lambda (pane xarg yarg width height)
-                       (declare (ignore xarg yarg width height))
-                       (with-plotview-coords (pane)
-                         (let* ((font (find-best-font pane
-                                                      :size   font-size
-                                                      :family font))
-                                (width (loop for s in strs maximize
-                                               (multiple-value-bind (left top right bottom)
-                                                   (gp:get-string-extent pane s font)
-                                                 (declare (ignore top bottom))
-                                                 (- right left))))
-                                (height (multiple-value-bind (left top right bottom)
-                                            (gp:get-string-extent pane (car strs) font)
-                                          (declare (ignore left right))
-                                          (- bottom top)))
-                                (x0        (get-x-location pane xorg))
-                                (y0        (get-y-location pane yorg))
-                                (color     (adjust-color pane color alpha))
-                                (bcolor    (adjust-color pane border-color border-alpha))
-                                (linewidth (adjust-linewidth (or border-thick 0))))
-                           
-                           (gp:with-graphics-state (pane
-                                                    :foreground color
-                                                    :thickness  linewidth
-                                                    :line-end-style   :butt
-                                                    :line-joint-style :miter
-                                                    :mask  (plotter-mask pane))
-                             (when filled
-                               (gp:draw-rectangle pane x0 y0
-                                                  (+ width 4)
-                                                  (* (length strs) height)
-                                                  :filled color))
-                             (when border-thick
-                               (with-color (pane bcolor)
-                                 (gp:draw-rectangle pane x0 y0
-                                                    (+ width 4)
-                                                    (* (length strs) height)
-                                                    :filled nil))))
-                           
-                           (loop for y from (+ height y0 -2) by height
-                                 for s in strs
-                                 for x = (+ x0 2)
-                                 do
-                                   (gp:draw-string pane s x y
-                                                   :font font
-                                                   :foreground text-color
-                                                   :block nil) )
-                           )))
-                     ))
-        (add-to-work-order pane action nil)
-        ))))
+  (let* ((pane  (plotter-mixin-of pane))
+         (action (lambda (pane xarg yarg width height)
+                   (declare (ignore xarg yarg width height))
+                   (with-plotview-coords (pane)
+                     (let* ((font (find-best-font pane
+                                                  :size   font-size
+                                                  :family font))
+                            (width (loop for s in strs maximize
+                                           (multiple-value-bind (left top right bottom)
+                                               (gp:get-string-extent pane s font)
+                                             (declare (ignore top bottom))
+                                             (- right left))))
+                            (height (multiple-value-bind (left top right bottom)
+                                        (gp:get-string-extent pane (car strs) font)
+                                      (declare (ignore left right))
+                                      (- bottom top)))
+                            (x0        (get-x-location pane xorg))
+                            (y0        (get-y-location pane yorg))
+                            (color     (adjust-color pane color alpha))
+                            (bcolor    (adjust-color pane border-color border-alpha))
+                            (linewidth (adjust-linewidth (or border-thick 0))))
+                       
+                       (gp:with-graphics-state (pane
+                                                :foreground color
+                                                :thickness  linewidth
+                                                :line-end-style   :butt
+                                                :line-joint-style :miter
+                                                :mask  (plotter-mask pane))
+                         (when filled
+                           (gp:draw-rectangle pane x0 y0
+                                              (+ width 4)
+                                              (* (length strs) height)
+                                              :filled color))
+                         (when border-thick
+                           (with-color (pane bcolor)
+                             (gp:draw-rectangle pane x0 y0
+                                                (+ width 4)
+                                                (* (length strs) height)
+                                                :filled nil))))
+                       
+                       (loop for y from (+ height y0 -2) by height
+                             for s in strs
+                             for x = (+ x0 2)
+                             do
+                               (gp:draw-string pane s x y
+                                               :font font
+                                               :foreground text-color
+                                               :block nil) )
+                       )))
+                 ))
+    (add-to-work-order pane action nil)
+    ))
 
 ;; --------------------------------------------
 
