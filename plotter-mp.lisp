@@ -61,10 +61,37 @@
 
 ;; ------------------------------------------
 
+(defun do-without-capi-contention (pane fn in-capi-process-p)
+  (cond ((or in-capi-process-p
+             (let ((intf (ignore-errors
+                           (capi:element-interface pane))))
+               (or (null intf)
+                   (not (capi:interface-visible-p intf)))
+               ))
+         (funcall fn))
+        
+        (t
+         (let ((mbox (mp:make-mailbox)))
+           (capi:apply-in-pane-process
+            pane
+            (lambda ()
+              (mp:mailbox-send mbox (multiple-value-list
+                                     (funcall fn)))))
+           (values-list (mp:mailbox-read mbox))))
+        ))
+
+(defmacro without-capi-contention ((pane &key in-capi-process-p) &body body)
+  `(do-without-capi-contention ,pane (lambda ()
+                                       ,@body)
+                               ,in-capi-process-p))
+
+;; ------------------------------------------
+
 (defmethod capi:redisplay-element :around ((pane <plotter-pane>) &optional x y width height)
   (if (zerop (plotter-delayed-update pane))
       (call-next-method)
-    (push (list x y width height) (plotter-delayed-damage pane))))
+    (pushnew (list x y width height) (plotter-delayed-damage pane)
+              :test #'equalp)))
 
 (defmethod redraw-entire-pane ((pane <plotter-pane>))
   (capi:redisplay-element pane))
@@ -77,15 +104,18 @@
 (defun do-with-delayed-update (pane notifying fn)
   (let ((the-pane (plotter-mixin-of pane)))
     (declare (dynamic-extent the-pane))
-    (when notifying
-      (setf (plotter-notify-cust the-pane) notifying))
     (flet ((begin-update ()
-             (incf (plotter-delayed-update the-pane)))
+             (without-capi-contention (pane)
+               (incf (plotter-delayed-update the-pane))
+               (when notifying
+                 (pushnew notifying (plotter-notify-cust the-pane)))
+               ))
            (end-update ()
-             (when (zerop (decf (plotter-delayed-update the-pane)))
-               (dolist (region (shiftf (plotter-delayed-damage the-pane) nil))
-                 (apply #'capi:redisplay-element the-pane region)))
-             ))
+             (without-capi-contention (pane)
+               (when (zerop (decf (plotter-delayed-update the-pane)))
+                 (dolist (region (shiftf (plotter-delayed-damage the-pane) nil))
+                   (apply #'capi:redisplay-element the-pane region)))
+               )))
       (declare (dynamic-extent #'begin-update #'end-update))
       (begin-update)
       (unwind-protect
@@ -136,30 +166,6 @@
 (defmacro wait-until-finished ((pane &key mbox timeout) &body body)
   `(do-wait-until-finished ,pane ,mbox ,timeout (lambda () ,@body)))
 |#
-
-(defun do-without-capi-contention (pane fn in-capi-process-p)
-  (cond ((or in-capi-process-p
-             (let ((intf (ignore-errors
-                           (capi:element-interface pane))))
-               (or (null intf)
-                   (not (capi:interface-visible-p intf)))
-               ))
-         (funcall fn))
-        
-        (t
-         (let ((mbox (mp:make-mailbox)))
-           (capi:apply-in-pane-process
-            pane
-            (lambda ()
-              (mp:mailbox-send mbox (multiple-value-list
-                                     (funcall fn)))))
-           (values-list (mp:mailbox-read mbox))))
-        ))
-
-(defmacro without-capi-contention ((pane &key in-capi-process-p) &body body)
-  `(do-without-capi-contention ,pane (lambda ()
-                                       ,@body)
-                               ,in-capi-process-p))
 
 
 

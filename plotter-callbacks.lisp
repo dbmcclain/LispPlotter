@@ -107,31 +107,34 @@
                    (prev-x          plotter-prev-x        )
                    (prev-y          plotter-prev-y        )
                    (prev-frame      plotter-prev-frame    )
+                   (delayed         plotter-delayed-update)
                    (notify-cust     plotter-notify-cust   )) pane
 
     ;; check if frame has moved or resized
-    (capi:with-geometry pane
-      (let ((frame  (list capi:%x% capi:%y% capi:%width% capi:%height%)))
-        (unless (equalp frame prev-frame)
-          ;; if so, then we need to recompute cached plotting info
-          (setf prev-frame        frame
-                sf                (min (/ port-height nominal-height)
-                                       (/ port-width  nominal-width)))
-          (recompute-transform pane)
-          (recompute-plotting-state pane)
-          )))
-    
-    (redraw-display-list pane x y width height :legend t)
-    (unless delay-backing
-      (when full-crosshair
-        (draw-crosshair-lines pane full-crosshair prev-x prev-y))
+    (when (zerop delayed)
+      (capi:with-geometry pane
+        (let ((frame  (list capi:%x% capi:%y% capi:%width% capi:%height%)))
+          (unless (equalp frame prev-frame)
+            ;; if so, then we need to recompute cached plotting info
+            (setf prev-frame        frame
+                  sf                (min (/ port-height nominal-height)
+                                         (/ port-width  nominal-width)))
+            (recompute-transform pane)
+            (recompute-plotting-state pane)
+            )))
       
-      (when (or (mark-x pane)
-                (mark-y pane))
-        (draw-mark pane)))
-    
-    (ac:send notify-cust :done)
-    ))
+      (redraw-display-list pane x y width height :legend t)
+      
+      (unless delay-backing
+        (when full-crosshair
+          (draw-crosshair-lines pane full-crosshair prev-x prev-y))
+        
+        (when (or (mark-x pane)
+                  (mark-y pane))
+          (draw-mark pane)))
+      
+      (ac:send-to-all (shiftf notify-cust nil) :done)
+      )))
 
 (defun resize-callback (pane x y width height)
   (declare (ignore x y width height))
