@@ -185,7 +185,7 @@
                        :yrange `(0 ,ht)
                        :magn   magn
                        :aspect 1)
-        (add-to-work-order pane action clear)
+        (augment-display-list pane action clear)
         ))))
 
 ;; user callable routine
@@ -268,7 +268,7 @@
                           (apply 'pw-plot-image pane xv yv arr args))
                         )))
         (apply 'pw-init-xv-yv pane xv yv args)
-        (add-to-work-order pane action fresh)
+        (augment-display-list pane action fresh)
         ))))
 
 (defun plot-image (pane xv yv image-arr &rest args)
@@ -390,7 +390,7 @@
                          ))
                      ))
                  ))
-    (add-to-work-order pane action clear)
+    (augment-display-list pane action clear)
     ))
 
 #|

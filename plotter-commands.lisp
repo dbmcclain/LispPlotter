@@ -12,7 +12,7 @@
 
 ;; -------------------------------------------------------------------
 
-(defun add-to-work-order (pane action fresh)
+(defun augment-display-list (pane action fresh)
   ;; Set up the pane to peform work in the CAPI thread.
   (without-capi-contention (pane)
     ;; it is probably a bad idea to mutate the display list from any
@@ -60,7 +60,7 @@
          (action    (lambda (pane _x _y _width _height)
                       (declare (ignore _x _y _width _height))
                       (apply 'plt-draw-shape pane shape x0 y0 augm-args))))
-    (add-to-work-order pane action nil)
+    (augment-display-list pane action nil)
     ))
 
 ;; user callable function
@@ -151,7 +151,7 @@
                             (apply 'pw-plot-prepped pane prepped symbol-fn augm-args)
                             )
                           )))
-        (add-to-work-order pane action fresh)
+        (augment-display-list pane action fresh)
         ))))
 
 ;; -------------------------------------------------------------------
@@ -205,7 +205,7 @@
         (when fresh
           ;; no drawing in the init, so do it in my thread
           (apply 'pw-init-bars-xv-yv pane xv yvs augm-args))
-        (add-to-work-order pane action fresh)
+        (augment-display-list pane action fresh)
         ))))
 
 ;; ------------------------------------------
@@ -242,7 +242,7 @@
 ;; user callable function
 (defun clear (pane)
   (let ((pane (plotter-mixin-of pane)))
-    (add-to-work-order pane nil t)))
+    (augment-display-list pane nil t)))
 
 ;; -------------------------------------------------------------------
 
@@ -285,7 +285,7 @@
                         ))
           ;; do the init setup in our own thread
           (apply 'pw-init-xv-yv pane xv yv augm-args)
-          (add-to-work-order pane action t)
+          (augment-display-list pane action t)
           )))))
 
 ;; user callable function
@@ -352,7 +352,7 @@
                         |#
                        )))
                  ))
-    (add-to-work-order pane action nil)
+    (augment-display-list pane action nil)
     ))
 
 (defun draw-text-box (pane strs xorg yorg
@@ -418,7 +418,7 @@
                                                :block nil) )
                        )))
                  ))
-    (add-to-work-order pane action nil)
+    (augment-display-list pane action nil)
     ))
 
 ;; --------------------------------------------
