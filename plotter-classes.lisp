@@ -174,6 +174,7 @@
    :resize-callback  'resize-callback
    :destroy-callback 'destroy-callback
    :pane-menu        'popup-menu
+   :draw-with-buffer t
    :input-model      '((:motion mouse-move)
                        ((:button-1 :motion)  drag-legend)
                        ((:button-1 :press)   show-x-y-at-cursor)
