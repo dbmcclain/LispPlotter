@@ -137,7 +137,7 @@
   `(do-wait-until-finished ,pane ,mbox ,timeout (lambda () ,@body)))
 |#
 
-(defun do-without-capi-race-condition (pane fn in-capi-process-p)
+(defun do-without-capi-contention (pane fn in-capi-process-p)
   (cond ((or in-capi-process-p
              (let ((intf (ignore-errors
                            (capi:element-interface pane))))
@@ -156,10 +156,10 @@
            (values-list (mp:mailbox-read mbox))))
         ))
 
-(defmacro without-capi-race-condition ((pane &key in-capi-process-p) &body body)
-  `(do-without-capi-race-condition ,pane (lambda ()
-                                           ,@body)
-                                   ,in-capi-process-p))
+(defmacro without-capi-contention ((pane &key in-capi-process-p) &body body)
+  `(do-without-capi-contention ,pane (lambda ()
+                                       ,@body)
+                               ,in-capi-process-p))
 
 
 

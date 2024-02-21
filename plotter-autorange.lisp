@@ -155,7 +155,7 @@
 
         ;; Since we are mutating pane items, we need to be sure we
         ;; aren't facing a potential race condition with CAPI.
-        (without-capi-race-condition (pane :in-capi-process-p in-capi-process-p)
+        (without-capi-contention (pane :in-capi-process-p in-capi-process-p)
           (setf (plotter-box    pane) box
                 (plotter-xmin   pane) xmin
                 (plotter-xmax   pane) xmax
