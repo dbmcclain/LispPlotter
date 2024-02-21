@@ -137,5 +137,29 @@
   `(do-wait-until-finished ,pane ,mbox ,timeout (lambda () ,@body)))
 |#
 
+(defun do-without-capi-race-condition (pane fn in-capi-process-p)
+  (cond ((or in-capi-process-p
+             (let ((intf (ignore-errors
+                           (capi:element-interface pane))))
+               (or (null intf)
+                   (not (capi:interface-visible-p intf)))
+               ))
+         (funcall fn))
+        
+        (t
+         (let ((mbox (mp:make-mailbox)))
+           (capi:apply-in-pane-process
+            pane
+            (lambda ()
+              (mp:mailbox-send mbox (multiple-value-list
+                                     (funcall fn)))))
+           (values-list (mp:mailbox-read mbox))))
+        ))
+
+(defmacro without-capi-race-condition ((pane &key in-capi-process-p) &body body)
+  `(do-without-capi-race-condition ,pane (lambda ()
+                                           ,@body)
+                                   ,in-capi-process-p))
+
 
 

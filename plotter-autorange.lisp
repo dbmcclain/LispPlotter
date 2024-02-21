@@ -155,32 +155,18 @@
 
         ;; Since we are mutating pane items, we need to be sure we
         ;; aren't facing a potential race condition with CAPI.
-        (let ((init-fn (lambda (mbox)
-                         (setf (plotter-box    pane) box
-                               (plotter-xmin   pane) xmin
-                               (plotter-xmax   pane) xmax
-                               (plotter-ymin   pane) ymin
-                               (plotter-ymax   pane) ymax
-                               (plotter-xlog   pane) xlog
-                               (plotter-ylog   pane) ylog
-                               (plotter-aspect pane) aspect
-                               (plotter-magn   pane) magn
-                               (plotter-xform  pane) xform)
-                         (recompute-transform pane)
-                         (when mbox
-                           (mp:mailbox-send mbox :done))
-                         ))
-              (intf   (ignore-errors
-                        (capi:element-interface pane))))
-          (cond ((or in-capi-process-p
-                     (null intf)
-                     (not (capi:interface-visible-p intf)))
-                 (funcall init-fn nil))
-                (t
-                 (let ((mbox (mp:make-mailbox)))
-                   (capi:apply-in-pane-process pane init-fn mbox)
-                   (mp:mailbox-read mbox)))
-                ))
+        (without-capi-race-condition (pane :in-capi-process-p in-capi-process-p)
+          (setf (plotter-box    pane) box
+                (plotter-xmin   pane) xmin
+                (plotter-xmax   pane) xmax
+                (plotter-ymin   pane) ymin
+                (plotter-ymax   pane) ymax
+                (plotter-xlog   pane) xlog
+                (plotter-ylog   pane) ylog
+                (plotter-aspect pane) aspect
+                (plotter-magn   pane) magn
+                (plotter-xform  pane) xform)
+          (recompute-transform pane))
         ))
     ))
 
