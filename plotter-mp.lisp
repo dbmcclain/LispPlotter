@@ -62,22 +62,15 @@
 ;; ------------------------------------------
 
 (defun do-without-capi-contention (pane fn in-capi-process-p)
-  (cond ((or in-capi-process-p
-             (let ((intf (ignore-errors
-                           (capi:element-interface pane))))
-               (or (null intf)
-                   (not (capi:interface-visible-p intf)))
-               ))
+  (cond (in-capi-process-p
          (funcall fn))
-        
         (t
-         (let ((mbox (mp:make-mailbox)))
-           (capi:apply-in-pane-process
-            pane
-            (lambda ()
-              (mp:mailbox-send mbox (multiple-value-list
-                                     (funcall fn)))))
-           (values-list (mp:mailbox-read mbox))))
+         (let+ ((:mvb (results status)
+                 (capi:apply-in-pane-process-wait-multiple pane nil fn) ))
+           (if status
+               (values-list results)
+             (funcall fn))
+           ))
         ))
 
 (defmacro without-capi-contention ((pane &key in-capi-process-p) &body body)
