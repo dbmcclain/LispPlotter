@@ -50,16 +50,6 @@
     ))
 
 ;; ------------------------------------------
-#|
-(defun do-with-locked-plotter-pane (pane fn)
-  (mpcompat:with-lock ((plotter-lock (plotter-mixin-of pane)))
-    (funcall fn)))
-
-(defmacro with-locked-plotter-pane (pane &body body)
-  `(do-with-locked-plotter-pane ,pane (lambda () ,@body)))
-|#
-
-;; ------------------------------------------
 
 (defun do-without-capi-contention (pane fn in-capi-process-p)
   (cond (in-capi-process-p
@@ -124,6 +114,23 @@
 
 ;; ------------------------------------------------------------------
 
+(defun do-wait-until-finished (pane timeout fn)
+  (unless (or (realp timeout)
+              (zerop (plotter-delayed-update pane)))
+    (error "Nested WAIT-UNTIL-FINISHED can lead to thread lockup."))
+  (let ((mbox  (mp:make-mailbox)))
+    (ac:β (ans)
+        (progn
+          (with-delayed-update (pane :notifying ac:β)
+            (funcall fn))
+          (mp:mailbox-read mbox "Waiting on Plotter" timeout))
+      (mp:mailbox-send mbox ans))
+    ))
+
+(defmacro wait-until-finished ((pane &key timeout) &body body)
+  `(do-wait-until-finished ,pane ,timeout (lambda ()
+                                           ,@body)))
+
 #|
 ;; test delayed updates -- entire composite plot should appear at one time
 (let ((win (plt:wset 'myplot)))
@@ -138,26 +145,6 @@
     (plt:fplot win '(-20 20) (lambda (x) (/ (sin x) x))
                :symbol :circle
                :color :blue)))
-|#
-#|
-(defun do-wait-until-finished (pane mbox timeout fn)
-  (let ((pane (plotter-mixin-of pane)))
-    (if (eq mp:*current-process* mp:*main-process*)
-        (with-delayed-update (pane)
-          (funcall fn))
-      (let ((mbox   (or mbox (mp:make-mailbox :size 1)))
-            (mboxes (reply-mboxes pane)))
-        (unwind-protect
-            (progn
-              (with-delayed-update (pane)
-                (funcall fn)
-                (push mbox (reply-mboxes pane)))
-              (mp:mailbox-read mbox "Waiting for plotter to finish" timeout))
-          (setf (reply-mboxes pane) mboxes))
-        ))))
-    
-(defmacro wait-until-finished ((pane &key mbox timeout) &body body)
-  `(do-wait-until-finished ,pane ,mbox ,timeout (lambda () ,@body)))
 |#
 
 

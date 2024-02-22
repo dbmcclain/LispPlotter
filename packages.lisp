@@ -62,7 +62,6 @@
    
    #:with-default-args
    #:wait-until-finished
-   #:with-cached-graphing
    
    #:helpme
 
