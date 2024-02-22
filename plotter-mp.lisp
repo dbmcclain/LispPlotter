@@ -117,7 +117,7 @@
 (defun do-wait-until-finished (pane timeout fn)
   (unless (or (realp timeout)
               (zerop (plotter-delayed-update pane)))
-    (error "Nested WAIT-UNTIL-FINISHED can lead to thread lockup."))
+    (error "Nested WAIT-UNTIL-FINISHED needs a timeout."))
   (let ((mbox  (mp:make-mailbox)))
     (ac:β (ans)
         (progn
