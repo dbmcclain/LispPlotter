@@ -115,17 +115,18 @@
 ;; ------------------------------------------------------------------
 
 (defun do-wait-until-finished (pane timeout fn)
-  (unless (or (realp timeout)
-              (zerop (plotter-delayed-update pane)))
-    (error "Nested WAIT-UNTIL-FINISHED needs a timeout."))
-  (let ((mbox  (mp:make-mailbox)))
-    (ac:β (ans)
-        (progn
-          (with-delayed-update (pane :notifying ac:β)
-            (funcall fn))
-          (mp:mailbox-read mbox "Waiting on Plotter" timeout))
-      (mp:mailbox-send mbox ans))
-    ))
+  (cond ((zerop (plotter-delayed-update pane))
+         (let ((mbox  (mp:make-mailbox)))
+           (ac:β (ans)
+               (progn
+                 (with-delayed-update (pane :notifying ac:β)
+                   (funcall fn))
+                 (mp:mailbox-read mbox "Waiting on Plotter" timeout))
+             (mp:mailbox-send mbox ans))
+           ))
+        (t
+         (funcall fn))
+        ))
 
 (defmacro wait-until-finished ((pane &key timeout) &body body)
   `(do-wait-until-finished ,pane ,timeout (lambda ()
