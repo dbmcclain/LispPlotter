@@ -99,10 +99,13 @@
 ;; --------------------------------------------------
 
 (defmethod display-callback :around ((pane plotter-pane) x y width height)
-  (with-accessors ((delayed  plotter-delayed-update)) pane
+  (with-accessors ((delayed       plotter-delayed-update)
+                   (after-redraw  plotter-after-redraw  )) pane
     (when (zerop delayed)
-      (call-next-method))
-    ))
+      (call-next-method)
+      (when after-redraw
+        (funcall (shiftf after-redraw nil)))
+      )))
 
 (defmethod display-callback :before ((pane plotter-pane) x y width height)
   (with-accessors ((nominal-width   plotter-nominal-width )
@@ -125,11 +128,7 @@
     ))
 
 (defmethod display-callback ((pane plotter-pane) x y width height)
-  (with-accessors ((after-redraw    plotter-after-redraw  )) pane
-    (redraw-display-list pane x y width height :legend t)
-    (when after-redraw
-      (funcall (shiftf after-redraw nil)))
-    ))
+  (redraw-display-list pane x y width height :legend t))
 
 (defmethod display-callback :after ((pane plotter-pane) x y width height)
   (declare (ignore x y width height))
