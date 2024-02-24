@@ -163,7 +163,13 @@
                        ((:gesture-spec "Backspace")
                         maybe-remove-legend)
                        ((:gesture-spec "Delete")
-                        maybe-remove-legend))
+                        maybe-remove-legend)
+                       ((:gesture-spec "Control-c")
+                        copy-image-to-clipboard)
+                       ((:gesture-spec "Control-p")
+                        print-plotter-pane)
+                       ((:gesture-spec "Control-s")
+                        save-image-from-menu))
    ))
 
 (defclass articulated-plotter-pane (plotter-pane)
@@ -229,50 +235,68 @@
 
 ;; ---------------------------------------------------------
 
+(defun make-copy-menu ()
+  (make-instance 'capi:menu-component
+                 :items `(,(make-instance 'capi:menu-item
+                                          :data :copy-image
+                                          :text "Copy to clipboard")
+                          ,(make-instance 'capi:menu-item
+                                          :data :print-image
+                                          :text "Print image")
+                          ,(make-instance 'capi:menu-item
+                                          :data :save-image
+                                          :text "Save image")
+                          )))
+
+(defun maybe-legend-menu (pane)
+  (when (have-legends-p pane)
+    `(,(make-instance 'capi:menu-component
+                      :items `(,(if (activep (plotter-legend pane))
+                                    (make-instance 'capi:menu-item
+                                                   :data :remove-legend
+                                                   :text "Remove Legend")
+                                  (make-instance 'capi:menu-item
+                                                 :data :restore-legend
+                                                 :text "Restore Legend")))
+                      ))))
+
+(defun make-popup-callback (pane x y)
+  (lambda (key intf)
+    (declare (ignore intf))
+    (case key
+      (:toggle-cursor
+       (toggle-full-crosshair pane))
+      (:copy-image
+       (copy-image-to-clipboard pane))
+      (:print-image
+       (print-plotter-pane pane))
+      (:save-image
+       (save-image-from-menu pane))
+      (:remove-legend
+       (let ((legend (plotter-legend pane)))
+         (setf (activep legend) nil)
+         (restore-legend-background pane legend)))
+      (:restore-legend
+       (let ((legend (plotter-legend pane)))
+         (setf (activep legend) t)
+         (restore-legend-background pane legend)
+         (draw-existing-legend pane legend)))
+      (:mark-x
+       (mark-x-at-cursor pane x y))
+      (:mark-y
+       (mark-y-at-cursor pane x y))
+      (:mark-x-y
+       (mark-x-y-at-cursor pane x y))
+      (:remove-mark
+       (unmark-x-y pane))
+      )))
+  
 (defmethod popup-menu ((pane plotter-pane) selection x y)
   (declare (ignore selection))
   (make-instance 'capi:menu
-                 :items `(,(make-instance 'capi:menu-component
-                                          :items `(,(make-instance 'capi:menu-item
-                                                                   :data :copy-image
-                                                                   :text "Copy to clipboard")
-                                                   ,(make-instance 'capi:menu-item
-                                                                   :data :print-image
-                                                                   :text "Print image")
-                                                   ,(make-instance 'capi:menu-item
-                                                                   :data :save-image
-                                                                   :text "Save image")))
-                          ,@(if (or (on-legend pane x y)
-                                    (not (activep (plotter-legend pane))))
-                                `(,(make-instance 'capi:menu-component
-                                                  :items `(,@(if (on-legend pane x y)
-                                                                 `(,(make-instance 'capi:menu-item
-                                                                                   :data :remove-legend
-                                                                                   :text "Remove Legend")))
-                                                           ,@(if (not (activep (plotter-legend pane)))
-                                                                 `(,(make-instance 'capi:menu-item
-                                                                                   :data :restore-legend
-                                                                                   :text "Restore Legend"))))
-                                                  ))))
-                 :callback (lambda (key intf)
-                             (declare (ignore intf))
-                             (case key
-                               (:copy-image
-                                (copy-image-to-clipboard pane))
-                               (:print-image
-                                (print-plotter-pane pane))
-                               (:save-image
-                                (save-image-from-menu pane))
-                               (:remove-legend
-                                (let ((legend (plotter-legend pane)))
-                                  (setf (activep legend) nil)
-                                  (restore-legend-background pane legend)))
-                               (:restore-legend
-                                (let ((legend (plotter-legend pane)))
-                                  (setf (activep legend) t)
-                                  (restore-legend-background pane legend)
-                                  (draw-existing-legend pane legend)))
-                               ))
+                 :items `(,(make-copy-menu)
+                          ,@(maybe-legend-menu pane))                 
+                 :callback (make-popup-callback pane x y)
                  ))
 
 (defmethod popup-menu ((pane articulated-plotter-pane) selection x y)
@@ -282,28 +306,9 @@
                                           :items `(,(make-instance 'capi:menu-item
                                                                    :data :toggle-cursor
                                                                    :text "Toggle crosshair")))
-                          ,(make-instance 'capi:menu-component
-                                          :items `(,(make-instance 'capi:menu-item
-                                                                   :data :copy-image
-                                                                   :text "Copy to clipboard")
-                                                   ,(make-instance 'capi:menu-item
-                                                                   :data :print-image
-                                                                   :text "Print image")
-                                                   ,(make-instance 'capi:menu-item
-                                                                   :data :save-image
-                                                                   :text "Save image")))
-                          ,@(if (or (on-legend pane x y)
-                                    (not (activep (plotter-legend pane))))
-                                `(,(make-instance 'capi:menu-component
-                                                  :items `(,@(if (on-legend pane x y)
-                                                                 `(,(make-instance 'capi:menu-item
-                                                                                   :data :remove-legend
-                                                                                   :text "Remove Legend")))
-                                                           ,@(if (not (activep (plotter-legend pane)))
-                                                                 `(,(make-instance 'capi:menu-item
-                                                                                   :data :restore-legend
-                                                                                   :text "Restore Legend"))))
-                                                  )))
+                          ,(make-copy-menu)
+                          ,@(maybe-legend-menu pane)
+
                           ,(make-instance 'capi:menu-component
                                           :items `(,(make-instance 'capi:menu-item
                                                                    :data :mark-x
@@ -318,36 +323,9 @@
                                                              (mark-y pane))
                                                          `(,(make-instance 'capi:menu-item
                                                                            :data :remove-mark
-                                                                           :text "Remove marker"))))))
-                 :callback (lambda (key intf)
-                             (declare (ignore intf))
-                             (case key
-                               (:toggle-cursor
-                                (toggle-full-crosshair pane))
-                               (:copy-image
-                                (copy-image-to-clipboard pane))
-                               (:print-image
-                                (print-plotter-pane pane))
-                               (:save-image
-                                (save-image-from-menu pane))
-                               (:remove-legend
-                                (let ((legend (plotter-legend pane)))
-                                  (setf (activep legend) nil)
-                                  (restore-legend-background pane legend)))
-                               (:restore-legend
-                                (let ((legend (plotter-legend pane)))
-                                  (setf (activep legend) t)
-                                  (restore-legend-background pane legend)
-                                  (draw-existing-legend pane legend)))
-                               (:mark-x
-                                (mark-x-at-cursor pane x y))
-                               (:mark-y
-                                (mark-y-at-cursor pane x y))
-                               (:mark-x-y
-                                (mark-x-y-at-cursor pane x y))
-                               (:remove-mark
-                                (unmark-x-y pane))
-                               ))
+                                                                           :text "Remove marker"))))
+                                          ))
+                 :callback (make-popup-callback pane x y)
                  ))
 
 (defun maybe-remove-legend (pane x y &rest args)
@@ -412,6 +390,9 @@
 
 (defun discard-legends (pane)
   (setf (fill-pointer (plotter-legend-info pane)) 0))
+
+(defun have-legends-p (pane)
+  (plusp (length (plotter-legend-info pane))))
 
 ;; --------------------------------------------------------------------
 

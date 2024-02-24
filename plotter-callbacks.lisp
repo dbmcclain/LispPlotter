@@ -89,6 +89,8 @@
   (when (gp:port-representation pane)
     (display-callback pane x y width height)))
 
+;; --------------------------------------------------
+
 (defmethod redraw-display-list ((pane plotter-pane) x y width height &key legend)
   (discard-legends pane)
   (dolist (item (display-list-items pane))
@@ -132,7 +134,7 @@
 
 (defmethod display-callback :after ((pane plotter-pane) x y width height)
   (declare (ignore x y width height))
-  (with-accessors ((notify-cust plotter-notify-cust)) pane
+  (with-accessors ((notify-cust  plotter-notify-cust )) pane
     (ac:send-to-all (shiftf notify-cust nil) :done)
     ))
 
