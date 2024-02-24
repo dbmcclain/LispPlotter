@@ -304,12 +304,12 @@
 
 ;; user callable function
 (defun set-x-readout-hook (pane fn)
-  (let ((pane (plotter-mixin-of pane)))
+  (let ((pane (plotter-pane-of pane)))
     (setf (plotter-x-readout-hook pane) fn)))
 
 ;; user callable function
 (defun set-y-readout-hook (pane fn)
-  (let ((pane (plotter-mixin-of pane)))
+  (let ((pane (plotter-pane-of pane)))
     (setf (plotter-y-readout-hook pane) fn)))
 
 ;; -----------------------------------------------------------
@@ -402,7 +402,7 @@
   (let ((dest (or file
                   (get-dest-path))))
     (when dest
-      (let ((pane (plotter-mixin-of pane)))
+      (let ((pane (plotter-pane-of pane)))
         (sync-with-capi pane
                         #-:WIN32
                         (lambda ()
@@ -462,7 +462,7 @@
 ;; user callable function
 #-:LISPWORKS6+
 (defun set-full-crosshair (pane full-crosshair)
-  (let ((pane (plotter-mixin-of pane)))
+  (let ((pane (plotter-pane-of pane)))
     (sync-with-capi pane
                     (lambda ()
                       (setf (plotter-full-crosshair pane)
@@ -481,7 +481,7 @@
 
 #+:LISPWORKS6+
 (defun set-full-crosshair (pane full-crosshair)
-  (let ((pane (plotter-mixin-of pane)))
+  (let ((pane (plotter-pane-of pane)))
     (sync-with-capi pane
                     (lambda ()
                       (setf (plotter-full-crosshair pane)

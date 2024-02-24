@@ -153,7 +153,7 @@
                       clear
                       &allow-other-keys)
   "Internal workhorse routine for TVSCL."
-  (let ((pane (plotter-mixin-of pane)))
+  (let ((pane (plotter-pane-of pane)))
     (with-delayed-update (pane)
       (let+ ((wd (array-dimension-of arr 1))
              (ht (array-dimension-of arr 0))
@@ -254,7 +254,7 @@
                            clear
                            &allow-other-keys)
   "Internal workhorse for image plotting."
-  (let ((pane (plotter-mixin-of pane)))
+  (let ((pane (plotter-pane-of pane)))
     (with-delayed-update (pane)
       (let+ ((fresh   (or clear
                           (display-list-empty-p pane)))
@@ -316,7 +316,7 @@
                              (global-alpha 1.0)
                              &allow-other-keys)
   "Internal workhorse for image rendering."
-  (let+ ((pane     (plotter-mixin-of pane))
+  (let+ ((pane     (plotter-pane-of pane))
          (action (lambda (pane x y wd ht)
                    (declare (ignore x y wd ht))
                    (with-image (pane (img (gp:convert-external-image pane ext-img)))

@@ -74,7 +74,7 @@
 
 (defvar *plt*
   (let ((plt (capi:contain
-              (make-instance '<plotter-pane>
+              (make-instance '<articulated-plotter-pane>
                              :nominal-x 40
                              :nominal-y 50))))
     (fplot plt '(-20 20) #'sinc
@@ -90,7 +90,7 @@
   (capi:define-interface thingy ()
     ()
     (:panes
-     (graf <plotter-pane>
+     (graf <articulated-plotter-pane>
            :accessor graf)
 
      (inspect-button capi:button
@@ -134,9 +134,9 @@
   (capi:define-interface dual-thingy ()
     ()
     (:panes
-     (graf-l <plotter-pane>
+     (graf-l <articulated-plotter-pane>
              :accessor graf-l)
-     (graf-r <plotter-pane>
+     (graf-r <articulated-plotter-pane>
              :accessor graf-r)
      
      (inspect-button-l capi:button
@@ -187,7 +187,7 @@
 
 ;; ----------------------------------------------------------
 
-(let* ((drawing-area  (make-instance '<plotter-pane>
+(let* ((drawing-area  (make-instance '<articulated-plotter-pane>
                                      :x  50
                                      :y  50
                                      :width 200
@@ -219,7 +219,7 @@
   ((plt    :accessor thing-plt)))
 
 (defmethod initialize-instance :after ((obj thing) &key (pltx 30) (plty 10) (pltw 200) (plth 150) &allow-other-keys)
-  (let ((plt  (make-instance '<plotter-pane>
+  (let ((plt  (make-instance '<articulated-plotter-pane>
                              :x      pltx
                              :y      plty
                              :width  pltw
@@ -239,7 +239,7 @@
 
 (let ((athing (capi:contain (make-instance 'thing))))
   (sleep 1)
-  (let ((plt2  (make-instance '<plotter-pane>
+  (let ((plt2  (make-instance '<articulated-plotter-pane>
                               :x       150
                               :y       130
                               :width   200

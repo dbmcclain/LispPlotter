@@ -8,7 +8,7 @@
 ;; ------------------------------------------------------------
 
 (defun tst (pane)
-  (let* ((pane     (plotter-mixin-of pane))
+  (let* ((pane     (plotter-pane-of pane))
          (flag     :not-yet)
          (action   (lambda (pane x y w h)
                      (declare (ignore x y w h))
@@ -32,7 +32,7 @@
 ;; ------------------------------------------------------
 
 (defun tstx (pane)
-  (let* ((pane     (plotter-mixin-of pane))
+  (let* ((pane     (plotter-pane-of pane))
          (flag     :not-yet)
          (action   (lambda (pane x y w h)
                      (declare (ignore x y w h))
@@ -53,7 +53,7 @@
 ;; ------------------------------------------------------------
 
 (defun tstu (pane)
-  (let* ((pane     (plotter-mixin-of pane))
+  (let* ((pane     (plotter-pane-of pane))
          (flag     :not-yet))
     (capi:apply-in-pane-process pane
                                 (lambda ()
@@ -70,7 +70,7 @@
 ;; ------------------------------------------------------------
 
 (defun tstw (pane)
-  (let* ((pane     (plotter-mixin-of pane))
+  (let* ((pane     (plotter-pane-of pane))
          (flag     :not-yet))
     (capi:apply-in-pane-process-wait-multiple pane nil
                                               (lambda ()

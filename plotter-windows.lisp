@@ -2,7 +2,7 @@
 (in-package :plotter)
 
 ;; ------------------------------------------
-(defmethod plotter-mixin-of (name &optional args)
+(defmethod plotter-pane-of (name &optional args)
   ;; allow for symbolic names in place of plotter-windows or
   ;; <plotter-pane>s. Names must match under EQUALP (i.e., case
   ;; insensitive strings, symbols, numbers, etc.)
@@ -19,14 +19,14 @@
   ;; locate the named plotter window and return its <plotter-pane> object
   (let ((win (locate-plotter-window name)))
     (and win
-         (plotter-mixin-of win))))
+         (plotter-pane-of win))))
 
 ;; ---------------------------------------------------------------
 
 (defclass <plotter-window> (capi:interface)
   ((drawing-area  :accessor drawing-area  :initarg :drawing-area)))
 
-(defmethod plotter-mixin-of ((intf <plotter-window>) &optional args)
+(defmethod plotter-pane-of ((intf <plotter-window>) &optional args)
   (declare (ignore args))
   (drawing-area intf))
 
@@ -59,7 +59,7 @@
                             window-styles
                             window-class)
   
-  (let ((pane (make-instance '<plotter-pane>
+  (let ((pane (make-instance '<articulated-plotter-pane>
                              :name               name
                              :background         background
                              :foreground         foreground

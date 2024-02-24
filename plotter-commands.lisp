@@ -42,7 +42,7 @@
                          to
                         
                          &allow-other-keys)
-  (let* ((pane      (plotter-mixin-of pane))
+  (let* ((pane      (plotter-pane-of pane))
          (augm-args (list*
                      :color  color
                      :alpha  alpha
@@ -108,7 +108,7 @@
                     ;;(fullgrid t)
                    
                     &allow-other-keys)
-  (let ((pane  (plotter-mixin-of pane args)))
+  (let ((pane  (plotter-pane-of pane args)))
     (with-delayed-update (pane)
       (let+ ((:mvb (xvf yvf)
               (cond (xv
@@ -166,7 +166,7 @@
                          (cright2 *cright2*)
                         
                          &allow-other-keys)
-  (let ((pane  (plotter-mixin-of pane args)))
+  (let ((pane  (plotter-pane-of pane args)))
     (with-delayed-update (pane)
       (let+ ((fresh (or clear
                         (display-list-empty-p pane)))
@@ -231,7 +231,7 @@
 
 ;; user callable function
 (defun clear (pane)
-  (let ((pane (plotter-mixin-of pane)))
+  (let ((pane (plotter-pane-of pane)))
     (augment-display-list pane nil t)))
 
 ;; -------------------------------------------------------------------
@@ -245,7 +245,7 @@
                    &allow-other-keys)
   ;; allow a list of yvectors to be given
   ;; so that we can find the best fitting autoscale that accommodates all of them
-  (let ((pane (plotter-mixin-of pane args)))
+  (let ((pane (plotter-pane-of pane args)))
     (with-delayed-update (pane)
       (multiple-value-bind (xv yv)
           (let ((ylist (remove nil (um:mklist yvectors))))
@@ -296,7 +296,7 @@
                     alpha
                    
                     &allow-other-keys)
-  (let* ((pane   (plotter-mixin-of pane))
+  (let* ((pane   (plotter-pane-of pane))
          (action (lambda (pane xarg yarg width height)
                    (declare (ignore xarg yarg width height))
                    (with-plotview-coords (pane)
@@ -358,7 +358,7 @@
                            border-alpha
                           
                            &allow-other-keys)
-  (let* ((pane  (plotter-mixin-of pane))
+  (let* ((pane  (plotter-pane-of pane))
          (action (lambda (pane xarg yarg width height)
                    (declare (ignore xarg yarg width height))
                    (with-plotview-coords (pane)
@@ -534,7 +534,7 @@
   `(do-with-cached-graphing ,pane ,ver (lambda () ,@body)))
 
 (defun do-with-cached-graphing (pane ver fn)
-  (let ((pane (plotter-mixin-of pane)))
+  (let ((pane (plotter-pane-of pane)))
     (cond ((eql ver (plotter-cache-ver pane))
            (funcall fn))
           

@@ -17,7 +17,7 @@
    #:*plotter-window-class*
    #:<plotter-window>
    #:<plotter-pane>
-   #:<plotter-mixin>
+   #:<articulated-plotter-pane>
    #:window ;; these functions take a symbolic window id argument
    #:wset
    #:wshow

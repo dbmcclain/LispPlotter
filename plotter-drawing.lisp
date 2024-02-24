@@ -231,7 +231,7 @@
 
 ;; --------------------------------------------------------------------
 
-(defmethod pw-plot-prepped ((pane <plotter-mixin>) prepped symbol-fn
+(defmethod pw-plot-prepped ((pane <plotter-pane>) prepped symbol-fn
                                    &key
                                    ;; (color #.(color:make-rgb 0.0 0.5 0.0))
                                    ;; alpha
@@ -347,7 +347,7 @@
 
 ;; --------------------------------------------------------------------
 #|
-(defmethod unsafe-pw-plot-xv-yv ((cpw <plotter-mixin>) port xvector yvector 
+(defmethod unsafe-pw-plot-xv-yv ((cpw <plotter-pane>) port xvector yvector 
                                  &key
                                  ;; (color #.(color:make-rgb 0.0 0.5 0.0))
                                  ;; alpha
@@ -541,7 +541,7 @@
                 )))
       )))
 
-(defmethod pw-plot-xv-yv ((cpw <plotter-mixin>) port xvector yvector &rest args)
+(defmethod pw-plot-xv-yv ((cpw <plotter-pane>) port xvector yvector &rest args)
   (let ((state (plotter-cache-state cpw)))
     (when (or (null state)
               (eql state (getf args :cache :drawing)))
@@ -606,7 +606,7 @@
     ))
 
 ;;-------------------------------------------------------------------
-(defmethod unsafe-pw-plot-bars-xv-yv ((pane <plotter-mixin>) xvector yvectors 
+(defmethod unsafe-pw-plot-bars-xv-yv ((pane <plotter-pane>) xvector yvectors 
                           &key
                           (color #.(color:make-rgb 0.0 0.5 0.0))
                           (neg-color color)
@@ -680,7 +680,7 @@
           (funcall plotfn x tmp)))
       )))
 
-(defmethod pw-plot-bars-xv-yv ((pane <plotter-mixin>) xvector yvectors &rest args)
+(defmethod pw-plot-bars-xv-yv ((pane <plotter-pane>) xvector yvectors &rest args)
   (progn ;; ignore-errors
     (apply #'unsafe-pw-plot-bars-xv-yv pane xvector yvectors args)))
 

@@ -94,7 +94,7 @@
    (dy          :accessor dy          :initform 0)
    ))
 
-(defclass <plotter-mixin> ()
+(defclass <plotter-pane> (capi:output-pane)
   ;; stuff used by 2-D plot scaling and plotting
   ;; The mixin has all the information needed to produce plots
   ;; but has nothing to draw on...
@@ -120,8 +120,6 @@
    ;; info for nice looking zooming
    (def-wd        :accessor plotter-nominal-width  :initarg :nominal-width)
    (def-ht        :accessor plotter-nominal-height :initarg :nominal-height)
-   ;; (def-x         :accessor plotter-nominal-x      :initarg :nominal-x   :initform 0)
-   ;; (def-y         :accessor plotter-nominal-y      :initarg :nominal-y   :initform 0)
 
    (sf            :accessor plotter-sf    :initform 1)
    (magn          :accessor plotter-magn  :initform 1)
@@ -137,25 +135,38 @@
    (notify-cust   :accessor plotter-notify-cust        :initform nil)
    (initial-gs    :accessor plotter-initial-gs         :initform nil)
    (plotting-gs   :accessor plotter-plotting-gs        :initform nil)
+   (prev-frame    :accessor plotter-prev-frame         :initform nil)
+   (plotter-valid :accessor plotter-valid              :initform t) ;; nil after destroy
+   (delay-backing :accessor plotter-delay-backing      :initform nil)
    )
   (:default-initargs
    :nominal-width      400
    :nominal-height     300
+   :display-callback   'display-callback
+   :resize-callback    'resize-callback
+   :destroy-callback   'destroy-callback
+   :default-width      400
+   :default-height     300
+   :background :white
+   :foreground :black
+   :visible-min-width  200
+   :visible-min-height 150
+   :visible-max-width  800
+   :visible-max-height 600
+   :draw-with-buffer   t  ;; MSWindows performance is miserable without this...
    ))
 
-(defclass <plotter-pane> (<plotter-mixin> capi:output-pane)
+(defclass <articulated-plotter-pane> (<plotter-pane>)
   ;; stuff used by 2-D plot scaling and plotting
   ;; The pane adds something to draw on...
   ;; And it also adds some user gestures and any display related items
   ;; like cross hairs, cursors, backing images, etc.
   (;; (backing-pixmap  :accessor plotter-backing-pixmap :initform nil)
-   (delay-backing   :accessor plotter-delay-backing  :initform nil)
    (full-crosshair  :accessor plotter-full-crosshair :initform nil   :initarg :full-crosshair)
    (prev-x          :accessor plotter-prev-x         :initform nil)
    (prev-y          :accessor plotter-prev-y         :initform nil)
    (x-ro-hook       :accessor plotter-x-readout-hook :initform #'identity)
    (y-ro-hook       :accessor plotter-y-readout-hook :initform #'identity)
-   (plotter-valid   :accessor plotter-valid          :initform t)
    
    (mark-x           :accessor mark-x                :initform nil)
    (mark-y           :accessor mark-y                :initform nil)
@@ -167,14 +178,9 @@
    (cache-pixmap     :accessor plotter-cache-pixmap  :initform nil)
    (cache-state      :accessor plotter-cache-state   :initform nil)
 
-   (prev-frame       :accessor plotter-prev-frame    :initform nil)
    )
   (:default-initargs
-   :display-callback 'display-callback
-   :resize-callback  'resize-callback
-   :destroy-callback 'destroy-callback
    :pane-menu        'popup-menu
-   :draw-with-buffer t
    :input-model      '((:motion mouse-move)
                        ((:button-1 :motion)  drag-legend)
                        ((:button-1 :press)   show-x-y-at-cursor)
@@ -203,14 +209,6 @@
                         unmark-x-y))
    :cursor   (or *cross-cursor*
                  :crosshair)
-   :visible-min-width  200
-   :visible-min-height 150
-   :visible-max-width  800
-   :visible-max-height 600
-   :default-width      400
-   :default-height     300
-   :background :white
-   :foreground :black
    ))
 
 #+:WIN32
@@ -311,13 +309,13 @@
     ))
 
 ;; ---------------------------------------------------------
-(defgeneric plotter-mixin-of (pane-rep &optional args)
+(defgeneric plotter-pane-of (pane-rep &optional args)
   ;; rep might be a <plotter-pane>,
   ;; a subclass of capi:interface,
   ;; or a symbolic name of a window
   )
 
-(defmethod plotter-mixin-of ((pane <plotter-mixin>) &optional args)
+(defmethod plotter-pane-of ((pane <plotter-pane>) &optional args)
   ;; it is me...
   (declare (ignore args))
   pane)

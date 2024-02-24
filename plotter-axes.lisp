@@ -157,7 +157,7 @@
              (symbol-function x)))
       ))
 
-(defmethod pw-axes ((pane <plotter-mixin>) &rest args)
+(defmethod pw-axes ((pane <plotter-pane>) &rest args)
   (cond ((eql (plotter-cache-state pane) :drawing)
          (gp:copy-pixels pane (plotter-cache-pixmap pane)
                          0 0 (gp:port-width pane) (gp:port-height pane) 0 0))

@@ -77,13 +77,13 @@
 
 ;; ------------------------------------------
 
-(defmethod display-list-empty-p ((pane <plotter-mixin>))
+(defmethod display-list-empty-p ((pane <plotter-pane>))
   (without-capi-contention pane
     (zerop (length (plotter-display-list pane)))))
 
 ;; ------------------------------------------
 
-(defmethod capi:redisplay-element :around ((pane <plotter-mixin>) &optional x y width height)
+(defmethod capi:redisplay-element :around ((pane <plotter-pane>) &optional x y width height)
   (without-capi-contention pane
     (if (zerop (plotter-delayed-update pane))
         (call-next-method)
@@ -91,22 +91,22 @@
                :test #'equalp))
     ))
   
-(defmethod redraw-entire-pane ((pane <plotter-mixin>))
+(defmethod redraw-entire-pane ((pane <plotter-pane>))
   (capi:redisplay-element pane))
 
 (defun update-pane (pane &rest region) ;; x y wd ht
-  (apply #'capi:redisplay-element (plotter-mixin-of pane) region))
+  (apply #'capi:redisplay-element (plotter-pane-of pane) region))
 
 ;; ---------------------------------------------------------------
 
-(defmethod begin-update ((pane <plotter-mixin>))
+(defmethod begin-update ((pane <plotter-pane>))
   (without-capi-contention pane
     (prog1
         (plotter-delayed-update pane)
       (incf (plotter-delayed-update pane)))
     ))
 
-(defmethod end-update ((pane <plotter-mixin>) &optional notifying)
+(defmethod end-update ((pane <plotter-pane>) &optional notifying)
   (without-capi-contention pane
     (when notifying
       (pushnew notifying (plotter-notify-cust pane))
@@ -118,7 +118,7 @@
     ))
   
 (defun do-with-delayed-update (pane notifying fn)
-  (let ((the-pane (plotter-mixin-of pane)))
+  (let ((the-pane (plotter-pane-of pane)))
     (begin-update the-pane)
     (unwind-protect
         (funcall fn)
@@ -135,7 +135,7 @@
 
 (defun do-wait-until-finished (pane timeout fn)
   (let ((mbox     (mp:make-mailbox))
-        (the-pane (plotter-mixin-of pane)))
+        (the-pane (plotter-pane-of pane)))
     (ac:β (ans)
         (progn
           (with-delayed-update (the-pane :notifying ac:β)
