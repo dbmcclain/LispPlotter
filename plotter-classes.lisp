@@ -137,7 +137,6 @@
    (plotting-gs   :accessor plotter-plotting-gs        :initform nil)
    (prev-frame    :accessor plotter-prev-frame         :initform nil)
    (plotter-valid :accessor plotter-valid              :initform t) ;; nil after destroy
-   (delay-backing :accessor plotter-delay-backing      :initform nil)
    )
   (:default-initargs
    :nominal-width      400
@@ -154,6 +153,15 @@
    :visible-max-width  800
    :visible-max-height 600
    :draw-with-buffer   t  ;; MSWindows performance is miserable without this...
+   :pane-menu        'popup-menu
+   :input-model      '((:motion mouse-move)
+                       ((:button-1 :motion)  drag-legend)
+                       ((:button-1 :press)   mouse-button-press)
+                       ((:button-1 :release) undrag-legend)
+                       ((:gesture-spec "Backspace")
+                        maybe-remove-legend)
+                       ((:gesture-spec "Delete")
+                        maybe-remove-legend))
    ))
 
 (defclass <articulated-plotter-pane> (<plotter-pane>)
@@ -178,12 +186,13 @@
    (cache-pixmap     :accessor plotter-cache-pixmap  :initform nil)
    (cache-state      :accessor plotter-cache-state   :initform nil)
 
+   (delay-backing    :accessor plotter-delay-backing :initform nil)
    )
   (:default-initargs
    :pane-menu        'popup-menu
    :input-model      '((:motion mouse-move)
                        ((:button-1 :motion)  drag-legend)
-                       ((:button-1 :press)   show-x-y-at-cursor)
+                       ((:button-1 :press)   mouse-button-press)
                        ((:button-1 :release) undrag-legend)
                        ((:gesture-spec "Backspace")
                         maybe-remove-legend)
@@ -224,7 +233,54 @@
   )
 
 ;; ---------------------------------------------------------
-(defun popup-menu (pane selection x y)
+
+(defmethod popup-menu ((pane <plotter-pane>) selection x y)
+  (declare (ignore selection))
+  (make-instance 'capi:menu
+                 :items `(,(make-instance 'capi:menu-component
+                                          :items `(,(make-instance 'capi:menu-item
+                                                                   :data :copy-image
+                                                                   :text "Copy to clipboard")
+                                                   ,(make-instance 'capi:menu-item
+                                                                   :data :print-image
+                                                                   :text "Print image")
+                                                   ,(make-instance 'capi:menu-item
+                                                                   :data :save-image
+                                                                   :text "Save image")))
+                          ,@(if (or (on-legend pane x y)
+                                    (not (activep (plotter-legend pane))))
+                                `(,(make-instance 'capi:menu-component
+                                                  :items `(,@(if (on-legend pane x y)
+                                                                 `(,(make-instance 'capi:menu-item
+                                                                                   :data :remove-legend
+                                                                                   :text "Remove Legend")))
+                                                           ,@(if (not (activep (plotter-legend pane)))
+                                                                 `(,(make-instance 'capi:menu-item
+                                                                                   :data :restore-legend
+                                                                                   :text "Restore Legend"))))
+                                                  ))))
+                 :callback (lambda (key intf)
+                             (declare (ignore intf))
+                             (case key
+                               (:copy-image
+                                (copy-image-to-clipboard pane))
+                               (:print-image
+                                (print-plotter-pane pane))
+                               (:save-image
+                                (save-image-from-menu pane))
+                               (:remove-legend
+                                (let ((legend (plotter-legend pane)))
+                                  (setf (activep legend) nil)
+                                  (restore-legend-background pane legend)))
+                               (:restore-legend
+                                (let ((legend (plotter-legend pane)))
+                                  (setf (activep legend) t)
+                                  (restore-legend-background pane legend)
+                                  (draw-existing-legend pane legend)))
+                               ))
+                 ))
+
+(defmethod popup-menu ((pane <articulated-plotter-pane>) selection x y)
   (declare (ignore selection))
   (make-instance 'capi:menu
                  :items `(,(make-instance 'capi:menu-component

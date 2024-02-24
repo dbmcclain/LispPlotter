@@ -122,18 +122,30 @@
             (recompute-transform pane)
             (recompute-plotting-state pane)
             )))
-      
-      (redraw-display-list pane x y width height :legend t)
+      (redraw-display-list pane x y width height :legend t)      
+      (ac:send-to-all (shiftf notify-cust nil) :done)
+      )))
+
+(defmethod display-callback :around ((pane <articulated-plotter-pane>) x y width height)
+  (with-accessors ((full-crosshair  plotter-full-crosshair)
+                   (delay-backing   plotter-delay-backing )
+                   (prev-x          plotter-prev-x        )
+                   (prev-y          plotter-prev-y        )
+                   (mark-x          mark-x                )
+                   (mark-y          mark-y                )
+                   (delayed         plotter-delayed-update)) pane
+
+    ;; check if frame has moved or resized
+    (when (zerop delayed)
+
+      (call-next-method)
       
       (unless delay-backing
         (when full-crosshair
           (draw-crosshair-lines pane full-crosshair prev-x prev-y))
         
-        (when (or (mark-x pane)
-                  (mark-y pane))
+        (when (or mark-x mark-y)
           (draw-mark pane)))
-      
-      (ac:send-to-all (shiftf notify-cust nil) :done)
       )))
 
 (defun resize-callback (pane x y width height)
@@ -172,92 +184,102 @@
   ;; default for CAPI panes - defer to parent object
   (display-cursor-readout (capi:element-parent obj) name x y))
 
-(defun mouse-move (pane x y &rest args)
+(defmethod mouse-move ((pane <plotter-pane>) x y &rest args)
   (declare (ignore args))
-  (cond ((on-legend pane x y)
-         ;; (ac:send ac:fmt-println "on legend: ~A ~A" x y)
-         (highlight-legend pane))
-        (t  (unhighlight-legend pane)
-            #-:WIN32
-            (capi:display-tooltip pane)
-            ;; #+:WIN32 (capi:display-tooltip pane)
-            (destructuring-bind (xx yy) (compute-x-y-at-cursor pane x y)
-              (display-cursor-readout pane
-                                      (capi:capi-object-name pane) xx yy))
-            
-            (with-accessors ((full-crosshair plotter-full-crosshair)
-                             (prev-x         plotter-prev-x)
-                             (prev-y         plotter-prev-y)) pane
-              
-              (when full-crosshair ;; NIL or a color spec
-                
-                #+(AND :WIN32 (NOT :LISPWORKS6+))
-                (progn
-                  (draw-crosshair-lines pane full-crosshair prev-x prev-y)
-                  (draw-crosshair-lines pane full-crosshair x      y)                 
-                  (setf prev-x x
-                        prev-y y))
-                
-                #+(OR :COCOA :LISPWORKS6+)
-                (let ((xx (shiftf prev-x x))
-                      (yy (shiftf prev-y y)))
-                  (when (and xx yy)
-                    (let ((wd (gp:port-width pane))
-                          (ht (gp:port-height pane)))
-                      (capi:redisplay-element pane (1- xx) 0 3 ht)
-                      (capi:redisplay-element pane 0 (1- yy) wd 3))
-                    ))
-                )))))
+  (if (on-legend pane x y)
+      (highlight-legend pane)
+    (unhighlight-legend pane)
+    ))
 
-(defun show-x-y-at-cursor (pane x y &rest _)
-  (declare (ignore _))
-  (cond ((on-legend pane x y) (start-drag-legend pane x y))
+(defmethod mouse-move :around ((pane <articulated-plotter-pane>) x y &rest args)
+  (declare (ignore args))
+  (call-next-method)
+  (unless (on-legend pane x y)
+    #-:WIN32
+    (capi:display-tooltip pane)
+    ;; #+:WIN32 (capi:display-tooltip pane)
+    (destructuring-bind (xx yy) (compute-x-y-at-cursor pane x y)
+      (display-cursor-readout pane
+                              (capi:capi-object-name pane) xx yy))
+    
+    (with-accessors ((full-crosshair plotter-full-crosshair)
+                     (prev-x         plotter-prev-x)
+                     (prev-y         plotter-prev-y)) pane
+      
+      (when full-crosshair ;; NIL or a color spec
         
-        (t (destructuring-bind (xx yy) (compute-x-y-at-cursor pane x y)
-             (labels ((fmt (val)
-                        ;; (format nil "~,5g" val)
-                        (string-trim " "
-                                     (if (realp val)
-                                         (engfmt:engineering-format nil val :nsig 3)
-                                       (format nil "~A" val)))
-                        ))
-               (let* ((xstr (fmt xx))
-                      (ystr (fmt yy))
-                      (mx   (mark-x pane))
-                      (my   (mark-y pane))
-                      (txt  (cond ((and mx my
-                                        (realp mx)
-                                        (realp my))
-                                   (let* ((dxstr (fmt (- xx (mark-x pane))))
-                                          (dystr (fmt (- yy (mark-y pane))))
-                                          (wd    (max (length xstr) (length dxstr))))
-                                     (format nil " x ~vA   y ~A~&dx ~vA  dy ~A"
-                                             wd xstr ystr wd dxstr dystr)))
-                                  
-                                  ((and mx
-                                        (realp mx))
-                                   (let* ((dxstr (fmt (- xx (mark-x pane))))
-                                          (wd    (max (length xstr) (length dxstr))))
-                                     (format nil " x ~vA   y ~A~&dx ~vA"
-                                             wd xstr ystr wd dxstr)))
-                                  
-                                  ((and my
-                                        (realp my))
-                                   (let* ((dystr (fmt (- yy (mark-y pane))))
-                                          (wd    (length xstr)))
-                                     (format nil " x ~vA   y ~A~&~vTdy ~A"
-                                             wd xstr ystr (+ wd 5) dystr)))
-                                  
-                                  (t
-                                   (format nil "x ~A  y ~A" xstr ystr))
-                                  )))
-                 
-                 (capi:display-tooltip pane
-                                       :x  (+ x 10)
-                                       :y  (+ y 10)
-                                       :text txt)
-                 (capi:set-clipboard pane txt)
-                 ))))))
+        #+(AND :WIN32 (NOT :LISPWORKS6+))
+        (progn
+          (draw-crosshair-lines pane full-crosshair prev-x prev-y)
+          (draw-crosshair-lines pane full-crosshair x      y)                 
+          (setf prev-x x
+                prev-y y))
+        
+        #+(OR :COCOA :LISPWORKS6+)
+        (let ((xx (shiftf prev-x x))
+              (yy (shiftf prev-y y)))
+          (when (and xx yy)
+            (let ((wd (gp:port-width pane))
+                  (ht (gp:port-height pane)))
+              (capi:redisplay-element pane (1- xx) 0 3 ht)
+              (capi:redisplay-element pane 0 (1- yy) wd 3))
+            ))
+        ))))
+
+(defmethod mouse-button-press ((pane <plotter-pane>) x y &rest _)
+  (declare (ignore _))
+  (when (on-legend pane x y)
+    (start-drag-legend pane x y)))
+        
+(defmethod mouse-button-press :around ((pane <articulated-plotter-pane>) x y &rest _)
+  (declare (ignore _))
+  (call-next-method)
+  (unless (on-legend pane x y)
+    (destructuring-bind (xx yy) (compute-x-y-at-cursor pane x y)
+      (labels ((fmt (val)
+                 ;; (format nil "~,5g" val)
+                 (string-trim " "
+                              (if (realp val)
+                                  (engfmt:engineering-format nil val :nsig 3)
+                                (format nil "~A" val)))
+                 ))
+        (let* ((xstr (fmt xx))
+               (ystr (fmt yy))
+               (mx   (mark-x pane))
+               (my   (mark-y pane))
+               (txt  (cond ((and mx my
+                                 (realp mx)
+                                 (realp my))
+                            (let* ((dxstr (fmt (- xx (mark-x pane))))
+                                   (dystr (fmt (- yy (mark-y pane))))
+                                   (wd    (max (length xstr) (length dxstr))))
+                              (format nil " x ~vA   y ~A~&dx ~vA  dy ~A"
+                                      wd xstr ystr wd dxstr dystr)))
+                           
+                           ((and mx
+                                 (realp mx))
+                            (let* ((dxstr (fmt (- xx (mark-x pane))))
+                                   (wd    (max (length xstr) (length dxstr))))
+                              (format nil " x ~vA   y ~A~&dx ~vA"
+                                      wd xstr ystr wd dxstr)))
+                           
+                           ((and my
+                                 (realp my))
+                            (let* ((dystr (fmt (- yy (mark-y pane))))
+                                   (wd    (length xstr)))
+                              (format nil " x ~vA   y ~A~&~vTdy ~A"
+                                      wd xstr ystr (+ wd 5) dystr)))
+                           
+                           (t
+                            (format nil "x ~A  y ~A" xstr ystr))
+                           )))
+          
+          (capi:display-tooltip pane
+                                :x  (+ x 10)
+                                :y  (+ y 10)
+                                :text txt)
+          (capi:set-clipboard pane txt)
+          )))))
 
 (defun mark-x-at-cursor (pane x y &rest _)
   (declare (ignore _))
