@@ -104,7 +104,7 @@
                    (port-height     gp:port-height        )
                    (prev-frame      plotter-prev-frame    )
                    (delayed         plotter-delayed-update)
-                   (notify-cust     plotter-notify-cust   )) pane
+                   (after-redraw    plotter-after-redraw  )) pane
 
     ;; check if frame has moved or resized
     (when (zerop delayed)
@@ -118,30 +118,31 @@
             (recompute-transform pane)
             (recompute-plotting-state pane)
             )))
-      (redraw-display-list pane x y width height :legend t)      
+      (redraw-display-list pane x y width height :legend t)
+      (when after-redraw
+        (funcall (shiftf after-redraw nil)))
+      )))
+
+(defmethod display-callback :after ((pane plotter-pane) x y width height)
+  (declare (ignore x y width height))
+  (with-accessors ((delayed     plotter-delayed-update)
+                   (notify-cust plotter-notify-cust)) pane
+    (when (zerop delayed)
       (ac:send-to-all (shiftf notify-cust nil) :done)
       )))
 
-(defmethod display-callback :around ((pane articulated-plotter-pane) x y width height)
+(defmethod display-callback :after ((pane articulated-plotter-pane) x y width height)
   (with-accessors ((full-crosshair  plotter-full-crosshair)
-                   (delay-backing   plotter-delay-backing )
                    (prev-x          plotter-prev-x        )
                    (prev-y          plotter-prev-y        )
                    (mark-x          mark-x                )
                    (mark-y          mark-y                )
                    (delayed         plotter-delayed-update)) pane
-
-    ;; check if frame has moved or resized
     (when (zerop delayed)
-
-      (call-next-method)
-      
-      (unless delay-backing
-        (when full-crosshair
-          (draw-crosshair-lines pane full-crosshair prev-x prev-y))
-        
-        (when (or mark-x mark-y)
-          (draw-mark pane)))
+      (when full-crosshair
+        (draw-crosshair-lines pane full-crosshair prev-x prev-y))
+      (when (or mark-x mark-y)
+        (draw-mark pane))
       )))
 
 (defun resize-callback (pane x y width height)
@@ -333,13 +334,11 @@
 ;; -----------------------------------------------------------
 
 (defun do-with-bare-pdf-image (pane fn)
-  (without-capi-contention pane
-    (setf (plotter-delay-backing pane) t)
+  ;; executes in CAPI process
+  (with-accessors ((after-redraw  plotter-after-redraw)) pane
+    (setf after-redraw fn)
     (capi:redisplay-element pane)
-    (unwind-protect
-        (funcall fn)
-      (setf (plotter-delay-backing pane) nil)
-      )))
+    ))
   
 (defmacro with-bare-pdf-image ((pane) &body body)
   `(do-with-bare-pdf-image ,pane (lambda () ,@body)))

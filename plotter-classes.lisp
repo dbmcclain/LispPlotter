@@ -138,7 +138,7 @@
    (prev-frame    :accessor plotter-prev-frame         :initform nil)
    (plotter-valid :accessor plotter-valid              :initform t) ;; nil after destroy
    (cached-cmap   :accessor cached-cmap                :initform nil)
-   (delay-backing :accessor plotter-delay-backing      :initform nil) ;; used for PDF construction
+   (after-redraw  :accessor plotter-after-redraw       :initform nil)
    )
   (:default-initargs
    :nominal-width      400
