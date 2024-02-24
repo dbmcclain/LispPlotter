@@ -606,19 +606,20 @@
     ))
 
 ;;-------------------------------------------------------------------
-(defmethod unsafe-pw-plot-bars-xv-yv ((pane <plotter-pane>) xvector yvectors 
-                          &key
-                          (color #.(color:make-rgb 0.0 0.5 0.0))
-                          (neg-color color)
-                          alpha
-                          thick
-                          (linewidth (or thick 1))
-                          (bar-width 6)
-                          (symbol (ecase (length yvectors)
-                                    (2 :sigma)
-                                    (3 :hlc-bar)
-                                    (4 :ohlc-bar)))
-                          &allow-other-keys)
+
+(defmethod pw-plot-bars-xv-yv ((pane <plotter-pane>) xvector yvectors 
+                               &key
+                               (color #.(color:make-rgb 0.0 0.5 0.0))
+                               (neg-color color)
+                               alpha
+                               thick
+                               (linewidth (or thick 1))
+                               (bar-width 6)
+                               (symbol (ecase (length yvectors)
+                                         (2 :sigma)
+                                         (3 :hlc-bar)
+                                         (4 :ohlc-bar)))
+                               &allow-other-keys)
   ;; this is the base bar-plotting routine
   ;; called only from within the pane process
   (let* ((xform     (plotter-xform pane))
@@ -679,10 +680,6 @@
           (map-into tmp #'next-item ys)
           (funcall plotfn x tmp)))
       )))
-
-(defmethod pw-plot-bars-xv-yv ((pane <plotter-pane>) xvector yvectors &rest args)
-  (progn ;; ignore-errors
-    (apply #'unsafe-pw-plot-bars-xv-yv pane xvector yvectors args)))
 
 ;; ============================================================
 

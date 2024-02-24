@@ -123,17 +123,16 @@
       )))
 
 (defun draw-accumulated-legend (pane)
-  (unless (eql (plotter-cache-state pane) :drawing)
-    (let ((items  (all-legends pane))
-          (legend (plotter-legend pane)))
-
-      (cond ((null items)
-             (setf (has-content legend) nil))
-            
-            ((activep legend)
-             (setf (has-content legend) items)
-             (internal-draw-existing-legend pane))
-            ))))
+  (let ((items  (all-legends pane))
+        (legend (plotter-legend pane)))
+    
+    (cond ((null items)
+           (setf (has-content legend) nil))
+          
+          ((activep legend)
+           (setf (has-content legend) items)
+           (internal-draw-existing-legend pane))
+          )))
 
 (defun refresh-view (pane x y w h)
   ;; Code to convert a plotter region rectangle to an absolute,

@@ -13,6 +13,15 @@
 
 (clear 'plt)
 
+(let* ((pane (capi:contain
+              (make-instance '<plotter-pane>))
+             ))
+  (plt:fplot pane '(-10 10) #'sinc
+             :clear t
+             :title "Sinc(x)"
+             :thick 2
+             :legend "Sinc"))
+
 ;; ---------------------------------------------
 
 (plt:fplot 'plt '(-5 5) #'exp
