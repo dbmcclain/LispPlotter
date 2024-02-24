@@ -48,7 +48,6 @@
 (defmethod pw-init-xv-yv ((pane <plotter-mixin>) xv yv
                           &key xrange yrange box xlog ylog aspect
                           (magn 1)
-                          in-capi-process-p
                           &allow-other-keys)
   ;; initialize basic plotting parameters -- log scale axes, axis ranges,
   ;; plotting interior region (the box), and the graphic transforms to/from
@@ -155,7 +154,7 @@
 
         ;; Since we are mutating pane items, we need to be sure we
         ;; aren't facing a potential race condition with CAPI.
-        (without-capi-contention (pane :in-capi-process-p in-capi-process-p)
+        (without-capi-contention pane
           (setf (plotter-box    pane) box
                 (plotter-xmin   pane) xmin
                 (plotter-xmax   pane) xmax

@@ -51,22 +51,17 @@
 
 ;; ------------------------------------------
 
-(defun do-without-capi-contention (pane fn in-capi-process-p)
-  (cond (in-capi-process-p
-         (funcall fn))
-        (t
-         (let+ ((:mvb (results status)
-                 (capi:apply-in-pane-process-wait-multiple pane nil fn) ))
-           (if status
-               (values-list results)
-             (funcall fn))
-           ))
-        ))
+(defun do-without-capi-contention (pane fn)
+  (let+ ((:mvb (results status)
+          (capi:apply-in-pane-process-wait-multiple pane nil fn) ))
+    (if status
+        (values-list results)
+      (funcall fn))
+    ))
 
-(defmacro without-capi-contention ((pane &key in-capi-process-p) &body body)
+(defmacro without-capi-contention (pane &body body)
   `(do-without-capi-contention ,pane (lambda ()
-                                       ,@body)
-                               ,in-capi-process-p))
+                                       ,@body)))
 
 ;; ------------------------------------------
 
@@ -88,13 +83,13 @@
   (let ((the-pane (plotter-mixin-of pane)))
     (declare (dynamic-extent the-pane))
     (flet ((begin-update ()
-             (without-capi-contention (pane)
+             (without-capi-contention pane
                (incf (plotter-delayed-update the-pane))
                (when notifying
                  (pushnew notifying (plotter-notify-cust the-pane)))
                ))
            (end-update ()
-             (without-capi-contention (pane)
+             (without-capi-contention pane
                (when (zerop (decf (plotter-delayed-update the-pane)))
                  (dolist (region (shiftf (plotter-delayed-damage the-pane) nil))
                    (apply #'capi:redisplay-element the-pane region)))

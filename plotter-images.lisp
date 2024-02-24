@@ -345,7 +345,6 @@
                               (vector from-x (+ from-x from-width))
                               (vector from-y (+ from-y from-height))
                               :aspect 1
-                              :in-capi-process-p t
                               (append args *default-args*))
                        (apply 'pw-axes pane args)
                        #|
