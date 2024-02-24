@@ -7,7 +7,7 @@
 
 ;; ---------------------------------------------
 ;; CAPI needs mostly unfettered access to CAPI-elements, like
-;; <plotter-pane>. We can't tolerate locks in the redraw callback.
+;; plotter-pane. We can't tolerate locks in the redraw callback.
 ;; Hence, the CAPI thread must be considered the owner of the element
 ;; data.
 ;;
@@ -93,13 +93,13 @@
 
 ;; ------------------------------------------
 
-(defmethod display-list-empty-p ((pane <plotter-pane>))
+(defmethod display-list-empty-p ((pane plotter-pane))
   (without-capi-contention pane
     (zerop (length (plotter-display-list pane)))))
 
 ;; ------------------------------------------
 
-(defmethod capi:redisplay-element :around ((pane <plotter-pane>) &optional x y width height)
+(defmethod capi:redisplay-element :around ((pane plotter-pane) &optional x y width height)
   (without-capi-contention pane
     (if (zerop (plotter-delayed-update pane))
         (call-next-method)
@@ -107,7 +107,7 @@
                :test #'equalp))
     ))
   
-(defmethod redraw-entire-pane ((pane <plotter-pane>))
+(defmethod redraw-entire-pane ((pane plotter-pane))
   (capi:redisplay-element pane))
 
 (defun update-pane (pane &rest region) ;; x y wd ht
@@ -115,14 +115,14 @@
 
 ;; ---------------------------------------------------------------
 
-(defmethod begin-update ((pane <plotter-pane>))
+(defmethod begin-update ((pane plotter-pane))
   (without-capi-contention pane
     (prog1
         (plotter-delayed-update pane)
       (incf (plotter-delayed-update pane)))
     ))
 
-(defmethod end-update ((pane <plotter-pane>) &optional notifying)
+(defmethod end-update ((pane plotter-pane) &optional notifying)
   (without-capi-contention pane
     (when notifying
       (pushnew notifying (plotter-notify-cust pane))

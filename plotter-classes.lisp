@@ -94,7 +94,7 @@
    (dy          :accessor dy          :initform 0)
    ))
 
-(defclass <plotter-pane> (capi:output-pane)
+(defclass plotter-pane (capi:output-pane)
   ;; stuff used by 2-D plot scaling and plotting
   ;; The mixin has all the information needed to produce plots
   ;; but has nothing to draw on...
@@ -166,7 +166,7 @@
                         maybe-remove-legend))
    ))
 
-(defclass <articulated-plotter-pane> (<plotter-pane>)
+(defclass articulated-plotter-pane (plotter-pane)
   ;; stuff used by 2-D plot scaling and plotting
   ;; The pane adds something to draw on...
   ;; And it also adds some user gestures and any display related items
@@ -216,7 +216,7 @@
    ))
 
 #+:WIN32
-(defmethod initialize-instance :after ((pane <plotter-pane>)
+(defmethod initialize-instance :after ((pane articulated-plotter-pane)
                                        &key full-crosshair background &allow-other-keys)
   (when full-crosshair
     (setf (plotter-full-crosshair pane)
@@ -229,7 +229,7 @@
 
 ;; ---------------------------------------------------------
 
-(defmethod popup-menu ((pane <plotter-pane>) selection x y)
+(defmethod popup-menu ((pane plotter-pane) selection x y)
   (declare (ignore selection))
   (make-instance 'capi:menu
                  :items `(,(make-instance 'capi:menu-component
@@ -275,7 +275,7 @@
                                ))
                  ))
 
-(defmethod popup-menu ((pane <articulated-plotter-pane>) selection x y)
+(defmethod popup-menu ((pane articulated-plotter-pane) selection x y)
   (declare (ignore selection))
   (make-instance 'capi:menu
                  :items `(,(make-instance 'capi:menu-component
@@ -361,12 +361,12 @@
 
 ;; ---------------------------------------------------------
 (defgeneric plotter-pane-of (pane-rep &optional args)
-  ;; rep might be a <plotter-pane>,
+  ;; rep might be a plotter-pane,
   ;; a subclass of capi:interface,
   ;; or a symbolic name of a window
   )
 
-(defmethod plotter-pane-of ((pane <plotter-pane>) &optional args)
+(defmethod plotter-pane-of ((pane plotter-pane) &optional args)
   ;; it is me...
   (declare (ignore args))
   pane)

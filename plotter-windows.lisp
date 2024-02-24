@@ -4,33 +4,33 @@
 ;; ------------------------------------------
 (defmethod plotter-pane-of (name &optional args)
   ;; allow for symbolic names in place of plotter-windows or
-  ;; <plotter-pane>s. Names must match under EQUALP (i.e., case
+  ;; plotter-panes. Names must match under EQUALP (i.e., case
   ;; insensitive strings, symbols, numbers, etc.)
   (apply 'wset name (append args *default-args*)))
 
 ;; -------------------------------------
 (defun locate-plotter-window (name)
-  (find name (capi:collect-interfaces '<plotter-window>)
+  (find name (capi:collect-interfaces 'plotter-window)
         :test #'equalp
         :key  #'capi:capi-object-name))
 ;; --------------------------------------
 
 (defun find-named-plotter-pane (name)
-  ;; locate the named plotter window and return its <plotter-pane> object
+  ;; locate the named plotter window and return its plotter-pane object
   (let ((win (locate-plotter-window name)))
     (and win
          (plotter-pane-of win))))
 
 ;; ---------------------------------------------------------------
 
-(defclass <plotter-window> (capi:interface)
+(defclass plotter-window (capi:interface)
   ((drawing-area  :accessor drawing-area  :initarg :drawing-area)))
 
-(defmethod plotter-pane-of ((intf <plotter-window>) &optional args)
+(defmethod plotter-pane-of ((intf plotter-window) &optional args)
   (declare (ignore args))
   (drawing-area intf))
 
-(defmethod display-cursor-readout ((intf <plotter-window>) name x y)
+(defmethod display-cursor-readout ((intf plotter-window) name x y)
   (setf (capi:interface-title intf)
         (format nil "~A  x = ~,6g  y = ~,6g"
                 name x y)))
@@ -59,7 +59,7 @@
                             window-styles
                             window-class)
   
-  (let ((pane (make-instance '<articulated-plotter-pane>
+  (let ((pane (make-instance 'articulated-plotter-pane
                              :name               name
                              :background         background
                              :foreground         foreground
@@ -117,7 +117,7 @@
     ))
 
 ;; ------------------------------------------
-(defvar *plotter-window-class* '<plotter-window>)
+(defvar *plotter-window-class* 'plotter-window)
 
 (defun window (name &key
                     (title              (format nil "~A" name))

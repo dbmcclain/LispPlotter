@@ -85,18 +85,18 @@
 ;; ----------------------------------------------------------------------
 
 #+:WIN32
-(defmethod win32-display-callback ((pane <plotter-pane>) x y width height)
+(defmethod win32-display-callback ((pane plotter-pane) x y width height)
   (when (gp:port-representation pane)
     (display-callback pane x y width height)))
 
-(defmethod redraw-display-list ((pane <plotter-pane>) x y width height &key legend)
+(defmethod redraw-display-list ((pane plotter-pane) x y width height &key legend)
   (discard-legends pane)
   (dolist (item (display-list-items pane))
     (funcall item pane x y width height))
   (if legend
       (draw-accumulated-legend pane)) )
   
-(defmethod display-callback ((pane <plotter-pane>) x y width height)
+(defmethod display-callback ((pane plotter-pane) x y width height)
   (with-accessors ((nominal-width   plotter-nominal-width )
                    (nominal-height  plotter-nominal-height)
                    (sf              plotter-sf            )
@@ -126,7 +126,7 @@
       (ac:send-to-all (shiftf notify-cust nil) :done)
       )))
 
-(defmethod display-callback :around ((pane <articulated-plotter-pane>) x y width height)
+(defmethod display-callback :around ((pane articulated-plotter-pane) x y width height)
   (with-accessors ((full-crosshair  plotter-full-crosshair)
                    (delay-backing   plotter-delay-backing )
                    (prev-x          plotter-prev-x        )
@@ -184,14 +184,14 @@
   ;; default for CAPI panes - defer to parent object
   (display-cursor-readout (capi:element-parent obj) name x y))
 
-(defmethod mouse-move ((pane <plotter-pane>) x y &rest args)
+(defmethod mouse-move ((pane plotter-pane) x y &rest args)
   (declare (ignore args))
   (if (on-legend pane x y)
       (highlight-legend pane)
     (unhighlight-legend pane)
     ))
 
-(defmethod mouse-move :around ((pane <articulated-plotter-pane>) x y &rest args)
+(defmethod mouse-move :around ((pane articulated-plotter-pane) x y &rest args)
   (declare (ignore args))
   (call-next-method)
   (unless (on-legend pane x y)
@@ -226,12 +226,12 @@
             ))
         ))))
 
-(defmethod mouse-button-press ((pane <plotter-pane>) x y &rest _)
+(defmethod mouse-button-press ((pane plotter-pane) x y &rest _)
   (declare (ignore _))
   (when (on-legend pane x y)
     (start-drag-legend pane x y)))
         
-(defmethod mouse-button-press :around ((pane <articulated-plotter-pane>) x y &rest _)
+(defmethod mouse-button-press :around ((pane articulated-plotter-pane) x y &rest _)
   (declare (ignore _))
   (call-next-method)
   (unless (on-legend pane x y)

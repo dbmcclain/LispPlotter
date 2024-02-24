@@ -45,7 +45,7 @@
          +LEFT-INSET+ +TOP-INSET+ +RIGHT-INSET+ +BOTTOM-INSET+)
         )))
 
-(defmethod pw-init-xv-yv ((pane <plotter-pane>) xv yv
+(defmethod pw-init-xv-yv ((pane plotter-pane) xv yv
                           &key xrange yrange box xlog ylog aspect
                           (magn 1)
                           &allow-other-keys)

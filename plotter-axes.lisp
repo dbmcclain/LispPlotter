@@ -158,7 +158,7 @@
       ))
 
 #|
-(defmethod pw-axes ((pane <plotter-pane>) &rest args)
+(defmethod pw-axes ((pane plotter-pane) &rest args)
   (cond ((eql (plotter-cache-state pane) :drawing)
          (gp:copy-pixels pane (plotter-cache-pixmap pane)
                          0 0 (gp:port-width pane) (gp:port-height pane) 0 0))
@@ -168,23 +168,23 @@
         ))
 |#
 
-(defun pw-axes (pane
-                &key
-                (fullgrid t)
-                (xtitle "X")
-                (ytitle "Y")
-                (title  "Plot")
-                (axes t)
-                (axis-values t)
-                (x-axis-values t)
-                (y-axis-values t)
-                (watermarkfn #'watermark)
-                (logo *ext-logo*)
-                (logo-alpha *ext-logo-alpha*)
-                (cright1 *cright1*)
-                (cright2 *cright2*)
-                x-values
-                &allow-other-keys)
+(defmethod pw-axes ((pane plotter-pane)
+                    &key
+                    (fullgrid t)
+                    (xtitle "X")
+                    (ytitle "Y")
+                    (title  "Plot")
+                    (axes t)
+                    (axis-values t)
+                    (x-axis-values t)
+                    (y-axis-values t)
+                    (watermarkfn #'watermark)
+                    (logo *ext-logo*)
+                    (logo-alpha *ext-logo-alpha*)
+                    (cright1 *cright1*)
+                    (cright2 *cright2*)
+                    x-values
+                    &allow-other-keys)
   (recompute-transform pane)
   (let* ((box      (plotter-box pane))
          (xform    (plotter-xform pane))
