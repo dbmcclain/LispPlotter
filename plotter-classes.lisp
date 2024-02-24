@@ -137,6 +137,8 @@
    (plotting-gs   :accessor plotter-plotting-gs        :initform nil)
    (prev-frame    :accessor plotter-prev-frame         :initform nil)
    (plotter-valid :accessor plotter-valid              :initform t) ;; nil after destroy
+   (cached-cmap   :accessor cached-cmap                :initform nil)
+   (delay-backing :accessor plotter-delay-backing      :initform nil) ;; used for PDF construction
    )
   (:default-initargs
    :nominal-width      400
@@ -180,13 +182,6 @@
    (mark-y           :accessor mark-y                :initform nil)
    (mark-x-raw       :accessor mark-x-raw            :initform nil)
    (mark-y-raw       :accessor mark-y-raw            :initform nil)
-
-   (cached-cmap      :accessor cached-cmap           :initform nil)
-   (cache-pixmap-ver :accessor plotter-cache-ver     :initform nil)
-   (cache-pixmap     :accessor plotter-cache-pixmap  :initform nil)
-   (cache-state      :accessor plotter-cache-state   :initform nil)
-
-   (delay-backing    :accessor plotter-delay-backing :initform nil)
    )
   (:default-initargs
    :pane-menu        'popup-menu
