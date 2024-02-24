@@ -351,10 +351,6 @@
       (setf (fill-pointer (plotter-display-list pane)) 0))
     ))
 
-(defun display-list-empty-p (pane)
-  (zerop (length (plotter-display-list pane))))
-
-
 (defun append-legend (pane item)
   (vector-push-extend item (plotter-legend-info pane)))
 

@@ -77,6 +77,12 @@
 
 ;; ------------------------------------------
 
+(defun display-list-empty-p (pane)
+  (without-capi-contention pane
+    (zerop (length (plotter-display-list pane)))))
+
+;; ------------------------------------------
+
 (defmethod capi:redisplay-element :around ((pane <plotter-pane>) &optional x y width height)
   (without-capi-contention pane
     (if (zerop (plotter-delayed-update pane))
