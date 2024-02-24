@@ -516,23 +516,23 @@
                    (coerce ys 'vector)))
          (spl    (interpolation:spline spl-xs spl-ys :natural :natural))
          (dom    (list (min-of xs) (max-of xs)))
-         (symbol (getf parms :symbol))))
-  (with-delayed-update (pane)
-    (apply 'fplot pane dom
-           (lambda (x)
-             (let ((yval (interpolation:splint spl (if xlog
-                                                       (log10 x)
-                                                     x))))
-               (if ylog
-                   (pow10 yval)
-                 yval)))
-           :symbol nil
-           :symbol-for-legend symbol
-           :plot-joined t
-           parms)
-    (when symbol
-      (apply 'plot pane xs ys :clear nil :legend nil parms))
-    ))
+         (symbol (getf parms :symbol)))
+    (with-delayed-update (pane)
+      (apply 'fplot pane dom
+             (lambda (x)
+               (let ((yval (interpolation:splint spl (if xlog
+                                                         (log10 x)
+                                                       x))))
+                 (if ylog
+                     (pow10 yval)
+                   yval)))
+             :symbol nil
+             :symbol-for-legend symbol
+             :plot-joined t
+             parms)
+      (when symbol
+        (apply 'plot pane xs ys :clear nil :legend nil parms))
+      )))
 
 #|
 (spline 'junk '(1 5 3 2 7 10) :clear t :symbol :circle :legend "data")
