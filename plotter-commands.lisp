@@ -139,17 +139,11 @@
              (_      (when fresh
                        (apply 'pw-init-xv-yv pane xvf yvf augm-args)))
              (:mvb (prepped symbol-fn)  (apply #'prep-vectors pane xvf yvf augm-args))
-             (action    (if fresh
-                            (lambda (pane x y width height)
-                              (declare (ignore x y width height))
-                              (apply 'pw-axes pane augm-args)
-                              (apply 'pw-plot-prepped pane prepped symbol-fn augm-args)
-                              )
-                          ;; else
-                          (lambda (pane x y width height)
-                            (declare (ignore x y width height))
-                            (apply 'pw-plot-prepped pane prepped symbol-fn augm-args)
-                            )
+             (action    (lambda (pane x y width height)
+                          (declare (ignore x y width height))
+                          (when fresh
+                            (apply 'pw-axes pane augm-args))
+                          (apply 'pw-plot-prepped pane prepped symbol-fn augm-args)
                           )))
         (augment-display-list pane action fresh)
         ))))
@@ -192,16 +186,12 @@
                            :color color
                            :neg-color neg-color
                            args)))
-             (action    (if fresh
-                            (lambda (pane x y width height)
-                              (declare (ignore x y width height))
-                              (apply 'pw-axes pane augm-args)
-                              (apply 'pw-plot-bars-xv-yv pane xv yvs augm-args))
-                          ;; else
-                          (lambda (pane x y width height)
-                            (declare (ignore x y width height))
-                            (apply 'pw-plot-bars-xv-yv pane xv yvs augm-args))
-                          )))
+             (action    (lambda (pane x y width height)
+                          (declare (ignore x y width height))
+                          (when fresh
+                            (apply 'pw-axes pane augm-args))
+                          (apply 'pw-plot-bars-xv-yv pane xv yvs augm-args))
+                        ))
         (when fresh
           ;; no drawing in the init, so do it in my thread
           (apply 'pw-init-bars-xv-yv pane xv yvs augm-args))
