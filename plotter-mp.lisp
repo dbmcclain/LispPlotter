@@ -103,7 +103,9 @@
 (defmethod end-update ((pane <plotter-pane>) &optional notifying)
   (without-capi-contention pane
     (when notifying
-      (pushnew notifying (plotter-notify-cust pane)))
+      (pushnew notifying (plotter-notify-cust pane))
+      (unless (plotter-delayed-damage pane) ;; ensure we get notified
+        (redraw-entire-pane pane)))
     (when (zerop (decf (plotter-delayed-update pane)))
       (dolist (region (shiftf (plotter-delayed-damage pane) nil))
         (apply #'capi:redisplay-element pane region)))
@@ -131,8 +133,7 @@
     (ac:β (ans)
         (progn
           (with-delayed-update (the-pane :notifying ac:β)
-            (funcall fn)
-            (redraw-entire-pane the-pane)) ;; just to be sure we get notified
+            (funcall fn))
           (mp:mailbox-read mbox "Waiting on Plotter" timeout))
       (mp:mailbox-send mbox ans))
     ))
