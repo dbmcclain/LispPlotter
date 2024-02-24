@@ -77,7 +77,7 @@
 
 ;; ------------------------------------------
 
-(defun display-list-empty-p (pane)
+(defmethod display-list-empty-p ((pane <plotter-pane>))
   (without-capi-contention pane
     (zerop (length (plotter-display-list pane)))))
 
