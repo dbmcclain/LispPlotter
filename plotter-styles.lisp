@@ -40,11 +40,11 @@
                (symbol-style (getf plot-style :symbol-style))
                (legend       (or legend
                                  (getf plot-style :legend))))
-           (make-instance '<plot-style>
+           (make-instance 'plot-style
                           :line-style   (and line-style
-                                             (apply 'make-instance '<line-style> line-style))
+                                             (apply 'make-instance 'line-styleline-style))
                           :symbol-style (and symbol-style
-                                             (apply 'make-instance '<symbol-style> symbol-style))
+                                             (apply 'make-instance 'symbol-style symbol-style))
                           :legend       (and legend
                                              (plusp (length legend))
                                              legend)
@@ -59,16 +59,16 @@
                                       (getf symbol-style :symbol))
                                  (plot-symbol symbol-style))))))
            
-           (make-instance '<plot-style>
+           (make-instance 'plot-style
                           :line-style (cond ((consp line-style)
-                                             (apply 'make-instance '<line-style> line-style))
+                                             (apply 'make-instance 'line-styleline-style))
                                             
                                             (line-style)
                                             
                                             ((or (null sym)
                                                  (eq sym :sampled-data)
                                                  plot-joined)
-                                             (make-instance '<line-style>
+                                             (make-instance 'line-style
                                                             :thick   line-thick
                                                             :dashing line-dashing
                                                             :color   line-color
@@ -76,12 +76,12 @@
                                                             :type    line-type)))
                           
                           :symbol-style (cond ((consp symbol-style)
-                                               (apply 'make-instance '<symbol-style> symbol-style))
+                                               (apply 'make-instance 'symbol-style symbol-style))
                                               
                                               (symbol-style)
                                               
                                               (symbol
-                                               (make-instance '<symbol-style>
+                                               (make-instance 'symbol-style
                                                               :symbol  (case symbol
                                                                          (:filled-circle                         :circle)
                                                                          ((:filled-square :filled-box)           :square)

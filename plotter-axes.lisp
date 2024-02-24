@@ -123,8 +123,8 @@
                 2 3 4 5 6 7 8 9)))
 
 (defparameter $axis-style
-  (make-instance '<plot-style>
-                 :line-style (make-instance '<line-style>
+  (make-instance 'plot-style
+                 :line-style (make-instance 'line-style
                                             :color #.(color:make-gray 0.5))))
 
 (defun trim-mantissa (v)

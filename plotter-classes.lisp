@@ -14,7 +14,7 @@
        ))
     ))
 
-(defclass <line-style> ()
+(defclass line-style ()
   ((line-thick    :accessor line-thick
                   :initarg :thick)
    (line-dashing  :accessor line-dashing
@@ -32,7 +32,7 @@
    :alpha   nil
    :type    :interpolated))
 
-(defclass <symbol-style> ()
+(defclass symbol-style ()
   ((plot-symbol   :accessor plot-symbol
                   :initarg :symbol
                   :initform :circle)
@@ -67,7 +67,7 @@
    :bar-width    nil
    :bar-offset   nil))
 
-(defclass <plot-style> ()
+(defclass plot-style ()
   ((line-style    :accessor line-style
                   :initarg :line-style)
    (symbol-style  :accessor symbol-style
@@ -75,13 +75,13 @@
    (legend        :accessor legend
                   :initarg :legend))
   (:default-initargs
-   :line-style (make-instance '<line-style>
+   :line-style (make-instance 'line-style
                               :thick 1
                               :color :darkgreen)
    :symbol-style nil
    :legend       nil))
 
-(defclass <legend> ()
+(defclass legend ()
   ((activep     :accessor activep     :initform t)
    (has-content :accessor has-content :initform nil)
    (highlighted :accessor highlighted :initform nil)
@@ -128,7 +128,7 @@
    (legend-x      :accessor plotter-legend-x           :initform '(:frac 0.05))
    (legend-y      :accessor plotter-legend-y           :initform '(:frac 0.95))
    (legend-anchor :accessor plotter-legend-anchor      :initform :auto)
-   (legend        :accessor plotter-legend             :initform (make-instance '<legend>))
+   (legend        :accessor plotter-legend             :initform (make-instance 'legend))
    (preferred-x   :accessor preferred-x                :initform nil)
    (preferred-y   :accessor preferred-y                :initform nil)
   

@@ -102,10 +102,6 @@
                    (sf              plotter-sf            )
                    (port-width      gp:port-width         )
                    (port-height     gp:port-height        )
-                   (full-crosshair  plotter-full-crosshair)
-                   (delay-backing   plotter-delay-backing )
-                   (prev-x          plotter-prev-x        )
-                   (prev-y          plotter-prev-y        )
                    (prev-frame      plotter-prev-frame    )
                    (delayed         plotter-delayed-update)
                    (notify-cust     plotter-notify-cust   )) pane
