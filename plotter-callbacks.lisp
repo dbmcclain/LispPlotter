@@ -315,12 +315,13 @@
 ;; -----------------------------------------------------------
 
 (defun do-with-bare-pdf-image (pane fn)
-  (setf (plotter-delay-backing pane) t)
-  (capi:redisplay-element pane)
-  (unwind-protect
-      (funcall fn)
-    (setf (plotter-delay-backing pane) nil)
-    ))
+  (without-capi-contention pane
+    (setf (plotter-delay-backing pane) t)
+    (capi:redisplay-element pane)
+    (unwind-protect
+        (funcall fn)
+      (setf (plotter-delay-backing pane) nil)
+      )))
   
 (defmacro with-bare-pdf-image ((pane) &body body)
   `(do-with-bare-pdf-image ,pane (lambda () ,@body)))
