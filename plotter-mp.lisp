@@ -50,7 +50,19 @@
     ))
 
 ;; ------------------------------------------
-
+;; WITHOUT-CAPI-CONTENTION - perform an action synchronously, without
+;; race conditions against CAPI, on data that is shared with the CAPI
+;; thread.
+;;
+;; Not bullet-proof, but good enough, in a Lisp sense. If the pane is
+;; in the process of being destroyed, then this might not work
+;; correctly. But that shouldn't normally happen. It is not a good
+;; idea to share Plotter panes among multiple threads.
+;;
+;; Assuming a thread is in control of its own Plotter panes, apart
+;; from possible sharing with the CAPI thread, then this accomplishes
+;; lock-free synchronous execution.
+;;
 (defun do-without-capi-contention (pane fn)
   (let+ ((:mvb (results status)
           (capi:apply-in-pane-process-wait-multiple pane nil fn) ))

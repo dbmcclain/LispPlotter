@@ -1,5 +1,11 @@
+;; tst-capi=exec.lisp -- Probe the intelligence of the CAPI system
+;;
+;; DM/RAL  02/24
+;; --------------------------------------------------------------
 
 (in-package :plotter)
+
+;; ------------------------------------------------------------
 
 (defun tst (pane)
   (let* ((pane     (plotter-mixin-of pane))
@@ -23,6 +29,28 @@
  ;; NOT-YET displayed, instead of DONE.
 (tst 'plt)
  |#
+;; ------------------------------------------------------
+
+(defun tstx (pane)
+  (let* ((pane     (plotter-mixin-of pane))
+         (flag     :not-yet)
+         (action   (lambda (pane x y w h)
+                     (declare (ignore x y w h))
+                     ;; This code gets executed in the redraw callback.
+                     (capi:apply-in-pane-process-wait-multiple pane nil
+                                                 (lambda ()
+                                                   (setf flag :done)))
+                     (ac:send ac:println flag))))
+    (augment-display-list pane action t)))
+
+#|
+;; The fact that this produces DONE in the Output Browser, shows that
+;; the CAPI thread just directly executes the function. Had it staged
+;; for later execution and then waited on its own mailbox, the system
+;; should have hung.
+(tstx 'plt)
+|#
+;; ------------------------------------------------------------
 
 (defun tstu (pane)
   (let* ((pane     (plotter-mixin-of pane))
@@ -38,6 +66,8 @@
 ;; time, but does not synchronously execute the function.
 (tstu 'plt)
 |#
+
+;; ------------------------------------------------------------
 
 (defun tstw (pane)
   (let* ((pane     (plotter-mixin-of pane))
