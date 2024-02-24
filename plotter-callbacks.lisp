@@ -95,41 +95,49 @@
     (funcall item pane x y width height))
   (if legend
       (draw-accumulated-legend pane)) )
-  
-(defmethod display-callback ((pane plotter-pane) x y width height)
+
+;; --------------------------------------------------
+
+(defmethod display-callback :around ((pane plotter-pane) x y width height)
+  (with-accessors ((delayed  plotter-delayed-update)) pane
+    (when (zerop delayed)
+      (call-next-method))
+    ))
+
+(defmethod display-callback :before ((pane plotter-pane) x y width height)
   (with-accessors ((nominal-width   plotter-nominal-width )
                    (nominal-height  plotter-nominal-height)
                    (sf              plotter-sf            )
                    (port-width      gp:port-width         )
                    (port-height     gp:port-height        )
-                   (prev-frame      plotter-prev-frame    )
-                   (delayed         plotter-delayed-update)
-                   (after-redraw    plotter-after-redraw  )) pane
-
+                   (prev-frame      plotter-prev-frame    )) pane
     ;; check if frame has moved or resized
-    (when (zerop delayed)
-      (capi:with-geometry pane
-        (let ((frame  (list capi:%x% capi:%y% capi:%width% capi:%height%)))
-          (unless (equalp frame prev-frame)
-            ;; if so, then we need to recompute cached plotting info
-            (setf prev-frame        frame
-                  sf                (min (/ port-height nominal-height)
-                                         (/ port-width  nominal-width)))
-            (recompute-transform pane)
-            (recompute-plotting-state pane)
-            )))
-      (redraw-display-list pane x y width height :legend t)
-      (when after-redraw
-        (funcall (shiftf after-redraw nil)))
-      )))
+    (capi:with-geometry pane
+      (let ((frame  (list capi:%x% capi:%y% capi:%width% capi:%height%)))
+        (unless (equalp frame prev-frame)
+          ;; if so, then we need to recompute cached plotting info
+          (setf prev-frame        frame
+                sf                (min (/ port-height nominal-height)
+                                       (/ port-width  nominal-width)))
+          (recompute-transform pane)
+          (recompute-plotting-state pane)
+          )))
+    ))
+
+(defmethod display-callback ((pane plotter-pane) x y width height)
+  (with-accessors ((after-redraw    plotter-after-redraw  )) pane
+    (redraw-display-list pane x y width height :legend t)
+    (when after-redraw
+      (funcall (shiftf after-redraw nil)))
+    ))
 
 (defmethod display-callback :after ((pane plotter-pane) x y width height)
   (declare (ignore x y width height))
-  (with-accessors ((delayed     plotter-delayed-update)
-                   (notify-cust plotter-notify-cust)) pane
-    (when (zerop delayed)
-      (ac:send-to-all (shiftf notify-cust nil) :done)
-      )))
+  (with-accessors ((notify-cust plotter-notify-cust)) pane
+    (ac:send-to-all (shiftf notify-cust nil) :done)
+    ))
+
+;; --------------------------------------------------
 
 (defmethod display-callback :after ((pane articulated-plotter-pane) x y width height)
   (with-accessors ((full-crosshair  plotter-full-crosshair)
@@ -138,12 +146,13 @@
                    (mark-x          mark-x                )
                    (mark-y          mark-y                )
                    (delayed         plotter-delayed-update)) pane
-    (when (zerop delayed)
-      (when full-crosshair
-        (draw-crosshair-lines pane full-crosshair prev-x prev-y))
-      (when (or mark-x mark-y)
-        (draw-mark pane))
-      )))
+    (when full-crosshair
+      (draw-crosshair-lines pane full-crosshair prev-x prev-y))
+    (when (or mark-x mark-y)
+      (draw-mark pane))
+    ))
+
+;; --------------------------------------------------
 
 (defun resize-callback (pane x y width height)
   (declare (ignore x y width height))
