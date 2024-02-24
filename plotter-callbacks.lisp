@@ -352,25 +352,21 @@
   (with-accessors ((nominal-width   plotter-nominal-width )
                    (nominal-height  plotter-nominal-height)
                    (sf              plotter-sf            )
-                   (magn            plotter-magn          )
                    (xform           plotter-xform         )) pane
 
     (let ((save-xform  xform)
-          (save-magn   magn)
           (save-sf     sf))
       (unwind-protect
           (progn
             (gp:clear-graphics-port-state pane)
             
             (setf xform (gp:make-transform)
-                  magn  1
                   sf    1)
 
             (redraw-display-list pane port 0 0 nominal-width nominal-height :legend t))
         
         (progn
           (setf sf    save-sf
-                magn  save-magn
                 xform save-xform))
         ))))
 

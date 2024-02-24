@@ -13,6 +13,8 @@
 
 (clear 'plt)
 
+;; ---------------------------------------------
+
 (let* ((pane (capi:contain
               (make-instance '<plotter-pane>))
              ))
