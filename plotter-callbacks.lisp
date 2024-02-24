@@ -118,7 +118,7 @@
     (capi:with-geometry pane
       (let ((frame  (list capi:%x% capi:%y% capi:%width% capi:%height%)))
         (unless (equalp frame prev-frame)
-          ;; if so, then we need to recompute cached plotting info
+          ;; if so, then we need to recompute cached PlotView info
           (setf prev-frame        frame
                 sf                (min (/ port-height nominal-height)
                                        (/ port-width  nominal-width)))
@@ -143,8 +143,7 @@
                    (prev-x          plotter-prev-x        )
                    (prev-y          plotter-prev-y        )
                    (mark-x          mark-x                )
-                   (mark-y          mark-y                )
-                   (delayed         plotter-delayed-update)) pane
+                   (mark-y          mark-y                )) pane
     (when full-crosshair
       (draw-crosshair-lines pane full-crosshair prev-x prev-y))
     (when (or mark-x mark-y)
