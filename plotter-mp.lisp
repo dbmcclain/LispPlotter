@@ -1,5 +1,21 @@
+;; plotter-mp.lisp -- Threading control, shared data with CAPI
+;;
+;; DM/RAL  02/24
+;; ----------------------------------------------------------
 
 (in-package :plotter)
+
+;; ---------------------------------------------
+;; CAPI needs mostly unfettered access to CAPI-elements, like
+;; <plotter-pane>. We can't tolerate locks in the redraw callback.
+;; Hence, the CAPI thread must be considered the owner of the element
+;; data.
+;;
+;; While most of our interactions are synchronous, we can't be sure
+;; that the user hasn't staged some delayed execution against our
+;; pane, using APPLY-IN-PANE-PROCESS. So to keep things monotonically
+;; ordered in time, we must always ask CAPI to tell us the value of
+;; element data, and ask CAPI to perform any mutation of the data.
 
 ;; ---------------------------------------------
 ;; Define some safe image access macros...
