@@ -78,11 +78,13 @@
 ;; ------------------------------------------
 
 (defmethod capi:redisplay-element :around ((pane <plotter-pane>) &optional x y width height)
-  (if (zerop (plotter-delayed-update pane))
-      (call-next-method)
-    (pushnew (list x y width height) (plotter-delayed-damage pane)
-              :test #'equalp)))
-
+  (without-capi-contention pane
+    (if (zerop (plotter-delayed-update pane))
+        (call-next-method)
+      (pushnew (list x y width height) (plotter-delayed-damage pane)
+               :test #'equalp))
+    ))
+  
 (defmethod redraw-entire-pane ((pane <plotter-pane>))
   (capi:redisplay-element pane))
 
@@ -91,27 +93,29 @@
 
 ;; ---------------------------------------------------------------
 
+(defmethod begin-update ((pane <plotter-pane>))
+  (without-capi-contention pane
+    (prog1
+        (plotter-delayed-update pane)
+      (incf (plotter-delayed-update pane)))
+    ))
+
+(defmethod end-update ((pane <plotter-pane>) &optional notifying)
+  (without-capi-contention pane
+    (when notifying
+      (pushnew notifying (plotter-notify-cust pane)))
+    (when (zerop (decf (plotter-delayed-update pane)))
+      (dolist (region (shiftf (plotter-delayed-damage pane) nil))
+        (apply #'capi:redisplay-element pane region)))
+    ))
+  
 (defun do-with-delayed-update (pane notifying fn)
   (let ((the-pane (plotter-mixin-of pane)))
-    (declare (dynamic-extent the-pane))
-    (flet ((begin-update ()
-             (without-capi-contention pane
-               (incf (plotter-delayed-update the-pane))
-               (when notifying
-                 (pushnew notifying (plotter-notify-cust the-pane)))
-               ))
-           (end-update ()
-             (without-capi-contention pane
-               (when (zerop (decf (plotter-delayed-update the-pane)))
-                 (dolist (region (shiftf (plotter-delayed-damage the-pane) nil))
-                   (apply #'capi:redisplay-element the-pane region)))
-               )))
-      (declare (dynamic-extent #'begin-update #'end-update))
-      (begin-update)
-      (unwind-protect
-          (funcall fn)
-        (end-update))
-      )))
+    (begin-update the-pane)
+    (unwind-protect
+        (funcall fn)
+      (end-update the-pane notifying))
+    ))
 
 ;; user callable macro
 (defmacro with-delayed-update ((pane &key notifying) &body body)
@@ -122,18 +126,16 @@
 ;; ------------------------------------------------------------------
 
 (defun do-wait-until-finished (pane timeout fn)
-  (cond ((zerop (plotter-delayed-update pane))
-         (let ((mbox  (mp:make-mailbox)))
-           (ac:β (ans)
-               (progn
-                 (with-delayed-update (pane :notifying ac:β)
-                   (funcall fn))
-                 (mp:mailbox-read mbox "Waiting on Plotter" timeout))
-             (mp:mailbox-send mbox ans))
-           ))
-        (t
-         (funcall fn))
-        ))
+  (let ((mbox     (mp:make-mailbox))
+        (the-pane (plotter-mixin-of pane)))
+    (ac:β (ans)
+        (progn
+          (with-delayed-update (the-pane :notifying ac:β)
+            (funcall fn)
+            (redraw-entire-pane the-pane)) ;; just to be sure we get notified
+          (mp:mailbox-read mbox "Waiting on Plotter" timeout))
+      (mp:mailbox-send mbox ans))
+    ))
 
 (defmacro wait-until-finished ((pane &key timeout) &body body)
   `(do-wait-until-finished ,pane ,timeout (lambda ()
