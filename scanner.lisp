@@ -406,11 +406,11 @@
 (defun hbar-rects (pairs wd off x0)
   (let* ((ans  (list nil))
          (tl   ans)
-         (wd/2 (/2 wd)))
+         (yoff (- off (/2 wd))))
     (with-pairs (pairs x y)
       (setf tl (last
                 (rplacd tl
-                        (list x0        (+ off (- y wd/2))
+                        (list x0        (+ yoff y)
                               (- x x0)  wd)
                         ))))
     (cdr ans)))
@@ -418,12 +418,12 @@
 (defun vbar-rects (pairs wd off y0)
   (let* ((ans  (list nil))
          (tl   ans)
-         (wd/2 (/2 wd)))
+         (xoff (- off (/2 wd))))
     (with-pairs (pairs x y)
       (setf tl (last
                 (rplacd tl
-                        (list (+ off (- x wd/2))  y0
-                              wd                  (- y y0))
+                        (list (+ xoff x)   y0
+                              wd           (- y y0))
                         ))))
     (cdr ans)))
     
