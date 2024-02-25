@@ -297,26 +297,25 @@
   ;;
   (let ((xys (collect-pairs pairs)))
     (when xys
-      (destructuring-bind (x1 y1 . rest) xys
-        (let ((ans (funcall start-fn x1 y1)))
-          (um:nlet iter ((xys  rest)
-                         (x1   x1)
-                         (y1   y1)
-                         (tl   (last ans)))
-            (cond ((endp xys)
-                   (rplacd tl (funcall end-fn x1 y1))
-                   ans)
-                  (t
-                   (destructuring-bind (x2 y2 . rest) xys
-                     (go-iter rest x2 y2
-                              (last
-                               (rplacd tl
-                                       (funcall mid-fn x1 y1 x2 y2)
-                                       )))
-                     ))
-                  ))
-          )))
-    ))
+      (let+ (( (x1 y1 . rest)  xys)
+             (ans (funcall start-fn x1 y1)))
+        (um:nlet iter ((xys  rest)
+                       (x1   x1)
+                       (y1   y1)
+                       (tl   (last ans)))
+          (cond ((endp xys)
+                 (rplacd tl (funcall end-fn x1 y1))
+                 ans)
+                (t
+                 (let+ (( (x2 y2 . rest) xys))
+                   (go-iter rest x2 y2
+                            (last
+                             (rplacd tl
+                                     (funcall mid-fn x1 y1 x2 y2)
+                                     )))
+                   ))
+                ))
+        ))))
 
 (defmethod stairstep-pairs ((pairs <pair-scanner>))
   ;;            x2,y2
