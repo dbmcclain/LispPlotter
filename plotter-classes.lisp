@@ -138,7 +138,7 @@
    (prev-frame    :accessor plotter-prev-frame         :initform nil)
    (plotter-valid :accessor plotter-valid              :initform t) ;; nil after destroy
    (cached-cmap   :accessor cached-cmap                :initform nil)
-   (after-redraw  :accessor plotter-after-redraw       :initform nil)
+   (copy-oper     :accessor plotter-copy-oper          :initform nil)
    )
   (:default-initargs
    :nominal-width      400

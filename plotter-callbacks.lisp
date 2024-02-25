@@ -102,20 +102,21 @@
 
 (defmethod display-callback :around ((pane plotter-pane) x y width height)
   (with-accessors ((delayed       plotter-delayed-update)
-                   (after-redraw  plotter-after-redraw  )) pane
+                   (copy-oper     plotter-copy-oper     )) pane
     (when (zerop delayed)
       (call-next-method)
-      (when after-redraw
-        (funcall (shiftf after-redraw nil)))
+      (when copy-oper
+        (funcall (shiftf copy-oper nil)))
       )))
 
-(defmethod display-callback :before ((pane plotter-pane) x y width height)
+(defmethod display-callback ((pane plotter-pane) x y width height)
   (with-accessors ((nominal-width   plotter-nominal-width )
                    (nominal-height  plotter-nominal-height)
                    (sf              plotter-sf            )
                    (port-width      gp:port-width         )
                    (port-height     gp:port-height        )
-                   (prev-frame      plotter-prev-frame    )) pane
+                   (prev-frame      plotter-prev-frame    )
+                   (notify-cust  plotter-notify-cust      )) pane
     ;; check if frame has moved or resized
     (capi:with-geometry pane
       (let ((frame  (list capi:%x% capi:%y% capi:%width% capi:%height%)))
@@ -127,14 +128,7 @@
           (recompute-transform pane)
           (recompute-plotting-state pane)
           )))
-    ))
-
-(defmethod display-callback ((pane plotter-pane) x y width height)
-  (redraw-display-list pane x y width height :legend t))
-
-(defmethod display-callback :after ((pane plotter-pane) x y width height)
-  (declare (ignore x y width height))
-  (with-accessors ((notify-cust  plotter-notify-cust )) pane
+    (redraw-display-list pane x y width height :legend t)
     (ac:send-to-all (shiftf notify-cust nil) :done)
     ))
 
@@ -344,8 +338,8 @@
 
 (defun do-with-bare-pdf-image (pane fn)
   ;; executes in CAPI process
-  (with-accessors ((after-redraw  plotter-after-redraw)) pane
-    (setf after-redraw fn)
+  (with-accessors ((copy-oper  plotter-copy-oper)) pane
+    (setf copy-oper fn)
     (capi:redisplay-element pane)
     ))
   
