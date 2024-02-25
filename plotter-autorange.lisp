@@ -276,30 +276,6 @@
         ))
     ))
 
-(defun remove-from-top (r n)
-  (destructuring-bind (lf tp rt bt) r
-    (values `(,lf ,tp ,rt ,(+ tp n))
-            `(,lf ,(+ tp n) ,rt ,bt))
-    ))
-
-(defun remove-from-bottom (r n)
-  (destructuring-bind (lf tp rt bt) r
-    (values `(,lf ,(- bt n) ,rt ,bt)
-            `(,lf ,tp ,rt ,(- bt n)))
-    ))
-
-(defun remove-from-left (r n)
-  (destructuring-bind (lf tp rt bt) r
-    (values `(,lf ,tp ,n ,bt)
-            `(,(+ lf n) ,tp ,rt ,bt))
-    ))
-
-(defun remove-from-right (r n)
-  (destructuring-bind (lf tp rt bt) r
-    (values `(,(- rt n) ,tp ,rt ,bt)
-            `(,lf ,tp ,(- rt n) ,bt))
-    ))
-
 ;; ---------------------------------------------------------
 
 (defun vector-group-min (yvecs)

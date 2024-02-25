@@ -50,3 +50,37 @@
     `(let ((,gbx ,box))
        (list (box-right ,gbx) (box-bottom ,gbx)))))
 
+;; ------------------------------------------------
+;; Functional operators - peel off section of box, returning it, and
+;; return the reduced original box/
+;;
+;; Rectangles are a list of numbers (lf tp rt bt)
+
+(defun remove-from-top (r n)
+  (let+ (( (lf tp rt bt) r)
+         (nn  (max 0 (min n (- bt tp)))))
+    (values `(,lf ,tp        ,rt ,(+ tp nn))
+            `(,lf ,(+ tp nn) ,rt ,bt))
+    ))
+
+(defun remove-from-bottom (r n)
+  (let+ (( (lf tp rt bt) r)
+         (nn (max 0 (min n (- bt tp)))))
+    (values `(,lf ,(- bt nn) ,rt ,bt)
+            `(,lf ,tp        ,rt ,(- bt nn)))
+    ))
+
+(defun remove-from-left (r n)
+  (let+ (( (lf tp rt bt) r)
+         (nn (max 0 (min n (- rt lf)))))
+    (values `(,lf        ,tp ,(+ lf nn) ,bt)
+            `(,(+ lf nn) ,tp ,rt        ,bt))
+    ))
+
+(defun remove-from-right (r n)
+  (let+ (( (lf tp rt bt) r)
+         (nn (max 0 (min n (- rt lf)))))
+    (values `(,(- rt nn) ,tp ,rt        ,bt)
+            `(,lf        ,tp ,(- rt nn) ,bt))
+    ))
+
