@@ -52,7 +52,7 @@
 
 ;; ------------------------------------------------
 ;; Functional operators - peel off section of box, returning it, and
-;; return the reduced original box/
+;; return the reduced original box.
 ;;
 ;; Rectangles are a list of numbers (lf tp rt bt)
 
@@ -84,3 +84,15 @@
             `(,lf        ,tp ,(- rt nn) ,bt))
     ))
 
+;; ---------------------------------------------
+;; Conversions
+
+(defun to-ltrb (r)
+  (let+ (( (lf tp wd ht) r))
+    `(,lf ,tp ,(+ lf wd) ,(+ tp ht))
+    ))
+
+(defun to-ltwh (r)
+  (let+ (( (lf tp rt bt) r))
+    `(,lf ,tp ,(- rt lf) ,(- bt tp))
+    ))
