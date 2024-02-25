@@ -45,7 +45,7 @@
                            scanner)))
          (pairs        (make-pair-scanner xs ys))
          (xform        (plotter-xform pane))
-         (xfpairs      (make-gpxform-pairs xform pairs))
+         (xfpairs      (make-gpxform-pairs pairs xform))
          (:mvb (x0 y0) (gp:transform-point xform 0 0)))
     (flet ((line-pairs ()
              (let* ((xfpairs (case plot-joined
