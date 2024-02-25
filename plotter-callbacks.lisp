@@ -42,13 +42,13 @@
                                :dash '(4 2 2 2)
                                )
         
-        (if x
-            (let ((xx (* sf x)))
-              (gp:draw-line pane xx 0 xx (gp:port-height pane))))
-
-        (if y
-            (let ((yy (* sf y)))
-              (gp:draw-line pane 0 yy (gp:port-width pane) yy)))
+        (when x
+          (let ((xx (* sf x)))
+            (gp:draw-line pane xx 0 xx (gp:port-height pane))))
+        
+        (when y
+          (let ((yy (* sf y)))
+            (gp:draw-line pane 0 yy (gp:port-width pane) yy)))
         ))))
 
 #+:COCOA
@@ -95,8 +95,8 @@
   (discard-legends pane)
   (dolist (item (display-list-items pane))
     (funcall item pane x y width height))
-  (if legend
-      (draw-accumulated-legend pane)) )
+  (when legend
+    (draw-accumulated-legend pane)) )
 
 ;; --------------------------------------------------
 
@@ -236,13 +236,13 @@
   (call-next-method)
   (unless (on-legend pane x y)
     (destructuring-bind (xx yy) (compute-x-y-at-cursor pane x y)
-      (labels ((fmt (val)
-                 ;; (format nil "~,5g" val)
-                 (string-trim " "
-                              (if (realp val)
-                                  (engfmt:engineering-format nil val :nsig 3)
-                                (format nil "~A" val)))
-                 ))
+      (flet ((fmt (val)
+               ;; (format nil "~,5g" val)
+               (string-trim " "
+                            (if (realp val)
+                                (engfmt:engineering-format nil val :nsig 3)
+                              (format nil "~A" val)))
+               ))
         (let* ((xstr (fmt xx))
                (ystr (fmt yy))
                (mx   (mark-x pane))
@@ -409,8 +409,8 @@
                :filter #-:WIN32 "*.pdf"
                        #+:WIN32 "*.bmp"
                :pathname *last-save-path*)))
-    (if path
-        (setf *last-save-path* path))
+    (when path
+      (setf *last-save-path* path))
     path))
 
 ;; user callable function
