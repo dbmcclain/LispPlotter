@@ -472,6 +472,7 @@
                             :interactive t))
   #+:WIN32
   (with-nominal-image (pane img)
+    (declare (ignore img))
     (capi:simple-print-port pane
                             :interactive t))
   )
