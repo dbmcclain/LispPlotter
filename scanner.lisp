@@ -28,6 +28,9 @@
 (defclass <carray-scanner> (<limited-scanner>)
   ((arr  :accessor scanner-array :initarg :array)))
 
+(defclass <user-seq-scanner> (<limited-scanner>)
+  ((arr :accessor scanner-array :initarg :array)))
+
 ;; ===============
 
 (defmethod make-scanner ((limit integer) &key (max-items limit))
@@ -57,6 +60,11 @@
   (make-instance '<carray-scanner>
                  :array  arr
                  :limit  (min (ca:carray-total-size arr) max-items)))
+
+(defmethod make-scanner ((arr um:user-defined-sequence) &key (max-items (um:user-defined-sequence-length arr)))
+  (make-instance '<user-seq-scanner>
+                 :array arr
+                 :limit (min max-items (um:user-defined-sequence-length arr))))
 
 ;; ===============
 
@@ -141,6 +149,17 @@
           (ca:row-major-caref its-array position)
         (incf position)))
     ))
+
+(defmethod next-item ((scanner <user-seq-scanner>))
+  (with-accessors ((position  scanner-position)
+                   (limit     scanner-limit   )
+                   (its-array scanner-array   )) scanner
+    (when (< position limit)
+      (prog1
+          (um:user-defined-sequence-fetch its-array position)
+        (incf position)))
+    ))
+
 
 ;; ===============
 (defclass <transformer> (<scanner>)
