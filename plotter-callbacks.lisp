@@ -191,7 +191,7 @@
     (unhighlight-legend pane)
     ))
 
-(defmethod mouse-move :around ((pane articulated-plotter-pane) x y &rest args)
+(defmethod mouse-move ((pane articulated-plotter-pane) x y &rest args)
   (declare (ignore args))
   (call-next-method)
   (unless (on-legend pane x y)
@@ -231,7 +231,7 @@
   (when (on-legend pane x y)
     (start-drag-legend pane x y)))
         
-(defmethod mouse-button-press :around ((pane articulated-plotter-pane) x y &rest _)
+(defmethod mouse-button-press ((pane articulated-plotter-pane) x y &rest _)
   (declare (ignore _))
   (call-next-method)
   (unless (on-legend pane x y)
