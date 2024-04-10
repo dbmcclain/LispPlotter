@@ -98,9 +98,7 @@
   ;; stuff used by 2-D plot scaling and plotting
   ;; The mixin has all the information needed to produce plots
   ;; but has nothing to draw on...
-  ((lock          :accessor plotter-lock           :initform (mp:make-lock))
-   
-   (xlog          :accessor plotter-xlog           :initform nil)
+  ((xlog          :accessor plotter-xlog           :initform nil)
    (xmin          :accessor plotter-xmin           :initform 0.0d0)
    (xmax          :accessor plotter-xmax           :initform 1.0d0)
 
