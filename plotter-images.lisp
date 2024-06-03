@@ -45,6 +45,7 @@
                                                       zlog
                                                       flipv
                                                       fliph
+                                                      neg
                                                       &allow-other-keys)
   (let* ((wd   (array-dimension-of arr 1))
          (ht   (array-dimension-of arr 0))
@@ -58,9 +59,11 @@
       (with-image-access (acc (gp:make-image-access pane img))
         
         (labels ((z-value (z)
-                   (if zlog
-                       (log (1+ z))
-                     z)))
+                   (let ((zval (if zlog
+                                   (log (1+ z))
+                                 z)))
+                     (if neg (- zval) zval))
+                   ))
            
           (destructuring-bind (mn mx)
               (mapcar #'z-value
@@ -168,16 +171,12 @@
                                 pane (bounding-region pane)))
                        
                        (with-array-converted-to-color-image-for-pane (arr pane img args)
-                         (let+ (( (lf bt rt tp) (gp:transform-points (plotter-xform pane)
-                                                                     (list 0 0 wd ht))
-                                  ))
-                           (with-plotview-coords (pane)
-                             (gp:draw-image pane img lf tp
-                                            :to-width    (1+ (- rt lf))
-                                            :to-height   (1+ (- bt tp))
-                                            :from-width  wd
-                                            :from-height ht))
-                           )))))
+                         (gp:draw-image pane img 0 0
+                                        :to-width    (* magn wd)
+                                        :to-height   (* magn ht)
+                                        :from-width  wd
+                                        :from-height ht)
+                         ))))
         ;; this scaling gives the unflipped origin at the LLC
         ;; with positive Y values upward, positive X values rightward
         (pw-init-xv-yv pane (vector 0 wd) (vector 0 ht)
