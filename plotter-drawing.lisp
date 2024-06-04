@@ -700,23 +700,30 @@
   ;; For :arc     (x0,y0) = ctr, (wd,ht) are radii, sweep and start angles are radian measure
   (let* ((color     (adjust-color pane color alpha))
          (bcolor    (adjust-color pane border-color border-alpha))
-         (linewidth (adjust-linewidth (or border-thick 0))))
-    (cond (raw
+         (linewidth (adjust-linewidth (or border-thick 0)))
+         (x0        (get-x-location pane x0))
+         (y0        (get-y-location pane y0)))
+    (labels
+        ((draw-fns ()
              (labels ((draw (shape-fn)
-                        (gp:with-graphics-state (pane
-                                                 :thickness  linewidth
-                                                 :foreground color
-                                                 :line-end-style   :butt
-                                                 :line-joint-style :miter
-                                                 ;; :mask       (plotter-mask pane)
-                                                 )
-                          
-                          (when filled
-                            (funcall shape-fn :filled t))
-                          (when border-thick
-                            (with-color (pane bcolor)
-                              (funcall shape-fn :filled nil)))
-                          )))
+                        (labels ((do-drawing ()
+                                   (gp:with-graphics-state (pane
+                                                            :thickness        linewidth
+                                                            :foreground       color
+                                                            :line-end-style   :butt
+                                                            :line-joint-style :miter)
+                                     (when filled
+                                       (funcall shape-fn :filled t))
+                                     (when border-thick
+                                       (with-color (pane bcolor)
+                                         (funcall shape-fn :filled nil)))
+                                     )))
+                          (if raw
+                              (do-drawing)
+                            (gp:with-graphics-state (pane
+                                                     :mask (plotter-mask pane))
+                              (do-drawing))
+                            ))))
                
                (ecase shape
                  (:line
@@ -746,54 +753,9 @@
                   (let ((rad (get-x-width pane radius)))
                     (draw (um:curry #'gp:draw-circle pane x0 y0 rad))
                     ))
-                 )))
-          
-          (t
-           (let* ((x0        (get-x-location pane x0))
-                  (y0        (get-y-location pane y0)))
-             (with-plotview-coords (pane)
-               (labels ((draw (shape-fn)
-                          (gp:with-graphics-state (pane
-                                                   :thickness  linewidth
-                                                   :foreground color
-                                                   :line-end-style   :butt
-                                                   :line-joint-style :miter
-                                                   :mask       (plotter-mask pane))
-                            
-                            (when filled
-                              (funcall shape-fn :filled t))
-                            (when border-thick
-                              (with-color (pane bcolor)
-                                (funcall shape-fn :filled nil)))
-                            )))
-                 
-                 (ecase shape
-                   (:line
-                    (let ((x1 (get-x-location pane (car to)))
-                          (y1 (get-y-location pane (cdr to))))
-                      (draw (um:curry #'gp:draw-line pane x0 y0 x1 y1))
-                      ))
-                   (:rect
-                    (let ((wd (get-x-width pane width))
-                          (ht (get-y-width pane height)))
-                      (draw (um:curry #'gp:draw-rectangle pane
-                                      (- x0 (/2 wd)) (- y0 (/2 ht)) wd ht))
-                      ))
-                   (:ellipse
-                    (let ((wd (get-x-width pane width))
-                          (ht (get-y-width pane height)))
-                      (draw (um:curry #'gp:draw-ellipse pane x0 y0 wd ht))))
-                   
-                   (:arc
-                    (let ((wd (get-x-width pane width))
-                          (ht (get-y-width pane height)))
-                      (draw (um:curry #'gp:draw-arc pane
-                                      (- x0 (/2 wd)) (- y0 (/2 ht)) wd ht
-                                      start-angle sweep-angle))
-                      ))
-                   (:circle
-                    (let ((rad (get-x-width pane radius)))
-                      (draw (um:curry #'gp:draw-circle pane x0 y0 rad))
-                      ))
-                   )))))
-          )))
+                 ))))
+      (if raw
+          (draw-fns)
+        (with-plotview-coords (pane)
+          (draw-fns)))
+      )))
