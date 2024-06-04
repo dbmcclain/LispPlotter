@@ -46,12 +46,28 @@
                                                       flipv
                                                       fliph
                                                       neg
+                                                      (magn 1)
                                                       &allow-other-keys)
   (let* ((wd   (array-dimension-of arr 1))
          (ht   (array-dimension-of arr 0))
          (first-row (or first-row
                         (1- ht))))
     (declare (fixnum wd ht first-row))
+
+    (let ((xform     (gp:make-transform))
+          (inv-xform (gp:make-transform)))
+      
+      (gp:apply-translation xform
+                            (if fliph (1- wd) 0)
+                            (if flipv 0       (1- ht)))
+      (gp:apply-scale xform
+                      (if fliph (- magn) magn)
+                      (if flipv magn     (- magn)))
+      
+      (gp:invert-transform xform inv-xform)
+
+      (setf (plotter-xform     pane) xform
+            (plotter-inv-xform pane) inv-xform))
     
     (with-image (pane (img #-:WIN32 (gp:make-image pane wd ht)
                            #+:WIN32 (gp:make-image pane wd ht :alpha nil)
@@ -99,10 +115,11 @@
                                           (convert-to-color
                                            (aref-of arr src-row src-col)))))
                            (if fliph
+                               ;; put origin at the right
                                (loop for src-col fixnum from (1- wd) downto 0
                                      for dst-col fixnum from 0 do
-                                     (xfer-pixel src-col dst-col))
-                             ;; else
+                                       (xfer-pixel src-col dst-col))
+                             ;; else - default has origin on the left
                              (loop for col fixnum from 0 below wd do
                                    (xfer-pixel col col)) ))))
               
@@ -117,6 +134,7 @@
                 
                 (if flipv
                     (progn
+                      ;; put origin at the top, instead of bottom
                       (loop for src-row fixnum from first-row downto 0
                             for dst-row fixnum from (1- ht) by -1 do
                             (xfer-line src-row dst-row))
@@ -125,6 +143,7 @@
                             (xfer-line src-row dst-row)))
                   ;; else
                   (progn
+                    ;; default has origin at bottom
                     (loop for src-row fixnum from first-row downto 0
                           for dst-row fixnum from 0 do
                           (xfer-line src-row dst-row))
@@ -152,6 +171,8 @@
 (defun do-tvscl (pane arr
                       &rest args
                       &key
+                      (xorg 0)
+                      (yorg 0)
                       (magn 1)
                       clear
                       &allow-other-keys)
@@ -171,12 +192,12 @@
                                 pane (bounding-region pane)))
                        
                        (with-array-converted-to-color-image-for-pane (arr pane img args)
-                         (gp:draw-image pane img 0 0
+                         (gp:draw-image pane img xorg yorg
                                         :to-width    (* magn wd)
                                         :to-height   (* magn ht)
                                         :from-width  wd
-                                        :from-height ht)
-                         ))))
+                                        :from-height ht))
+                       )))
         ;; this scaling gives the unflipped origin at the LLC
         ;; with positive Y values upward, positive X values rightward
         (pw-init-xv-yv pane (vector 0 wd) (vector 0 ht)

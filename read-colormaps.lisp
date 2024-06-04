@@ -44,7 +44,7 @@
   (let* ((cmap (aref *cmaps* nbr))
          (map  (get-cmap nbr)))
     (setf *current-colormap* map)
-    (tvscl 'tstcmap *tst-img* :magn 1 :clear t)
+    (tvscl 'tstcmap *tst-img* :magn 4 :clear t)
     (cmap-name cmap)))
 
 (defmethod set-cmap ((name string))
