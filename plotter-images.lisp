@@ -80,11 +80,15 @@
                                  z)))
                      (if neg (- zval) zval))
                    ))
-           
+
           (destructuring-bind (mn mx)
-              (mapcar #'z-value
-                      (or zrange
-                          (multiple-value-list (vextrema-of arr))))
+              (destructuring-bind (mn mx)
+                  (mapcar #'z-value
+                          (or zrange
+                              (multiple-value-list (vextrema-of arr))))
+                (if neg
+                    `(,mx ,mn)
+                  `(,mn ,mx)))
       
             (let* ((gsf  (let ((diff (- mx mn)))
                            (if (zerop diff)
