@@ -200,30 +200,33 @@
     ;; #+:WIN32 (capi:display-tooltip pane)
     (destructuring-bind (xx yy) (compute-x-y-at-cursor pane x y)
       (display-cursor-readout pane
-                              (capi:capi-object-name pane) xx yy))
+                              (capi:capi-object-name pane) xx yy)
     
-    (with-accessors ((full-crosshair plotter-full-crosshair)
-                     (prev-x         plotter-prev-x)
-                     (prev-y         plotter-prev-y)) pane
-      
-      (when full-crosshair ;; NIL or a color spec
+      (with-accessors ((full-crosshair plotter-full-crosshair)
+                       (prev-x         plotter-prev-x)
+                       (prev-y         plotter-prev-y)
+                       (augm           plotter-move-augment)) pane
         
-        #+(AND :WIN32 (NOT :LISPWORKS6+))
-        (progn
-          (draw-crosshair-lines pane full-crosshair prev-x prev-y)
-          (draw-crosshair-lines pane full-crosshair x      y)                 
-          (setf prev-x x
-                prev-y y))
-        
-        #+(OR :COCOA :LISPWORKS6+)
-        (let ((xx (shiftf prev-x x))
-              (yy (shiftf prev-y y)))
-          (when (and xx yy)
-            (let ((wd (gp:port-width pane))
-                  (ht (gp:port-height pane)))
-              (capi:redisplay-element pane (1- xx) 0 3 ht)
-              (capi:redisplay-element pane 0 (1- yy) wd 3))
-            ))
+        (when full-crosshair ;; NIL or a color spec
+          
+          #+(AND :WIN32 (NOT :LISPWORKS6+))
+          (progn
+            (draw-crosshair-lines pane full-crosshair prev-x prev-y)
+            (draw-crosshair-lines pane full-crosshair x      y)                 
+            (setf prev-x x
+                  prev-y y))
+          
+          #+(OR :COCOA :LISPWORKS6+)
+          (let ((xx (shiftf prev-x x))
+                (yy (shiftf prev-y y)))
+            (when (and xx yy)
+              (let ((wd (gp:port-width pane))
+                    (ht (gp:port-height pane)))
+                (capi:redisplay-element pane (1- xx) 0 3 ht)
+                (capi:redisplay-element pane 0 (1- yy) wd 3))
+              )))
+        (when augm
+          (funcall augm pane x y xx yy))
         ))))
 
 (defmethod mouse-button-press ((pane plotter-pane) x y &rest _)
@@ -247,7 +250,11 @@
                (ystr (fmt yy))
                (mx   (mark-x pane))
                (my   (mark-y pane))
-               (txt  (cond ((and mx my
+               (augm (plotter-click-augment pane))
+               (txt  (cond (augm
+                            (funcall augm xx yy mx my))
+                           
+                           ((and mx my
                                  (realp mx)
                                  (realp my))
                             (let* ((dxstr (fmt (- xx (mark-x pane))))
@@ -273,13 +280,12 @@
                            (t
                             (format nil "x ~A  y ~A" xstr ystr))
                            )))
-          
+          (capi:set-clipboard pane txt)
           (capi:display-tooltip pane
                                 :x  (+ x 10)
                                 :y  (+ y 10)
-                                :text txt)
-          (capi:set-clipboard pane txt)
-          )))))
+                                :text txt))
+        ))))
 
 (defun mark-x-at-cursor (pane x y &rest _)
   (declare (ignore _))

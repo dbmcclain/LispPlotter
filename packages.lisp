@@ -72,6 +72,8 @@
    #:polar-fplot
 
    #:help
+   #:set-move-augmentation
+   #:set-click augmentation
    ))
 
 #|

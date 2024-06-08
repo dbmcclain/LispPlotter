@@ -34,7 +34,7 @@
   (setf (capi:interface-title intf)
         (format nil "~A  x = ~,6g  y = ~,6g"
                 name x y)))
-  
+
 (defun make-plotter-window (&key
                             (name               0)
                             (title              "Plot")
@@ -57,7 +57,9 @@
                             cursor
                             full-crosshair
                             window-styles
-                            window-class)
+                            window-class
+                            move-augmentation
+                            click-augmentation)
   
   (let ((pane (make-instance 'articulated-plotter-pane
                              :name               name
@@ -71,6 +73,8 @@
                              :visible-max-height visible-max-height
                              :cursor             cursor
                              :full-crosshair     full-crosshair
+                             :move-augmentation  move-augmentation
+                             :click-augmentation click-augmentation
                              ))
         (wd    (1- xsize))
         (ht    (1- ysize)))

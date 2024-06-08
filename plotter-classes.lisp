@@ -137,6 +137,8 @@
    (plotter-valid :accessor plotter-valid              :initform t) ;; nil after destroy
    (cached-cmap   :accessor cached-cmap                :initform nil)
    (copy-oper     :accessor plotter-copy-oper          :initform nil)
+   (move-augment  :accessor plotter-move-augment       :initform nil  :initarg :move-augmentation)
+   (click-augment :accessor plotter-click-augment      :initform nil  :initarg :click-augmentation)
    )
   (:default-initargs
    :nominal-width      400

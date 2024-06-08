@@ -529,6 +529,22 @@
  |#
 
 ;; ----------------------------------------------------------------
+
+(defun set-move-augmentation (pane fn)
+  (let* ((pane (plotter-pane-of pane)))
+    (capi:apply-in-pane-process pane
+                                (lambda ()
+                                  (setf (plotter-move-augment pane) fn)))
+    ))
+  
+(defun set-click-augmentation (pane fn)
+  (let* ((pane (plotter-pane-of pane)))
+    (capi:apply-in-pane-process pane
+                                (lambda ()
+                                  (setf (plotter-click-augment pane) fn)))
+    ))
+  
+;; ----------------------------------------------------------------
 #|
 (defmacro with-cached-graphing ((pane ver) &body body)
   `(do-with-cached-graphing ,pane ,ver (lambda () ,@body)))
