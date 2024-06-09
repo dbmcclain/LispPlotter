@@ -10,17 +10,17 @@
                              ;; "PROJECTS:LIB;crosshair2.gif"
                              "PROJECTS:LIB;cursor3.gif"
                              ))
-        :x-hot 8
-        :y-hot 8)
+        :x-hot 7
+        :y-hot 7)
        #-nil
        (:cocoa ,(namestring (translate-logical-pathname
                              "PROJECTS:LIB;cursor4.gif"
                              ))
-        :x-hot 16
-        :y-hot 16)
+        :x-hot 15
+        :y-hot 15)
        (:gtk   #P"~/Linux-stuff/crosshair.gif"
-        :x-hot 8
-        :y-hot 8)
+        :x-hot 7
+        :y-hot 7)
        ))
     ))
 
