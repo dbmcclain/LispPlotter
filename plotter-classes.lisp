@@ -5,7 +5,17 @@
   (progn ;; ignore-errors
     (capi:load-cursor
      `((:win32 ,(namestring (translate-logical-pathname "PROJECTS:LIB;cross-i.cur")))
-       (:cocoa ,(namestring (translate-logical-pathname "PROJECTS:LIB;crosshair.gif"))
+       #+nil
+       (:cocoa ,(namestring (translate-logical-pathname
+                             ;; "PROJECTS:LIB;crosshair2.gif"
+                             "PROJECTS:LIB;cursor3.gif"
+                             ))
+        :x-hot 7
+        :y-hot 7)
+       #-nil
+       (:cocoa ,(namestring (translate-logical-pathname
+                             "PROJECTS:LIB;cursor4.gif"
+                             ))
         :x-hot 7
         :y-hot 7)
        (:gtk   #P"~/Linux-stuff/crosshair.gif"

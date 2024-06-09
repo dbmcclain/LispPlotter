@@ -186,10 +186,13 @@
 
 (defmethod mouse-move ((pane plotter-pane) x y &rest args)
   (declare (ignore args))
-  (if (on-legend pane x y)
-      (highlight-legend pane)
-    (unhighlight-legend pane)
-    ))
+  (cond ((on-legend pane x y)
+         (highlight-legend pane)
+         (setf (capi:simple-pane-cursor pane) :move))
+        (t
+         (unhighlight-legend pane)
+         (setf (capi:simple-pane-cursor pane) *cross-cursor*))
+        ))
 
 (defmethod mouse-move ((pane articulated-plotter-pane) x y &rest args)
   (declare (ignore args))
