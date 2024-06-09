@@ -191,8 +191,9 @@
          (setf (capi:simple-pane-cursor pane) :move))
         (t
          (unhighlight-legend pane)
-         (setf (capi:simple-pane-cursor pane) *cross-cursor*))
-        ))
+         (setf (capi:simple-pane-cursor pane)
+               (plotter-cursor pane))
+        )))
 
 (defmethod mouse-move ((pane articulated-plotter-pane) x y &rest args)
   (declare (ignore args))

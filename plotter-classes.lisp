@@ -10,17 +10,17 @@
                              ;; "PROJECTS:LIB;crosshair2.gif"
                              "PROJECTS:LIB;cursor3.gif"
                              ))
-        :x-hot 7
-        :y-hot 7)
+        :x-hot 8
+        :y-hot 8)
        #-nil
        (:cocoa ,(namestring (translate-logical-pathname
                              "PROJECTS:LIB;cursor4.gif"
                              ))
-        :x-hot 7
-        :y-hot 7)
+        :x-hot 16
+        :y-hot 16)
        (:gtk   #P"~/Linux-stuff/crosshair.gif"
-        :x-hot 7
-        :y-hot 7)
+        :x-hot 8
+        :y-hot 8)
        ))
     ))
 
@@ -149,6 +149,7 @@
    (copy-oper     :accessor plotter-copy-oper          :initform nil)
    (move-augment  :accessor plotter-move-augment       :initform nil  :initarg :move-augmentation)
    (click-augment :accessor plotter-click-augment      :initform nil  :initarg :click-augmentation)
+   (plot-cursor   :accessor plotter-cursor             :initform (or *cross-cursor* :crosshair))
    )
   (:default-initargs
    :nominal-width      400
@@ -230,6 +231,10 @@
    :cursor   (or *cross-cursor*
                  :crosshair)
    ))
+
+(defmethod initialize-instance :after ((pane plotter-pane) &key &allow-other-keys)
+  ;; make a backup copy for restore as needed
+  (setf (plotter-cursor pane) (capi:simple-pane-cursor pane)))
 
 #+:WIN32
 (defmethod initialize-instance :after ((pane articulated-plotter-pane)
