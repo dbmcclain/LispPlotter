@@ -73,7 +73,7 @@
 
    #:help
    #:set-move-augmentation
-   #:set-click augmentation
+   #:set-click-augmentation
    ))
 
 #|

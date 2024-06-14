@@ -233,6 +233,14 @@
           (funcall augm pane x y xx yy))
         ))))
 
+(defmethod mouse-shift-button-press ((pane plotter-pane) x y &rest _)
+  (declare (ignore _))
+  (let ((augm (plotter-click-augment pane)))
+    (when augm
+      (destructuring-bind (xx yy) (compute-x-y-at-cursor pane x y)
+        (funcall augm xx yy x y :shift)))
+    ))
+
 (defmethod mouse-button-press ((pane plotter-pane) x y &rest _)
   (declare (ignore _))
   (when (on-legend pane x y)
@@ -256,7 +264,7 @@
                (my   (mark-y pane))
                (augm (plotter-click-augment pane))
                (txt  (cond (augm
-                            (funcall augm xx yy mx my))
+                            (funcall augm xx yy x y nil))
                            
                            ((and mx my
                                  (realp mx)
