@@ -293,8 +293,7 @@
                     (offset-x 0) ;; pixel offsets
                     (offset-y 0)
                     (color :black)
-                    alpha
-                   
+                    alpha                  
                     &allow-other-keys)
   (let* ((pane   (plotter-pane-of pane))
          (action (lambda (pane xarg yarg width height)
@@ -356,7 +355,6 @@
                            border-thick
                            (border-color :black)
                            border-alpha
-                          
                            &allow-other-keys)
   (let* ((pane  (plotter-pane-of pane))
          (action (lambda (pane xarg yarg width height)

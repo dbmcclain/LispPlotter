@@ -340,7 +340,7 @@
           (draw-vert-string-x-y pane ytitle
                                 #+(AND :WIN32 (NOT (OR :LISPWORKS6.1 :LISPWORKS7 :LISPWORKS8))) 0
                                 #+(AND :COCOA (NOT (OR :LISPWORKS6.1 :LISPWORKS7 :LISPWORKS8))) (if axis-values  -3 -15)
-                                #+(OR :LISPWORKS6.1 :LISPWORKS7 :LISPWORKS8)                    (if axis-values -15 -20)
+                                #+(OR :LISPWORKS6.1 :LISPWORKS7 :LISPWORKS8)                    (if axis-values -17 -20)
                                 (floor (box-height box) 2)
                                 :font  font
                                 :x-alignment :center
