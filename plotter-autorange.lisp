@@ -170,6 +170,15 @@
     ))
 
 (defun recompute-transform (pane)
+  ;; So, tldr; PLOTTER-XFORM contains all that is needed to convert
+  ;; data coords into nominal frame plotview coords. But does not
+  ;; contain any information about margins around the plotting region,
+  ;; nor the resize scaling.
+  ;;
+  ;; But PLOTTER-INV-XFORM takes raw window pixel coords and converts
+  ;; all the way back to data coords. So it does have knowledge of
+  ;; resize scaling and plotview margins.
+  ;;
   (with-accessors ((sf   plotter-sf)) pane
         
     (let ((xform     (gp:copy-transform (plotter-xform pane)))
@@ -265,7 +274,7 @@
   ;; The Pane BOX has the PlotView represented in unscaled pixel
   ;; coordinates of the parent frame. It represents the nominal
   ;; plotting region.
-  ;;
+  
   (with-accessors ((sf   plotter-sf)
                    (box  plotter-box)) pane
     (let ((xform (gp:make-transform)))

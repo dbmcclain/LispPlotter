@@ -134,7 +134,6 @@
            (internal-draw-existing-legend pane))
           )))
 
-#||#
 (defun refresh-view (pane x y w h)
   ;; Code to convert a plotter region rectangle to an absolute,
   ;; scaled, rectangle in the parent graphport.
@@ -144,11 +143,8 @@
   (let ((xform (gp:make-transform))
         (sf    (plotter-sf pane))
         (box   (plotter-box pane)))
-    (gp:apply-translation xform +LEFT-INSET+ +TOP-INSET+)
+    (gp:apply-translation xform (box-left box) (box-top box))
     (gp:apply-scale xform sf sf)
-    (gp:apply-translation xform
-                          (- (box-left box) +LEFT-INSET+)
-                          (- (box-top  box) +TOP-INSET+))
     (multiple-value-bind (xp yp)
         (gp:transform-point xform x y)
       (multiple-value-bind (rp bp)
@@ -156,23 +152,6 @@
         (capi:redisplay-element pane xp yp (- rp xp) (- bp yp))
         ))
     ))
-#||#
-#|
-(defun refresh-view (pane x y w h)
-  ;; Code to convert a plotter region rectangle to an absolute,
-  ;; scaled, rectangle in the parent graphport.
-  ;;
-  ;; CAPI:REDISPLAY-ELEMENT is great, but it doesn't know anything
-  ;; about graphics transforms.
-  (let ((xform (plotter-xform pane)))
-    (multiple-value-bind (xp yp)
-        (gp:transform-point xform x y)
-      (multiple-value-bind (rp bp)
-          (gp:transform-point xform (+ x w) (+ y h))
-        (capi:redisplay-element pane xp yp (- rp xp) (- bp yp))
-        ))
-    ))
-|#
 
 (defun draw-existing-legend (pane legend)
   (let* ((extra   2)
@@ -217,9 +196,12 @@
       )))
 
 (defun window-to-plotview-coords (pane x y)
-  ;; convert reported screen coords to plotting region coords
+  ;; Convert reported screen coords to nominal plotting region coords.
+  ;; Effectively, this just makes the system resize-scaling agnostic.
   (multiple-value-bind (xd yd)
+      ;; back to data coords
       (gp:transform-point (plotter-inv-xform pane) x y)
+    ;; then to nominal frame coords
     (gp:transform-point (plotter-xform pane) xd yd)
     ))
 
