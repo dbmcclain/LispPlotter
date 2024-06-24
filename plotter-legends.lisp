@@ -134,6 +134,7 @@
            (internal-draw-existing-legend pane))
           )))
 
+#||#
 (defun refresh-view (pane x y w h)
   ;; Code to convert a plotter region rectangle to an absolute,
   ;; scaled, rectangle in the parent graphport.
@@ -155,6 +156,23 @@
         (capi:redisplay-element pane xp yp (- rp xp) (- bp yp))
         ))
     ))
+#||#
+#|
+(defun refresh-view (pane x y w h)
+  ;; Code to convert a plotter region rectangle to an absolute,
+  ;; scaled, rectangle in the parent graphport.
+  ;;
+  ;; CAPI:REDISPLAY-ELEMENT is great, but it doesn't know anything
+  ;; about graphics transforms.
+  (let ((xform (plotter-xform pane)))
+    (multiple-value-bind (xp yp)
+        (gp:transform-point xform x y)
+      (multiple-value-bind (rp bp)
+          (gp:transform-point xform (+ x w) (+ y h))
+        (capi:redisplay-element pane xp yp (- rp xp) (- bp yp))
+        ))
+    ))
+|#
 
 (defun draw-existing-legend (pane legend)
   (let* ((extra   2)
@@ -198,7 +216,7 @@
       (draw-existing-legend pane legend)
       )))
 
-(defun plotview-coords (pane x y)
+(defun window-to-plotview-coords (pane x y)
   ;; convert reported screen coords to plotting region coords
   (multiple-value-bind (xd yd)
       (gp:transform-point (plotter-inv-xform pane) x y)
@@ -210,7 +228,7 @@
     (and (activep legend)
          (has-content legend)
          (multiple-value-bind (xp yp)
-             (plotview-coords pane x y)
+             (window-to-plotview-coords pane x y)
            (with-accessors ((xl   x)
                             (yl   y)
                             (wd   width)
@@ -225,7 +243,7 @@
     (when (and (activep legend)
                (has-content legend))
       (multiple-value-bind (xp yp)
-          (plotview-coords pane x y)
+          (window-to-plotview-coords pane x y)
         (setf (dragging legend) t
               (dx legend) (- (x legend) xp)
               (dy legend) (- (y legend) yp))
@@ -243,7 +261,7 @@
     (when (dragging legend)
       (restore-legend-background pane legend)
       (multiple-value-bind (xp yp)
-          (plotview-coords pane x y)
+          (window-to-plotview-coords pane x y)
         (setf (preferred-x pane) (+ xp (dx legend))
               (preferred-y pane) (+ yp (dy legend)))
         (draw-existing-legend pane legend)

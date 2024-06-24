@@ -173,10 +173,11 @@
   (with-accessors ((sf   plotter-sf)) pane
         
     (let ((xform     (gp:copy-transform (plotter-xform pane)))
-          (inv-xform (gp:make-transform)))
+          (inv-xform (gp:make-transform))
+          (box       (plotter-box pane)))
       ;; develop inv-xform to take raw pane coords and convert to data
       ;; coords
-      (gp:apply-translation xform +LEFT-INSET+ +TOP-INSET+)
+      (gp:apply-translation xform (box-left box) (box-top box))
       (gp:apply-scale xform sf sf)
       (gp:invert-transform xform   inv-xform)
       
@@ -268,7 +269,7 @@
   (with-accessors ((sf   plotter-sf)
                    (box  plotter-box)) pane
     (let ((xform (gp:make-transform)))
-      (gp:apply-translation xform +LEFT-INSET+ +TOP-INSET+)
+      (gp:apply-translation xform (box-left box) (box-top box))
       (gp:apply-scale xform sf sf)
       (destructuring-bind (lf tp rt bt)
           (gp:transform-points xform `(0 0 ,(box-width box) ,(box-height box)))

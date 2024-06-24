@@ -58,6 +58,11 @@
                             full-crosshair
                             window-styles
                             window-class
+                            (left-margin         +left-inset+)
+                            (top-margin          +top-inset+)
+                            (right-margin        +right-inset+)
+                            (bottom-margin       +bottom-inset+)
+                            box
                             move-augmentation
                             click-augmentation)
   
@@ -76,13 +81,16 @@
                              :move-augmentation  move-augmentation
                              :click-augmentation click-augmentation
                              ))
-        (wd    (1- xsize))
-        (ht    (1- ysize)))
+        (wd    xsize)
+        (ht    ysize))
     (setf (plotter-xmin pane) 0
           (plotter-ymin pane) 0
           (plotter-xmax pane) wd
           (plotter-ymax pane) ht
-          (plotter-box  pane) (list 0 0 wd ht))
+          (plotter-box  pane) (or box
+                                  (inset-box-sides
+                                   `(0 0 ,wd ,ht)
+                                   left-margin top-margin right-margin bottom-margin)))
     (make-instance window-class
                    :name           name
                    :title          title
@@ -148,6 +156,13 @@
                     full-crosshair
                     (window-styles      '(:internal-borderless))
                     (window-class       *plotter-window-class*)
+
+                    (left-margin         +left-inset+)
+                    (top-margin          +top-inset+)
+                    (right-margin        +right-inset+)
+                    (bottom-margin       +bottom-inset+)
+                    box
+
                     &allow-other-keys)
 
   (wclose name)
@@ -167,7 +182,13 @@
                 :cursor              cursor
                 :full-crosshair      full-crosshair
                 :window-styles       window-styles
-                :window-class        window-class))
+                :window-class        window-class
+                :left-margin         left-margin
+                :top-margin          top-margin
+                :right-margin        right-margin
+                :bottom-margin       bottom-margin
+                :box                 box
+                ))
          (pane (drawing-area intf)))
     (capi:display intf)
     pane))

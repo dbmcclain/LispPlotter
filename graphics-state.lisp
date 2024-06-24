@@ -148,13 +148,15 @@
 (defun compute-graphics-state (pane)
   ;; Precompute and cache state for the necessary plotting transforms
   ;; for use inside the PlotView region.
-  (with-accessors ((sf    plotter-sf)) pane
+  (with-accessors ((sf    plotter-sf)
+                   (box   plotter-box)) pane
     (with-saved-graphics-state pane
       (gp:with-graphics-state (pane
                                ;; :transform (gp:make-transform)
                                :scale-thickness t)
         (gp:with-graphics-scale (pane sf sf)
-          (gp:with-graphics-translation (pane +LEFT-INSET+ +TOP-INSET+)
+          (gp:with-graphics-translation
+              (pane (box-left box) (box-top box))
             (get-graphics-state pane)
             )))
       )))

@@ -2,7 +2,7 @@
 (in-package :plotter)
 
 ;; Plotting region inset to accommotate axis labels
-(defconstant +LEFT-INSET+   30)
+(defconstant +LEFT-INSET+   32)
 (defconstant +TOP-INSET+    20)
 (defconstant +RIGHT-INSET+  15)
 (defconstant +BOTTOM-INSET+ 35)

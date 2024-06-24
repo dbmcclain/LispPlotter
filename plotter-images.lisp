@@ -179,6 +179,8 @@
                       (yorg 0)
                       (magn 1)
                       clear
+                      flipv
+                      fliph
                       &allow-other-keys)
   "Internal workhorse routine for TVSCL."
   (let ((pane (plotter-pane-of pane)))
@@ -201,14 +203,20 @@
                                         :to-height   (* magn ht)
                                         :from-width  wd
                                         :from-height ht))
-                       )))
+                       ))
+             (xrange (if fliph
+                         `(,wd 0)
+                       `(0 ,wd)))
+             (yrange (if flipv
+                         `(,ht 0)
+                       `(0 ,ht))))
         ;; this scaling gives the unflipped origin at the LLC
         ;; with positive Y values upward, positive X values rightward
         (pw-init-xv-yv pane (vector 0 wd) (vector 0 ht)
-                       :xrange `(0 ,wd)
-                       :yrange `(0 ,ht)
-                       :magn   magn
-                       :aspect 1)
+                       :box    `(0 0 ,wd ,ht)
+                       :xrange xrange
+                       :yrange yrange
+                       :magn   magn)
         (augment-display-list pane action clear)
         ))))
 
