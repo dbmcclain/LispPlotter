@@ -54,6 +54,7 @@
                         (1- ht))))
     (declare (fixnum wd ht first-row))
 
+    #|
     (let ((xform     (gp:make-transform))
           (inv-xform (gp:make-transform)))
       
@@ -68,6 +69,7 @@
 
       (setf (plotter-xform     pane) xform
             (plotter-inv-xform pane) inv-xform))
+    |#
     
     (with-image (pane (img #-:WIN32 (gp:make-image pane wd ht)
                            #+:WIN32 (gp:make-image pane wd ht :alpha nil)
