@@ -36,7 +36,7 @@
     img))
 
 ;; -----------------------------------------------------
-
+#|
 (defun do-convert-array-to-color-image-for-pane (arr pane continuation
                                                       &key
                                                       (colormap *current-colormap*)
@@ -161,6 +161,151 @@
         (gp:image-access-transfer-to-image acc))
       
       (funcall continuation img)) ))
+|#
+(defun do-convert-array-to-color-image-for-pane (arr pane continuation
+                                                      &key
+                                                      (colormap *current-colormap*)
+                                                      first-row
+                                                      zrange
+                                                      zlog
+                                                      flipv
+                                                      fliph
+                                                      neg
+                                                      (magn 1)
+                                                      &allow-other-keys)
+  (let* ((wd   (array-dimension-of arr 1))
+         (ht   (array-dimension-of arr 0))
+         (first-row (or first-row
+                        (1- ht))))
+    (declare (fixnum wd ht first-row))
+
+    #|
+    (let ((xform     (gp:make-transform))
+          (inv-xform (gp:make-transform)))
+      
+      (gp:apply-translation xform
+                            (if fliph (1- wd) 0)
+                            (if flipv 0       (1- ht)))
+      (gp:apply-scale xform
+                      (if fliph (- magn) magn)
+                      (if flipv magn     (- magn)))
+      
+      (gp:invert-transform xform inv-xform)
+
+      (setf (plotter-xform     pane) xform
+            (plotter-inv-xform pane) inv-xform))
+    |#
+    
+    (with-image (pane (img #-:WIN32 (gp:make-image pane wd ht)
+                           #+:WIN32 (gp:make-image pane wd ht :alpha nil)
+                           ))
+      (with-image-access (acc (gp:make-image-access pane img))
+        
+        (gp:image-access-transfer-from-image acc)
+        (let* ((bgra-vector (make-array (* ht wd 4)
+                                        :element-type '(unsigned-byte 8)))
+               (bgra  (make-array `(,ht ,wd 4)
+                                  :element-type '(unsigned-byte 8)
+                                  :displaced-to bgra-vector)))
+          
+          (labels ((z-value (z)
+                     (let ((zval (if zlog
+                                     (log (1+ z))
+                                   z)))
+                       (if neg (- zval) zval))
+                     ))
+            
+            (destructuring-bind (mn mx)
+                (destructuring-bind (mn mx)
+                    (mapcar #'z-value
+                            (or zrange
+                                (multiple-value-list (vextrema-of arr))))
+                  (if neg
+                      `(,mx ,mn)
+                    `(,mn ,mx)))
+              
+              (let* ((gsf  (let ((diff (- mx mn)))
+                             (if (zerop diff)
+                                 0
+                               (/ 255 diff))))
+                     (xcolors  (rest (or (let ((cmap (cached-cmap pane)))
+                                           (and cmap
+                                                (eql colormap (first cmap))
+                                                cmap))
+                                         (setf (cached-cmap pane)
+                                               (cons colormap (make-array 256))) ))))
+                
+                (labels ((convert-to-color (v)
+                           (let* ((cix  (round (* gsf (- (clip (z-value v) mn mx) mn)))))
+                             (declare (fixnum cix))
+                             
+                             (or (aref xcolors cix)
+                                 (setf (aref xcolors cix)
+                                       (color:convert-color pane
+                                                            (aref colormap cix)))) ))
+                         
+                         (xfer-line (src-row dst-row)
+                           (declare (fixnum src-row dst-row))
+                           
+                           (labels ((xfer-pixel (src-col dst-col)
+                                    (declare (fixnum src-col dst-col))
+                                    #|
+                                    (setf (gp:image-access-pixel acc dst-col dst-row)
+                                          (convert-to-color
+                                           (aref-of arr src-row src-col)))
+                                    |#
+                                    (let* ((v   (aref-of arr src-row src-col))
+                                           (cix (round (* gsf (- (clip (z-value v) mn mx) mn))))
+                                           (pix (aref colormap cix)))
+                                      (declare (fixnum cix))
+                                      (setf (aref bgra dst-row dst-col 0)  (round (color:color-blue  pix) 1/255)
+                                            (aref bgra dst-row dst-col 1)  (round (color:color-green pix) 1/255)
+                                            (aref bgra dst-row dst-col 2.) (round (color:color-red   pix) 1/255)
+                                            (aref bgra dst-row dst-col 3.) 255.
+                                            ))
+                                    ))
+                             (if fliph
+                                 ;; put origin at the right
+                                 (loop for src-col fixnum from (1- wd) downto 0
+                                       for dst-col fixnum from 0 do
+                                         (xfer-pixel src-col dst-col))
+                               ;; else - default has origin on the left
+                               (loop for col fixnum from 0 below wd do
+                                       (xfer-pixel col col)) ))))
+                  
+                  ;; split the conversion into two portions to allow
+                  ;; for scrolling waterfall displays. Top line indicated by
+                  ;; keyword parameter :first-row
+                  
+                  ;; NOTE: image addressing is upside down vertically.
+                  ;; We display, by default (- not flipped -), so that
+                  ;; the origin of the array is shown at the lower left
+                  ;; corner.
+
+                  (if flipv
+                      (progn
+                        ;; put origin at the top, instead of bottom
+                        (loop for src-row fixnum from first-row downto 0
+                              for dst-row fixnum from (1- ht) by -1 do
+                                (xfer-line src-row dst-row))
+                        (loop for src-row fixnum from (1- ht) above first-row
+                              for dst-row fixnum from (- ht first-row 2) by -1 do
+                                (xfer-line src-row dst-row)))
+                    ;; else
+                    (progn
+                      ;; default has origin at bottom
+                      (loop for src-row fixnum from first-row downto 0
+                            for dst-row fixnum from 0 do
+                              (xfer-line src-row dst-row))
+                      (loop for src-row fixnum from (1- ht) above first-row
+                            for dst-row fixnum from (1+ first-row) do
+                              (xfer-line src-row dst-row))))
+                  (gp:image-access-pixels-from-bgra acc bgra-vector)
+                  )))))
+            
+        (gp:image-access-transfer-to-image acc)
+        (funcall continuation img)
+        ))))
 
 (defmacro with-array-converted-to-color-image-for-pane ((arr pane img args)
                                                         &body body)
