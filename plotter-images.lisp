@@ -152,10 +152,11 @@
                             for dst-row fixnum from (1+ first-row)
                             do
                               (qxfer-line src-row dst-row))))
-                  (ac:ask (ac:fork (farmer 0)
-                                   (farmer 1)
-                                   (farmer 2)
-                                   (farmer 3)))
+                  (ac:with-recursive-ask
+                    (ac:ask (ac:fork (farmer 0)
+                                     (farmer 1)
+                                     (farmer 2)
+                                     (farmer 3))))
                   bgra-vec
                   ))
               ))
