@@ -50,115 +50,111 @@
                             (colormap *current-colormap*)
                             &allow-other-keys)
   #F
-  (labels ((z-value (z)
-             (let ((zval (if zlog
-                             (log (1+ z))
-                           z)))
-               (if neg (- zval) zval))))
+  (flet ((z-value (z)
+           (let ((zval (if zlog
+                           (log (1+ z))
+                         z)))
+             (if neg (- zval) zval))))
     
-    (let+ (((mn mx)  (mapcar #'z-value
-                             (or zrange
-                                 (multiple-value-list (vextrema-of arr)))))
-           ((mn mx)  (if neg
-                         `(,mx ,mn)
-                       `(,mn ,mx)))
-           (gsf  (let ((diff (- mx mn)))
-                     (if (zerop diff)
-                         0
-                       (/ 255. diff)))))
-      
-      (labels ((convert-to-cix (v)
-                 (round (* gsf (- (clip (z-value v) mn mx) mn)))))
-        
-        (let+ ((wd   (array-dimension-of arr 1))
-               (ht   (array-dimension-of arr 0))
-               (first-row (or first-row
-                              (1- ht)))
-               (bgra-vec (make-array (* ht wd 4)
-                                     :element-type '(unsigned-byte 8)))
-               (bgra  (make-array `(,ht ,wd 4)
+    (let+ (((mn mx)   (mapcar #'z-value
+                              (or zrange
+                                  (multiple-value-list (vextrema-of arr)))))
+           ((mn mx)   (if neg
+                          `(,mx ,mn)
+                        `(,mn ,mx)))
+           (gsf       (let ((diff (- mx mn)))
+                        (if (zerop diff)
+                            0
+                          (/ 255. diff))))
+           (wd        (array-dimension-of arr 1))
+           (ht        (array-dimension-of arr 0))
+           (first-row (or first-row
+                          (1- ht)))
+           (bgra-vec  (make-array (* ht wd 4)
+                                  :element-type '(unsigned-byte 8)))
+           (bgra      (make-array `(,ht ,wd 4)
                                   :element-type '(unsigned-byte 8)
-                                  :displaced-to  bgra-vec)))
-          ;; convert incoming data array into colormap image
-          (locally
-            (declare (fixnum wd ht first-row))
-            (labels ((xfer-line (src-row dst-row)
-                       (declare (fixnum src-row dst-row))
-                       
-                       (labels ((xfer-pixel (src-col dst-col)
-                                  (declare (fixnum src-col dst-col))
-                                  (let* ((v   (aref-of arr src-row src-col))
-                                         (cix (convert-to-cix v))
-                                         (pix (aref colormap cix)))
-                                    (declare (fixnum cix))
-                                    (setf (aref bgra dst-row dst-col 0)  (round (color:color-blue  pix) 1/255)
-                                          (aref bgra dst-row dst-col 1)  (round (color:color-green pix) 1/255)
-                                          (aref bgra dst-row dst-col 2.) (round (color:color-red   pix) 1/255)
-                                          (aref bgra dst-row dst-col 3.) 255.
-                                          ))
-                                  ))
-                         (if fliph
-                             ;; put origin at the right
-                             (loop for src-col fixnum from (1- wd) downto 0
-                                   for dst-col fixnum from 0 do
-                                     (xfer-pixel src-col dst-col))
-                           ;; else - default has origin on the left
-                           (loop for col fixnum from 0 below wd do
-                                   (xfer-pixel col col)) ))))
-              
-              ;; split the conversion into two portions to allow
-              ;; for scrolling waterfall displays. Top line indicated by
-              ;; keyword parameter :first-row
-              
-              ;; NOTE: image addressing is upside down vertically.
-              ;; We display, by default (- not flipped -), so that
-              ;; the origin of the array is shown at the lower left
-              ;; corner.
-              (let ((qs  (make-array 8 :initial-element nil))
-                    (qix 0))
-                
-                (labels ((qxfer-line (&rest args)
-                           (push args (aref qs (logand (incf qix) 7))
-                                 ))
-                         
-                         (farmer (lst)
-                           (ac:create
-                            (lambda (cust)
-                              (dolist (entry lst)
-                                (apply #'xfer-line entry))
-                              (ac:send cust))
-                              )))
-                         
-                  (if flipv
-                      (progn
-                        ;; put origin at the top, instead of bottom
-                        (loop for src-row fixnum from first-row downto 0
-                              for dst-row fixnum from (1- ht) by -1
-                              do
-                                (qxfer-line src-row dst-row))
-                        (loop for src-row fixnum from (1- ht) above first-row
-                              for dst-row fixnum from (- ht first-row 2) by -1
-                              do
-                                (qxfer-line src-row dst-row)))
-                    ;; else
-                    (progn
-                      ;; default has origin at bottom
-                      (loop for src-row fixnum from first-row downto 0
-                            for dst-row fixnum from 0
-                            do
-                              (qxfer-line src-row dst-row))
-                      (loop for src-row fixnum from (1- ht) above first-row
-                            for dst-row fixnum from (1+ first-row)
-                            do
-                              (qxfer-line src-row dst-row))))
-                  (ac:with-recursive-ask
-                    (ac:ask (apply #'ac:fork
-                                   (loop for q across qs collect
-                                           (farmer q))
-                                   )))
-                  bgra-vec
-                  ))
-              ))
+                                  :displaced-to  bgra-vec))
+           (qs        (make-array 8 :initial-element nil))
+           (qix       0))
+      ;; convert incoming data array into colormap image
+      (locally
+        (declare (fixnum wd ht first-row)
+                 (array (unsigned byte 8) bgra))
+        (labels ((convert-to-cix (v)
+                   (round (* gsf (- (clip (z-value v) mn mx) mn))))
+                 (xfer-line (src-row dst-row)
+                   (declare (fixnum src-row dst-row))
+                   
+                   (labels ((xfer-pixel (src-col dst-col)
+                              (declare (fixnum src-col dst-col))
+                              (let* ((v   (aref-of arr src-row src-col))
+                                     (cix (convert-to-cix v))
+                                     (pix (aref colormap cix)))
+                                (declare (fixnum cix))
+                                (setf (aref bgra dst-row dst-col 0)  (round (color:color-blue  pix) 1/255)
+                                      (aref bgra dst-row dst-col 1)  (round (color:color-green pix) 1/255)
+                                      (aref bgra dst-row dst-col 2.) (round (color:color-red   pix) 1/255)
+                                      (aref bgra dst-row dst-col 3.) 255.
+                                      ))
+                              ))
+                     (if fliph
+                         ;; put origin at the right
+                         (loop for src-col fixnum from (1- wd) downto 0
+                               for dst-col fixnum from 0 do
+                                 (xfer-pixel src-col dst-col))
+                       ;; else - default has origin on the left
+                       (loop for col fixnum from 0 below wd do
+                               (xfer-pixel col col)) )))
+          
+                 ;; split the conversion into two portions to allow
+                 ;; for scrolling waterfall displays. Top line indicated by
+                 ;; keyword parameter :first-row
+                 
+                 ;; NOTE: image addressing is upside down vertically.
+                 ;; We display, by default (- not flipped -), so that
+                 ;; the origin of the array is shown at the lower left
+                 ;; corner.
+                 (qxfer-line (&rest args)
+                   (push args (aref qs (logand (incf qix) 7))
+                         ))
+                 
+                 (farmer (lst)
+                   (ac:create
+                    (lambda (cust)
+                      (dolist (entry lst)
+                        (apply #'xfer-line entry))
+                      (ac:send cust))
+                    )))
+            
+          (if flipv
+              (progn
+                ;; put origin at the top, instead of bottom
+                (loop for src-row fixnum from first-row downto 0
+                      for dst-row fixnum from (1- ht) by -1
+                      do
+                        (qxfer-line src-row dst-row))
+                (loop for src-row fixnum from (1- ht) above first-row
+                      for dst-row fixnum from (- ht first-row 2) by -1
+                      do
+                        (qxfer-line src-row dst-row)))
+            ;; else
+            (progn
+              ;; default has origin at bottom
+              (loop for src-row fixnum from first-row downto 0
+                    for dst-row fixnum from 0
+                    do
+                      (qxfer-line src-row dst-row))
+              (loop for src-row fixnum from (1- ht) above first-row
+                    for dst-row fixnum from (1+ first-row)
+                    do
+                      (qxfer-line src-row dst-row))))
+          (ac:with-recursive-ask
+            (ac:ask (apply #'ac:fork
+                           (loop for q across qs collect
+                                   (farmer q))
+                           )))
+          bgra-vec
           )))))
 
 ;; -----------------------------------------------------------------------
