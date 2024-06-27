@@ -114,21 +114,20 @@
               ;; We display, by default (- not flipped -), so that
               ;; the origin of the array is shown at the lower left
               ;; corner.
-              (let ((qs  (vector nil nil nil nil))
+              (let ((qs  (make-array 8 :initial-element nil))
                     (qix 0))
                 
                 (labels ((qxfer-line (&rest args)
-                           (push args (aref qs (logand (incf qix) 3))
+                           (push args (aref qs (logand (incf qix) 7))
                                  ))
                          
-                         (farmer (ix)
-                           (let ((lst (aref qs ix)))
-                             (ac:create
-                              (lambda (cust)
-                                (dolist (entry lst)
-                                  (apply #'xfer-line entry))
-                                (ac:send cust))
-                              ))))
+                         (farmer (lst)
+                           (ac:create
+                            (lambda (cust)
+                              (dolist (entry lst)
+                                (apply #'xfer-line entry))
+                              (ac:send cust))
+                              )))
                          
                   (if flipv
                       (progn
@@ -153,10 +152,10 @@
                             do
                               (qxfer-line src-row dst-row))))
                   (ac:with-recursive-ask
-                    (ac:ask (ac:fork (farmer 0)
-                                     (farmer 1)
-                                     (farmer 2)
-                                     (farmer 3))))
+                    (ac:ask (apply #'ac:fork
+                                   (loop for q across qs collect
+                                           (farmer q))
+                                   )))
                   bgra-vec
                   ))
               ))
