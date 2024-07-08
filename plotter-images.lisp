@@ -54,7 +54,7 @@
                     (logand 7 (incf (splay-ix splay)))
                     ))) )
 
-(defgeneric perform (splay)
+(defgeneric performance (splay)
   (:method ((splay splay))
    (labels ((farmer (q)
               (ac:create
@@ -63,13 +63,17 @@
                    (apply (splay-fn splay) args))
                  (ac:send cust))
                )))
-     (ac:with-recursive-ask
-       (ac:ask (apply #'ac:fork
-                      (loop for q across (splay-qs splay) collect
-                              (farmer q))
-                      )))
-     )))
-        
+     (apply #'ac:fork
+            (loop for q across (splay-qs splay) collect
+                    (farmer q))
+            ))))
+
+(defgeneric perform (splay)
+  (:method ((splay splay))
+   (ac:with-recursive-ask
+     (ac:ask (performance splay)))
+   ))
+
 ;; -----------------------------------------------------------------------
 ;; Do the work of converting a 2D array of values into a color-mapped
 ;; image.  This can all be done ahead of time so that we only need to
@@ -248,7 +252,7 @@
          (yrange   (if flipv
                        `(,ht 0)
                      `(0 ,ht))))
-
+    
     ;; this scaling gives the unflipped origin at the LLC
     ;; with positive Y values upward, positive X values rightward
     (pw-init-xv-yv pane (vector 0 wd) (vector 0 ht)
