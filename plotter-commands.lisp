@@ -519,7 +519,7 @@
              :plot-joined t
              parms)
       (when symbol
-        (apply 'plot pane xs ys :clear nil :legend nil parms))
+        (apply 'plot pane xs ys :clear nil :legend nil :clear nil parms))
       )))
 
 #|

@@ -80,17 +80,14 @@
                              :full-crosshair     full-crosshair
                              :move-augmentation  move-augmentation
                              :click-augmentation click-augmentation
-                             ))
-        (wd    xsize)
-        (ht    ysize))
-    (setf (plotter-xmin pane) 0
-          (plotter-ymin pane) 0
-          (plotter-xmax pane) wd
-          (plotter-ymax pane) ht
-          (plotter-box  pane) (or box
-                                  (inset-box-sides
-                                   `(0 0 ,wd ,ht)
-                                   left-margin top-margin right-margin bottom-margin)))
+                             :xsize              xsize
+                             :ysize              ysize
+                             :left-margin        left-margin
+                             :top-margin         top-margin
+                             :right-margin       right-margin
+                             :bottom-margin      bottom-margin
+                             :box                box
+                             )))
     (make-instance window-class
                    :name           name
                    :title          title

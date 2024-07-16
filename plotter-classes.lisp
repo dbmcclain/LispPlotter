@@ -116,7 +116,7 @@
    (ymin          :accessor plotter-ymin           :initform 0.0d0)
    (ymax          :accessor plotter-ymax           :initform 1.0d0)
    
-   (box           :accessor plotter-box            :initform '(0 0 1 1))
+   (box           :accessor plotter-box            :initform nil  :initarg :box)
    (xform         :accessor plotter-xform          :initform (gp:make-transform))
    (inv-xform     :accessor plotter-inv-xform      :initform (gp:make-transform))
    (mask          :accessor plotter-mask           :initform '(0 0 0 0))
@@ -234,9 +234,23 @@
                  :crosshair)
    ))
 
-(defmethod initialize-instance :after ((pane plotter-pane) &key &allow-other-keys)
+(defmethod initialize-instance :after ((pane plotter-pane) &key
+                                       (xsize         400)
+                                       (ysize         300)
+                                       (left-margin   +left-inset+)
+                                       (top-margin    +top-inset+)
+                                       (right-margin  +right-inset+)
+                                       (bottom-margin +bottom-inset+)
+                                       &allow-other-keys)
   ;; make a backup copy for restore as needed
-  (setf (plotter-cursor pane) (capi:simple-pane-cursor pane)))
+  (setf (plotter-cursor pane) (capi:simple-pane-cursor pane))
+  (unless (plotter-box pane)
+    (setf (plotter-box pane) (inset-box-sides
+                              `(0 0 ,xsize ,ysize)
+                              left-margin  top-margin
+                              right-margin bottom-margin))
+    ))
+
 
 #+:WIN32
 (defmethod initialize-instance :after ((pane articulated-plotter-pane)
