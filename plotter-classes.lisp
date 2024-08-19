@@ -140,7 +140,6 @@
    (preferred-x   :accessor preferred-x                :initform nil)
    (preferred-y   :accessor preferred-y                :initform nil)
   
-   (notify-cust   :accessor plotter-notify-cust        :initform nil)
    (initial-gs    :accessor plotter-initial-gs         :initform nil)
    (plotting-gs   :accessor plotter-plotting-gs        :initform nil)
    (prev-frame    :accessor plotter-prev-frame         :initform nil)

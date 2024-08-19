@@ -113,8 +113,7 @@
                    (sf              plotter-sf            )
                    (port-width      gp:port-width         )
                    (port-height     gp:port-height        )
-                   (prev-frame      plotter-prev-frame    )
-                   (notify-cust  plotter-notify-cust      )) pane
+                   (prev-frame      plotter-prev-frame    )) pane
     ;; check if frame has moved or resized
     (capi:with-geometry pane
       (let ((frame  (list capi:%x% capi:%y% capi:%width% capi:%height%)))
@@ -127,7 +126,6 @@
           (recompute-plotting-state pane)
           )))
     (redraw-display-list pane x y width height :legend t)
-    ;; (ac:send-to-all (shiftf notify-cust nil) :done)
     ))
 
 ;; --------------------------------------------------
