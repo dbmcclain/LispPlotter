@@ -99,15 +99,13 @@
 
 ;; ------------------------------------------
 
-(defmethod capi:redisplay-element :around ((pane plotter-pane) &optional x y width height)
-  (without-capi-contention pane
-    (if (zerop (plotter-delayed-update pane))
-        (call-next-method)
-      (pushnew (list x y width height) (plotter-delayed-damage pane)
-               :test #'equalp))
-    ))
+(defmethod capi:redisplay-element ((pane plotter-pane) &optional x y width height)
+  (if (zerop (plotter-delayed-update pane))
+      (call-next-method)
+    (pushnew (list x y width height) (plotter-delayed-damage pane)
+             :test #'equalp)))
   
-(defmethod redraw-entire-pane ((pane plotter-pane))
+(defun redraw-entire-pane (pane)
   (capi:redisplay-element pane))
 
 (defun update-pane (pane &rest region) ;; x y wd ht
@@ -115,23 +113,15 @@
 
 ;; ---------------------------------------------------------------
 
-(defmethod begin-update ((pane plotter-pane))
-  (without-capi-contention pane
-    (prog1
-        (plotter-delayed-update pane)
-      (incf (plotter-delayed-update pane)))
-    ))
+(defun begin-update (pane)
+  (incf (plotter-delayed-update pane)))
 
-(defmethod end-update ((pane plotter-pane) &optional notifying)
-  (without-capi-contention pane
-    (when notifying
-      (pushnew notifying (plotter-notify-cust pane))
-      (unless (plotter-delayed-damage pane) ;; ensure we get notified
-        (redraw-entire-pane pane)))
-    (when (zerop (decf (plotter-delayed-update pane)))
-      (dolist (region (shiftf (plotter-delayed-damage pane) nil))
-        (apply #'capi:redisplay-element pane region)))
-    ))
+(defun end-update (pane &optional notifying)
+  (when notifying
+    (pushnew notifying (plotter-notify-cust pane)))
+  (when (zerop (decf (plotter-delayed-update pane)))
+    (dolist (region (shiftf (plotter-delayed-damage pane) nil))
+      (apply #'capi:redisplay-element pane region))))
   
 (defun do-with-delayed-update (pane notifying fn)
   (let ((the-pane (plotter-pane-of pane)))
@@ -149,6 +139,7 @@
 
 ;; ------------------------------------------------------------------
 
+#|
 (defun do-wait-until-finished (pane timeout fn)
   (let ((mbox     (mp:make-mailbox))
         (the-pane (plotter-pane-of pane)))
@@ -163,6 +154,7 @@
 (defmacro wait-until-finished ((pane &key timeout) &body body)
   `(do-wait-until-finished ,pane ,timeout (lambda ()
                                            ,@body)))
+|#
 
 #|
 ;; test delayed updates -- entire composite plot should appear at one time

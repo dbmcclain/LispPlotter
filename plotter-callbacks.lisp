@@ -101,13 +101,11 @@
 ;; --------------------------------------------------
 
 (defmethod display-callback :around ((pane plotter-pane) x y width height)
-  (with-accessors ((delayed       plotter-delayed-update)
-                   (copy-oper     plotter-copy-oper     )) pane
-    (when (zerop delayed)
-      (call-next-method)
-      (when copy-oper
-        (funcall (shiftf copy-oper nil)))
-      )))
+  (with-accessors ((copy-oper  plotter-copy-oper)) pane
+    (call-next-method)
+    (when copy-oper
+      (funcall (shiftf copy-oper nil)))
+    ))
 
 (defmethod display-callback ((pane plotter-pane) x y width height)
   (with-accessors ((nominal-width   plotter-nominal-width )
