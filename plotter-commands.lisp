@@ -109,7 +109,7 @@
                    
                     &allow-other-keys)
   (let ((pane  (plotter-pane-of pane args)))
-    (with-delayed-update (pane)
+    (with-delayed-update pane
       (let+ ((:mvb (xvf yvf)
               (cond (xv
                      (filter-potential-x-y-nans-and-infinities xv yv xlog ylog))
@@ -167,7 +167,7 @@
                         
                          &allow-other-keys)
   (let ((pane  (plotter-pane-of pane args)))
-    (with-delayed-update (pane)
+    (with-delayed-update pane
       (let+ ((fresh (or clear
                         (display-list-empty-p pane)))
              (augm-args (if fresh
@@ -246,7 +246,7 @@
   ;; allow a list of yvectors to be given
   ;; so that we can find the best fitting autoscale that accommodates all of them
   (let ((pane (plotter-pane-of pane args)))
-    (with-delayed-update (pane)
+    (with-delayed-update pane
       (multiple-value-bind (xv yv)
           (let ((ylist (remove nil (um:mklist yvectors))))
             (unless (lw:sequencep (first ylist))
@@ -505,7 +505,7 @@
          (spl    (interpolation:spline spl-xs spl-ys :natural :natural))
          (dom    (list (min-of xs) (max-of xs)))
          (symbol (getf parms :symbol)))
-    (with-delayed-update (pane)
+    (with-delayed-update pane
       (apply 'fplot pane dom
              (lambda (x)
                (let ((yval (interpolation:splint spl (if xlog

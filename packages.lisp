@@ -74,6 +74,8 @@
    #:help
    #:set-move-augmentation
    #:set-click-augmentation
+
+   #:plotter-pane-of
    ))
 
 #|

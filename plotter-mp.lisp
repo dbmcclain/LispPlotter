@@ -116,24 +116,22 @@
 (defun begin-update (pane)
   (incf (plotter-delayed-update pane)))
 
-(defun end-update (pane &optional notifying)
-  (when notifying
-    (pushnew notifying (plotter-notify-cust pane)))
+(defun end-update (pane)
   (when (zerop (decf (plotter-delayed-update pane)))
     (dolist (region (shiftf (plotter-delayed-damage pane) nil))
       (apply #'capi:redisplay-element pane region))))
   
-(defun do-with-delayed-update (pane notifying fn)
+(defun do-with-delayed-update (pane fn)
   (let ((the-pane (plotter-pane-of pane)))
     (begin-update the-pane)
     (unwind-protect
         (funcall fn)
-      (end-update the-pane notifying))
+      (end-update the-pane))
     ))
 
 ;; user callable macro
-(defmacro with-delayed-update ((pane &key notifying) &body body)
-  `(do-with-delayed-update ,pane ,notifying
+(defmacro with-delayed-update (pane &body body)
+  `(do-with-delayed-update ,pane
     (lambda ()
       ,@body)))
 

@@ -127,7 +127,7 @@
           (recompute-plotting-state pane)
           )))
     (redraw-display-list pane x y width height :legend t)
-    (ac:send-to-all (shiftf notify-cust nil) :done)
+    ;; (ac:send-to-all (shiftf notify-cust nil) :done)
     ))
 
 ;; --------------------------------------------------
