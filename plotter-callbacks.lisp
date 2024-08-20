@@ -93,8 +93,7 @@
 
 (defmethod redraw-display-list ((pane plotter-pane) x y width height &key legend)
   (discard-legends pane)
-  (dolist (item (display-list-items pane))
-    (funcall item pane x y width height))
+  (perform-display-list-items pane x y width height)
   (when legend
     (draw-accumulated-legend pane)) )
 

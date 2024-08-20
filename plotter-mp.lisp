@@ -93,12 +93,6 @@
 
 ;; ------------------------------------------
 
-(defmethod display-list-empty-p ((pane plotter-pane))
-  (without-capi-contention pane
-    (zerop (length (plotter-display-list pane)))))
-
-;; ------------------------------------------
-
 (defmethod capi:redisplay-element ((pane plotter-pane) &optional x y width height)
   (if (zerop (plotter-delayed-update pane))
       (call-next-method)

@@ -388,25 +388,27 @@
 
 ;; -------------------------------------------------------------------
 
+(defun display-list-empty-p (pane)
+  (zerop (fill-pointer (plotter-display-list pane))))
+
 (defun append-display-list (pane item)
   (when item
     (vector-push-extend item (plotter-display-list pane))
     (update-pane pane)))
 
 (defun discard-display-list (pane)
-  #|
-  (setf (plotter-delayed-damage pane) nil
-        (plotter-delayed-update pane) 0)
-  |#
-  (setf (fill-pointer (plotter-display-list pane)) 0
-        (fill-pointer (plotter-legend-info  pane)) 0))
+  (setf (fill-pointer (plotter-display-list pane)) 0))
 
-(defun display-list-items (pane &key discard)
-  (prog1
-      (coerce (plotter-display-list pane) 'list)
-    (when discard
-      (setf (fill-pointer (plotter-display-list pane)) 0))
-    ))
+(defun augment-display-list (pane action fresh)
+  (when fresh
+    (discard-display-list pane))
+  (append-display-list pane action))
+
+(defun perform-display-list-items (pane &rest args)
+  (loop for fn across (plotter-display-list pane) do
+          (apply fn pane args)))
+
+;; -------------------------------------------------------------
 
 (defun append-legend (pane item)
   (vector-push-extend item (plotter-legend-info pane)))

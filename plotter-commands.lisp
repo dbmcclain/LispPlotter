@@ -12,19 +12,6 @@
 
 ;; -------------------------------------------------------------------
 
-(defun augment-display-list (pane action fresh)
-  ;; Set up the pane to peform work in the CAPI thread.
-  (without-capi-contention pane
-    ;; it is probably a bad idea to mutate the display list from any
-    ;; but the CAPI thread. The pane might already be displayed and
-    ;; there could be an update in progress.
-    (when fresh
-      (discard-display-list pane))
-    (append-display-list pane action)
-    (redraw-entire-pane pane)))
-
-;; -------------------------------------------------------------------
-
 (defun draw-shape (shape pane x0 y0
                          &rest args
                          &key
