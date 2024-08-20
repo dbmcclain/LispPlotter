@@ -104,6 +104,39 @@
    (dy          :accessor dy          :initform 0)
    ))
 
+;; -------------------------------------------------------------------
+;; FIFO Queue
+
+(defclass fifo ()
+  ((hd   :accessor fifo-hd  :initform nil)
+   (tl   :accessor fifo-tl  :initform nil)))
+
+(defun make-fifo ()
+  (make-instance 'fifo))
+
+(defmethod qitems ((q fifo))
+  (fifo-hd q))
+
+(defmethod qnel ((q fifo))
+  (length (fifo-hd q)))
+
+(defmethod qempty? ((q fifo))
+  (null (fifo-hd q)))
+
+(defmethod qclr ((q fifo))
+  (setf (fifo-hd q) nil
+        (fifo-tl q) nil))
+
+(defmethod qadd ((q fifo) item)
+  (if (fifo-tl q)
+      (setf (fifo-tl q)
+            (setf (cdr (fifo-tl q)) (list item)))
+    (setf (fifo-hd q)
+          (setf (fifo-tl q) (list item)))
+    ))
+
+;; -------------------------------------------------------------------
+
 (defclass plotter-pane (capi:output-pane)
   ;; stuff used by 2-D plot scaling and plotting
   ;; The mixin has all the information needed to produce plots
@@ -120,7 +153,7 @@
    (xform         :accessor plotter-xform          :initform (gp:make-transform))
    (inv-xform     :accessor plotter-inv-xform      :initform (gp:make-transform))
    (mask          :accessor plotter-mask           :initform '(0 0 0 0))
-   (dlist         :accessor plotter-display-list   :initform (make-array 16 :adjustable t :fill-pointer 0))
+   (dlist         :accessor plotter-display-list   :initform (make-fifo))
    (delayed       :accessor plotter-delayed-update :initform 0)
    (damage        :accessor plotter-delayed-damage :initform nil)
    (aspect        :accessor plotter-aspect         :initform nil)
@@ -132,7 +165,7 @@
    (sf            :accessor plotter-sf    :initform 1)
    (magn          :accessor plotter-magn  :initform 1)
 
-   (legend-info   :accessor plotter-legend-info        :initform (make-array 16 :adjustable t :fill-pointer 0))
+   (legend-info   :accessor plotter-legend-info        :initform (make-fifo))
    (legend-x      :accessor plotter-legend-x           :initform '(:frac 0.05))
    (legend-y      :accessor plotter-legend-y           :initform '(:frac 0.95))
    (legend-anchor :accessor plotter-legend-anchor      :initform :auto)
@@ -388,16 +421,16 @@
 
 ;; -------------------------------------------------------------------
 
-(defun display-list-empty-p (pane)
-  (zerop (fill-pointer (plotter-display-list pane))))
-
 (defun append-display-list (pane item)
   (when item
-    (vector-push-extend item (plotter-display-list pane))
+    (qadd (plotter-display-list pane) item)
     (update-pane pane)))
 
 (defun discard-display-list (pane)
-  (setf (fill-pointer (plotter-display-list pane)) 0))
+  (qclr (plotter-display-list pane)))
+
+(defun display-list-empty-p (pane)
+  (qempty? (plotter-display-list pane)))
 
 (defun augment-display-list (pane action fresh)
   (when fresh
@@ -405,23 +438,22 @@
   (append-display-list pane action))
 
 (defun perform-display-list-items (pane &rest args)
-  (loop for fn across (plotter-display-list pane) do
+  (loop for fn in (qitems (plotter-display-list pane)) do
           (apply fn pane args)))
 
 ;; -------------------------------------------------------------
 
 (defun append-legend (pane item)
-  (vector-push-extend item (plotter-legend-info pane)))
+  (qadd (plotter-legend-info pane) item))
 
 (defun discard-legends (pane)
-  (setf (fill-pointer (plotter-legend-info pane)) 0))
+  (qclr (plotter-legend-info pane)))
 
 (defun have-legends-p (pane)
-  (plusp (fill-pointer (plotter-legend-info pane))))
+  (qitems (plotter-legend-info pane)))
 
 (defun all-legends (pane)
-  (when (have-legends-p pane)
-    (plotter-legend-info pane)))
+  (qitems (plotter-legend-info pane)))
 
 ;; --------------------------------------------------------------------
 

@@ -19,7 +19,7 @@
           (multiple-value-bind (txtwd txtht)
               (let ((maxwd   0)
                     (maxht   0))
-                (loop for item across items do
+                (dolist (item items)
                   (multiple-value-bind (lf tp rt bt)
                       (gp:get-string-extent pane (legend item) font)
                     (setf maxwd   (max maxwd (- rt lf))
@@ -70,7 +70,7 @@
                                                  :magenta
                                                :black))
                 
-              (loop for item across items
+              (loop for item in items
                     for y from (+ y effht1 1) by effht1
                     do
                       (let* ((line-style   (line-style   item))
