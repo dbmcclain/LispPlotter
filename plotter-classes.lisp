@@ -128,11 +128,12 @@
         (fifo-tl q) nil))
 
 (defmethod qadd ((q fifo) item)
-  (if (fifo-tl q)
-      (setf (fifo-tl q)
-            (setf (cdr (fifo-tl q)) (list item)))
-    (setf (fifo-hd q)
-          (setf (fifo-tl q) (list item)))
+  (let ((lst (list item)))
+    (if (fifo-tl q)
+        (setf (fifo-tl q)
+              (setf (cdr (fifo-tl q)) lst))
+      (setf (fifo-hd q)
+            (setf (fifo-tl q) lst)))
     ))
 
 ;; -------------------------------------------------------------------
