@@ -65,6 +65,7 @@
       (apply 'sync-with-capi layout fn args))
     ))
 
+#|
 ;; ------------------------------------------
 ;; WITHOUT-CAPI-CONTENTION - perform an action synchronously, without
 ;; race conditions against CAPI, on data that is shared with the CAPI
@@ -90,7 +91,7 @@
 (defmacro without-capi-contention (pane &body body)
   `(do-without-capi-contention ,pane (lambda ()
                                        ,@body)))
-
+|#
 ;; ------------------------------------------
 
 (defmethod capi:redisplay-element ((pane plotter-pane) &optional x y width height)

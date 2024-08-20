@@ -152,20 +152,17 @@
         ;; from screen coords to function space coords.
         ;; ---------------------------------------------------------------
 
-        ;; Since we are mutating pane items, we need to be sure we
-        ;; aren't facing a potential race condition with CAPI.
-        (without-capi-contention pane
-          (setf (plotter-box    pane) box
-                (plotter-xmin   pane) xmin
-                (plotter-xmax   pane) xmax
-                (plotter-ymin   pane) ymin
-                (plotter-ymax   pane) ymax
-                (plotter-xlog   pane) xlog
-                (plotter-ylog   pane) ylog
-                (plotter-aspect pane) aspect
-                (plotter-magn   pane) magn
-                (plotter-xform  pane) xform)
-          (recompute-transform pane))
+        (setf (plotter-box    pane) box
+              (plotter-xmin   pane) xmin
+              (plotter-xmax   pane) xmax
+              (plotter-ymin   pane) ymin
+              (plotter-ymax   pane) ymax
+              (plotter-xlog   pane) xlog
+              (plotter-ylog   pane) ylog
+              (plotter-aspect pane) aspect
+              (plotter-magn   pane) magn
+              (plotter-xform  pane) xform)
+        (recompute-transform pane)
         ))
     ))
 
