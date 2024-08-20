@@ -19,7 +19,7 @@
           (multiple-value-bind (txtwd txtht)
               (let ((maxwd   0)
                     (maxht   0))
-                (dolist (item items)
+                (loop for item across items do
                   (multiple-value-bind (lf tp rt bt)
                       (gp:get-string-extent pane (legend item) font)
                     (setf maxwd   (max maxwd (- rt lf))
@@ -70,7 +70,7 @@
                                                  :magenta
                                                :black))
                 
-              (loop for item in items
+              (loop for item across items
                     for y from (+ y effht1 1) by effht1
                     do
                       (let* ((line-style   (line-style   item))
@@ -125,10 +125,9 @@
 (defun draw-accumulated-legend (pane)
   (let ((items  (all-legends pane))
         (legend (plotter-legend pane)))
-    
     (cond ((null items)
            (setf (has-content legend) nil))
-          
+
           ((activep legend)
            (setf (has-content legend) items)
            (internal-draw-existing-legend pane))

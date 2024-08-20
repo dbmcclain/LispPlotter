@@ -413,18 +413,15 @@
 (defun append-legend (pane item)
   (vector-push-extend item (plotter-legend-info pane)))
 
-(defun all-legends (pane &key discard)
-  (prog1
-      (coerce (plotter-legend-info pane) 'list)
-    (when discard
-      (setf (fill-pointer (plotter-legend-info pane)) 0))
-    ))
-
 (defun discard-legends (pane)
   (setf (fill-pointer (plotter-legend-info pane)) 0))
 
 (defun have-legends-p (pane)
-  (plusp (length (plotter-legend-info pane))))
+  (plusp (fill-pointer (plotter-legend-info pane))))
+
+(defun all-legends (pane)
+  (when (have-legends-p pane)
+    (plotter-legend-info pane)))
 
 ;; --------------------------------------------------------------------
 
