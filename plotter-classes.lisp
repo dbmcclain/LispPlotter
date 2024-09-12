@@ -222,8 +222,7 @@
   ;; The pane adds something to draw on...
   ;; And it also adds some user gestures and any display related items
   ;; like cross hairs, cursors, backing images, etc.
-  (;; (backing-pixmap  :accessor plotter-backing-pixmap :initform nil)
-   (full-crosshair  :accessor plotter-full-crosshair :initform nil   :initarg :full-crosshair)
+  ((full-crosshair  :accessor plotter-full-crosshair :initform nil   :initarg :full-crosshair)
    (prev-x          :accessor plotter-prev-x         :initform nil)
    (prev-y          :accessor plotter-prev-y         :initform nil)
    (x-ro-hook       :accessor plotter-x-readout-hook :initform #'identity)
@@ -293,9 +292,7 @@
           (complementary-color pane full-crosshair background))))
                                
 (defun destroy-callback (pane)
-  (setf (plotter-valid pane) nil)
-  ;; (discard-backing-pixmap pane)
-  )
+  (setf (plotter-valid pane) nil))
 
 ;; ---------------------------------------------------------
 
