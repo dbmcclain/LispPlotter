@@ -177,7 +177,6 @@
    (initial-gs    :accessor plotter-initial-gs         :initform nil)
    (plotting-gs   :accessor plotter-plotting-gs        :initform nil)
    (prev-frame    :accessor plotter-prev-frame         :initform nil)
-   (plotter-valid :accessor plotter-valid              :initform t) ;; nil after destroy
    (cached-cmap   :accessor cached-cmap                :initform nil)
    (copy-oper     :accessor plotter-copy-oper          :initform nil)
    (move-augment  :accessor plotter-move-augment       :initform nil  :initarg :move-augmentation)
@@ -189,7 +188,6 @@
    :nominal-height     300
    :display-callback   'display-callback
    :resize-callback    'resize-callback
-   :destroy-callback   'destroy-callback
    :default-width      400
    :default-height     300
    :background :white
@@ -291,9 +289,6 @@
     (setf (plotter-full-crosshair pane)
           (complementary-color pane full-crosshair background))))
                                
-(defun destroy-callback (pane)
-  (setf (plotter-valid pane) nil))
-
 ;; ---------------------------------------------------------
 
 (defun make-copy-menu ()
