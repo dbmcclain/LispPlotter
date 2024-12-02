@@ -35,6 +35,5 @@
                 (:file "plotting"))
   :serial t
   :depends-on  ("com.ral.vmath"
-                "com.ral.regex"
                 "com.ral.useful-macros"))
 

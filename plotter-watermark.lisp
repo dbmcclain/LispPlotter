@@ -70,7 +70,8 @@
       ;; #+:COCOA "PROJECTS:LIB;AcudoraLogo.pdf"
       ;; #+:COCOA "PROJECTS:LIB;Logo75Img-Alpha20y-BlackBG.pdf"
       ;; "~/Desktop/Watermarks/graph_watermark1.jpg"
-      #+:WIN32 "PROJECTS:LIB;Logo75Img-Alpha20y-BlackBG.bmp"
+      ;; #+:WIN32 "PROJECTS:LIB;Logo75Img-Alpha20y-BlackBG.pdf"
+      #+:WIN32 "PROJECTS:LIB;Logo75Img-Alpha25x.bmp"
       ;; "Logo75Img-Alpha25y.bmp"
       #+:LINUX "~/Linux-stuff/Logo75Img-Alpha25y.bmp"
       ))))
