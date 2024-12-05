@@ -374,7 +374,7 @@
             (setf xform (gp:make-transform)
                   sf    1)
 
-            (redraw-display-list pane port 0 0 nominal-width nominal-height :legend t))
+            (redraw-display-list pane 0 0 nominal-width nominal-height :legend t))
         
         (progn
           (setf sf    save-sf
