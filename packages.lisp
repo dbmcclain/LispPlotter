@@ -76,6 +76,8 @@
    #:set-click-augmentation
 
    #:plotter-pane-of
+
+   #:clone-display-list
    ))
 
 #|

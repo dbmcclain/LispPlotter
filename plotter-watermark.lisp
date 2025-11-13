@@ -70,15 +70,14 @@
       ;; #+:COCOA "PROJECTS:LIB;AcudoraLogo.pdf"
       ;; #+:COCOA "PROJECTS:LIB;Logo75Img-Alpha20y-BlackBG.pdf"
       ;; "~/Desktop/Watermarks/graph_watermark1.jpg"
-      ;; #+:WIN32 "PROJECTS:LIB;Logo75Img-Alpha20y-BlackBG.pdf"
-      #+:WIN32 "PROJECTS:LIB;Logo75Img-Alpha25x.bmp"
+      #+:WIN32 "c:/Projects/lib/Logo75Img-Alpha20y-BlackBG.png"
       ;; "Logo75Img-Alpha25y.bmp"
       #+:LINUX "~/Linux-stuff/Logo75Img-Alpha25y.bmp"
       ))))
 
 (defvar *ext-logo-alpha* 1)
 
-(defvar *cright1* "Copyright (c) 2006-2024 by Refined Audiometrics Laboratory")
+(defvar *cright1* "Copyright (c) 2006-2025 by Refined Audiometrics Laboratory")
 (defvar *cright2* "All rights reserved.")
 
 (defun stamp-logo (pane logo logo-alpha)
@@ -118,7 +117,7 @@
   (let* ((box     (plotter-box pane))
          (font2   (find-best-font pane
                                   :size $tiny-times-font-size))
-         (color2  #.(color:make-gray 0.7)))    
+         (color2  #.(color:make-gray 0.7)))
     (stamp-logo pane logo logo-alpha)
     (let* ((left   18)
            (bottom (- (box-height box) 30)))

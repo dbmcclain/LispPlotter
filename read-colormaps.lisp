@@ -6,7 +6,7 @@
   rgb)
 
 (defun read-cmaps (&key (fname
-                         #+:MSWINDOWS "z:/usr/local/lib/nml/colortable.bin"
+                         #+:MSWINDOWS "c:/Projects/lib/nml/colortable.bin"
                          #+:MAC       "/usr/local/lib/nml/colortable.bin"
                          #+:LINUX     "~/Linux-stuff/colortable.bin"))
   (with-open-file (f fname

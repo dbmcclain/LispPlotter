@@ -36,7 +36,7 @@
   (let ((sf (plotter-sf pane))
         (x  (mark-x-raw pane))
         (y  (mark-y-raw pane)))
-    (with-color (pane (color:make-rgb 1 0 0))
+    (with-color (pane :magenta) ;; (color:make-rgb 1 0 0))
       (gp:with-graphics-state (pane
                                :dashed t
                                :dash '(4 2 2 2)
@@ -532,8 +532,8 @@
         (if (plotter-full-crosshair pane)
             (setf (plotter-prev-x pane) nil
                   (plotter-prev-y pane) nil)
-          #-:WIN32 :red
-          #+:WIN32 (complementary-color pane :red
+          #-:WIN32 :magenta
+          #+:WIN32 (complementary-color pane :magenta
                                         (background-color pane))))
   (redraw-entire-pane pane)
   )
@@ -545,6 +545,6 @@
         (if (plotter-full-crosshair pane)
             (setf (plotter-prev-x pane) nil
                   (plotter-prev-y pane) nil)
-          :red))
+          :magenta))
   (redraw-entire-pane pane))
 

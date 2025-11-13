@@ -69,17 +69,38 @@
 
 ;; ------------------------------------------------------------
 
-(defun tstw (pane)
-  (let* ((pane     (plotter-pane-of pane))
-         (flag     :not-yet))
+(defun tstw ()
+  (plt:fplot 'plt '(-10 10) (lambda (x) (/ (sin x) x)) :clear t)
+  (let* ((pane     (plotter-pane-of 'plt))
+         (flag     :SCHEDULED-FOR-FUTURE))
     (capi:apply-in-pane-process-wait-multiple pane nil
                                               (lambda ()
-                                                (setf flag :done)))
+                                                (setf flag :SYNCHRONOUSLY-EXECUTED)))
     flag))
 
 |#
-;; The fact that this produce :DONE shows that
+;; The fact that this produces :SYNCHRONOUSLY-EXECUTED shows that
 ;; APPLY-IN-PANE-PROCESS-WAIT-MULTIPLE synchronously executes the
 ;; function in sequence.
-(tstw 'plt)
+(tstw)
+|#
+;; --------------------------------------------
+
+(defun tstuu ()
+  (plt:fplot 'plt '(-10 10) (lambda (x) (/ (sin x) x)) :clear t)
+  (let* ((pane     (plotter-pane-of 'plt))
+         (flag     :scheduled-for-future))
+    (capi:apply-in-pane-process pane
+                                (lambda ()
+                                  (capi:apply-in-pane-process pane
+                                                              (lambda ()
+                                                                (setf flag :synchronously-performed)))
+                                  (ac:send ac:writeln flag)))
+    ))
+
+|#
+;; The fact that this produces :SYNCHRONOUSLY-PERFORMED shows that, in the CAPI process,
+;; APPLY-IN-PANE-PROCESS synchronously executes the function instead
+;; of scheduling for some future execution.
+(tstuu)
 |#

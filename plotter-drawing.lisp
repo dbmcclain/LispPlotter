@@ -278,16 +278,41 @@
                (symbol-style (and (not symbol-for-legend)
                                   (symbol-style plot-style)))
                (:mvb (_ y0) (gp:transform-point xform 0 0)))
-          (flet ((draw-lines ()
-                   (gp:with-graphics-state (pane
-                                            :thickness  (adjust-linewidth (line-thick line-style))
-                                            :foreground (adjust-color pane
-                                                                      (line-color line-style)
-                                                                      (line-alpha line-style))
-                                            :dashed     (line-dashing line-style)
-                                            :dash       (line-dashing line-style))
-                     (gp:draw-polygon pane prepped))
-                   ))
+          (labels (#| ;; issue was fixed by a private patch 24/09/23
+                   (draw-polygon (&rest args)
+                     ;; GP balks at very long lists of points. So draw
+                     ;; the polygon in chunks of 4096 elements (2048
+                     ;; x-y pairs).
+                     (when prepped
+                       (um:nlet iter ((pts  prepped)
+                                      (hd   (cddr prepped))
+                                      (ct   2046))
+                         (cond ((null hd)
+                                (apply #'gp:draw-polygon pane pts args))
+                               ((zerop ct)
+                                (let ((tl (cddr hd)))
+                                  (rplacd (cdr hd) nil)
+                                  (apply #'gp:draw-polygon pane pts args)
+                                  (when tl
+                                    (rplacd (cdr hd) tl)
+                                    (go-iter hd tl 2046))
+                                  ))
+                               (t
+                                (go-iter pts (cddr hd) (1- ct)))
+                               ))))
+                   |#
+                   (draw-lines ()
+                     (gp:with-graphics-state (pane
+                                              :thickness  (adjust-linewidth (line-thick line-style))
+                                              :foreground (adjust-color pane
+                                                                        (line-color line-style)
+                                                                        (line-alpha line-style))
+                                              :dashed     (line-dashing line-style)
+                                              :dash       (line-dashing line-style))
+                       (gp:draw-polygon pane prepped)
+                       ;; (draw-polygon)
+                       )
+                     ))
             (cond (symbol-style
                    (case (plot-symbol symbol-style)
                      
@@ -303,6 +328,7 @@
                                                  :filled t))
                           ;; else
                           (gp:draw-polygon pane prepped :filled t)
+                          ;; (draw-polygon :filled t)
                           )))
                      
                      (:sampled-data
@@ -338,6 +364,7 @@
                                                                          (line-color line-style)
                                                                          (line-alpha line-style)))
                         (gp:draw-polygon pane prepped)
+                        ;; (draw-polygon)
                         ))
                      
                      (otherwise

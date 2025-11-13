@@ -4,7 +4,7 @@
 (defvar *cross-cursor*
   (progn ;; ignore-errors
     (capi:load-cursor
-     `((:win32 ,(namestring (translate-logical-pathname "PROJECTS:LIB;cross-i.cur")))
+     `((:win32 ,(namestring "c:/Projects/lib/cross-i.cur"))
        #+nil
        (:cocoa ,(namestring (translate-logical-pathname
                              ;; "PROJECTS:LIB;crosshair2.gif"
@@ -288,7 +288,18 @@
   (when full-crosshair
     (setf (plotter-full-crosshair pane)
           (complementary-color pane full-crosshair background))))
-                               
+
+
+(defmethod clone-display-list ((dst plotter-pane) (src plotter-pane))
+  (capi:apply-in-pane-process dst
+                              (lambda ()
+                                (let* ((lst  (copy-list (qitems (plotter-display-list src))))
+                                       (fifo (plotter-display-list dst)))
+                                  (setf (fifo-hd fifo) lst
+                                        (fifo-tl fifo) (um:last1 lst))
+                                  (capi:redisplay-element dst)
+                                  ))))
+
 ;; ---------------------------------------------------------
 
 (defun make-copy-menu ()
