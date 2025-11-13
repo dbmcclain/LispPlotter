@@ -72,8 +72,8 @@
   (:method ((splay splay))
    (let ((um:*timeout* 3))
      (ac:with-recursive-ask
-       (ac:ask (performance splay)))
-     )))
+       (ac:ask (performance splay))))
+   ))
 
 ;; -----------------------------------------------------------------------
 ;; Do the work of converting a 2D array of values into a color-mapped
