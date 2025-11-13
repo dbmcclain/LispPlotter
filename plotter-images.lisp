@@ -70,7 +70,7 @@
 
 (defgeneric perform (splay)
   (:method ((splay splay))
-   (let ((um:*timeout* 3))
+   (um:with-timeout 3
      (ac:with-recursive-ask
        (ac:ask (performance splay))))
    ))
