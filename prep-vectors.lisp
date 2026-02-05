@@ -50,8 +50,8 @@
     (flet ((line-pairs ()
              (let* ((xfpairs (case plot-joined
                                ((:spline)
-                                (make-gpxform-pairs xform
-                                                    (make-pairs-for-spline pairs)))
+                                (make-gpxform-pairs (make-pairs-for-spline pairs)
+                                                    xform))
                                (otherwise
                                 xfpairs))
                              ))
