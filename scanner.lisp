@@ -228,7 +228,7 @@
                  :gpxform xform
                  ))
 
-(defmethod make-gpxform-pairs ((pairs <pair-scanner>) xform)
+(defmethod make-gpxform-pairs (xform (pairs <pair-scanner>))
   (make-instance '<gpxform-pair-scanner>
                  :xsrc  (pair-scanner-xsrc pairs)
                  :ysrc  (pair-scanner-ysrc pairs)
