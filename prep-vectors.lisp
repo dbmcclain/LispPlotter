@@ -17,7 +17,7 @@
 ;; coords and perform graphics state transforms along the way. That
 ;; would happen in any event.
 ;;
-(defun prep-vectors (pane xvector yvector
+(defun prep-vectors (plt xvector yvector
                           &key
                           plot-style
                           symbol-for-legend
@@ -29,9 +29,9 @@
          (nel          (if xvector
                            (min (length-of xvector) (length-of yvector))
                          (length-of yvector)))
-         (xlog         (plotter-xlog pane))
+         (xlog         (plotter-xlog plt))
          (xlogfn       (logfn xlog))
-         (ylog         (plotter-ylog pane))
+         (ylog         (plotter-ylog plt))
          (ylogfn       (logfn ylog))
          (xs           (let ((scanner (make-scanner (or xvector
                                                         nel))
@@ -44,7 +44,7 @@
                              (make-transformer scanner ylogfn)
                            scanner)))
          (pairs        (make-pair-scanner xs ys))
-         (xform        (plotter-xform pane))
+         (xform        (plotter-xform plt))
          (xfpairs      (make-gpxform-pairs xform pairs))
          (:mvb (x0 y0) (gp:transform-point xform 0 0)))
     (flet ((line-pairs ()
@@ -62,9 +62,9 @@
              (case (plot-symbol symbol-style)
                (:vbars
                 (if (bar-width symbol-style)
-                    (let* ((wd   (get-x-width pane (bar-width symbol-style)))
+                    (let* ((wd   (get-x-width plt (bar-width symbol-style)))
                            (off  (if (bar-offset symbol-style)
-                                     (get-x-width pane (bar-offset symbol-style))
+                                     (get-x-width plt (bar-offset symbol-style))
                                    0)
                                  ))
                       (vbar-rects xfpairs wd off y0))
@@ -76,9 +76,9 @@
                
                (:hbars
                 (if (bar-width symbol-style)
-                    (let* ((wd   (get-y-width pane (bar-width symbol-style)))
+                    (let* ((wd   (get-y-width plt (bar-width symbol-style)))
                            (off  (if (bar-offset symbol-style)
-                                     (get-y-width pane (bar-offset symbol-style))
+                                     (get-y-width plt (bar-offset symbol-style))
                                    0)
                                  ))
                       (hbar-rects xfpairs wd off x0))
@@ -88,12 +88,12 @@
                
                (:sampled-data
                 (values (line-pairs)
-                        (get-symbol-plotfn pane (symbol-style plot-style))
+                        (get-symbol-plotfn (display-pane-of plt) (symbol-style plot-style))
                         ))
                
                (otherwise
                 (values (line-pairs)
-                        (get-symbol-plotfn pane symbol-style)
+                        (get-symbol-plotfn (display-pane-of plt) symbol-style)
                         ))))
             
             (line-style
