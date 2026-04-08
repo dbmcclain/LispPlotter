@@ -80,16 +80,16 @@
 (defvar *cright1* "Copyright (c) 2006-2025 by Refined Audiometrics Laboratory")
 (defvar *cright2* "All rights reserved.")
 
-(defun stamp-logo (pane logo logo-alpha)
+(defun stamp-logo (port plt logo logo-alpha)
   ;; We are positioning inside the plotting region. Not the parent
   ;; frame. Position (0,0) refers to the top-left corner of the
   ;; plotting region. The axis labels are located outside of this
   ;; region.
   (when logo
-    (let* ((box (plotter-box pane))
+    (let* ((box (plotter-box plt))
            (bwd (box-width  box))
            (bht (box-height box)))
-      (with-converted-image (image logo pane)
+      (with-converted-image (image logo port)
         (unless (or (zerop (gp:image-width image))
                     (zerop (gp:image-height image)))
           (let* ((iwd  (gp:image-width  image))
@@ -100,9 +100,9 @@
                  (dht  (* sf iht))
                  (top  (* 0.5 (- bht dht)))
                  (left (* 0.5 (- bwd dwd))))
-            (gp:with-graphics-mask (pane
-                                    (plotter-mask pane))
-              (gp:draw-image pane image left top
+            (gp:with-graphics-mask (port
+                                    (plotter-mask plt))
+              (gp:draw-image port image left top
                              :from-width  iwd
                              :from-height iht
                              :to-width    dwd
@@ -113,21 +113,21 @@
             )))
       )))
 
-(defun watermark (pane logo logo-alpha cright1 cright2)
-  (let* ((box     (plotter-box pane))
-         (font2   (find-best-font pane
+(defun watermark (port plt logo logo-alpha cright1 cright2)
+  (let* ((box     (plotter-box plt))
+         (font2   (find-best-font port
                                   :size $tiny-times-font-size))
          (color2  #.(color:make-gray 0.7)))
-    (stamp-logo pane logo logo-alpha)
+    (stamp-logo port plt logo logo-alpha)
     (let* ((left   18)
            (bottom (- (box-height box) 30)))
-      (draw-string-x-y pane cright1
+      (draw-string-x-y port plt cright1
                        left (- bottom 11)
                        :x-alignment :left
                        :y-alignment :top
                        :font  font2
                        :color color2)
-      (draw-string-x-y pane cright2
+      (draw-string-x-y port plt cright2
                        left bottom
                        :x-alignment :left
                        :y-alignment :top

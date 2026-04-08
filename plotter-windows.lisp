@@ -191,12 +191,16 @@
     pane))
 
 ;; ------------------------------------------
+
+(defun find-or-make-pane (name &rest args)
+  (or (find-named-plotter-pane name)
+      (apply #'window name (append args *default-args*))))
+
 (defun wset (name &rest args &key clear &allow-other-keys)
   ;; If window exists don't raise it to the top.
   ;; If window does not exist then create it with default parameters.
   ;; Return the plotting pane object
-  (let ((pane (or (find-named-plotter-pane name)
-                  (apply #'window name (append args *default-args*))))) ;; locate existing or create anew
+  (let ((pane (apply #'find-or-make-pane name args)))
     (when clear
       (clear pane))
     pane))
@@ -205,8 +209,7 @@
 (defun wshow (name &rest args &key clear &allow-other-keys)
   ;; If window exists then raise it to the top.
   ;; If window does not exist then create it with default parameters
-  (let* ((pane (or (find-named-plotter-pane name)
-                   (apply #'window name (append args *default-args*))))  ;; locate existing or create anew
+  (let* ((pane (apply #'find-or-make-pane name args))
          (intf (capi:top-level-interface pane)))
     (capi:execute-with-interface intf
                                  #'capi:raise-interface intf)

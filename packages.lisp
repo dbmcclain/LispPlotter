@@ -16,6 +16,8 @@
    #:find-named-plotter-pane
    #:*plotter-window-class*
    #:plotter-window
+   #:plotter-mixin
+   #:plotter-pinboard-object
    #:plotter-pane
    #:articulated-plotter-pane
    #:window ;; these functions take a symbolic window id argument

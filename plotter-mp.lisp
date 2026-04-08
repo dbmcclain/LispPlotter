@@ -67,7 +67,7 @@
 
 ;; ------------------------------------------
 
-(defmethod capi:redisplay-element ((pane plotter-pane) &optional x y width height)
+(defmethod capi:redisplay-element ((pane plotter-mixin) &optional x y width height)
   (if (zerop (plotter-delayed-update pane))
       (call-next-method)
     (pushnew (list x y width height) (plotter-delayed-damage pane)
@@ -76,9 +76,10 @@
 (defun redraw-entire-pane (pane)
   (capi:redisplay-element pane))
 
+#|
 (defun update-pane (pane &rest region) ;; x y wd ht
   (apply #'capi:redisplay-element (plotter-pane-of pane) region))
-
+|#
 ;; ---------------------------------------------------------------
 
 (defun begin-update (pane)

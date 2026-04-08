@@ -3,14 +3,14 @@
 
 ;; ----------------------------------------------------------------
 
-(defun internal-draw-existing-legend (pane)
-  (let* ((legend (plotter-legend pane))
+(defun internal-draw-existing-legend (port plt)
+  (let* ((legend (plotter-legend plt))
          (items  (has-content legend)))
     (when items
-      (with-plotview-coords (pane)
-        (let* ((font1 (find-best-font pane
+      (with-plotview-coords (port plt)
+        (let* ((font1 (find-best-font port
                                       :size $tiny-times-font-size))
-               (font (find-best-font pane
+               (font (find-best-font port
                                      :size $tiny-times-font-size
                                      ;; :size $tiny-times-font-size
                                      ))
@@ -21,7 +21,7 @@
                     (maxht   0))
                 (dolist (item items)
                   (multiple-value-bind (lf tp rt bt)
-                      (gp:get-string-extent pane (legend item) font)
+                      (gp:get-string-extent port (legend item) font)
                     (setf maxwd   (max maxwd (- rt lf))
                           maxht   (max maxht (- bt tp))
                           )))
@@ -32,10 +32,10 @@
                    (effwd  totwd)
                    (effht  totht)
                    (effht1 txtht)
-                   (box    (plotter-box pane))
-                   (x      (or (preferred-x pane)
-                               (let ((x (get-x-location pane (plotter-legend-x pane))))
-                                 (ecase (plotter-legend-anchor pane)
+                   (box    (plotter-box plt))
+                   (x      (or (preferred-x plt)
+                               (let ((x (get-x-location plt (plotter-legend-x plt))))
+                                 (ecase (plotter-legend-anchor plt)
                                    (:auto         (if (> x (/ (box-width box) 2))
                                                       (- x effwd)
                                                     x))
@@ -43,9 +43,9 @@
                                    ((:ne :e :se)  x)
                                    ((:n  :ctr :s) (- x (/ effwd 2)))
                                    ))))
-                   (y      (or (preferred-y pane)
-                               (let ((y (get-y-location pane (plotter-legend-y pane))))
-                                 (case (plotter-legend-anchor pane)
+                   (y      (or (preferred-y plt)
+                               (let ((y (get-y-location plt (plotter-legend-y plt))))
+                                 (case (plotter-legend-anchor plt)
                                    (:auto         (if (> y (/ (box-height box) 2))
                                                       (- y effht)
                                                     y))
@@ -59,13 +59,13 @@
                     (width legend)  totwd
                     (height legend) totht)
                 
-              (gp:draw-rectangle pane x y effwd effht
+              (gp:draw-rectangle port x y effwd effht
                                  :filled t
-                                 :foreground (adjust-color pane
-                                                           (background-color pane)
+                                 :foreground (adjust-color port
+                                                           (background-color port)
                                                            0.75))
                 
-              (gp:draw-rectangle pane x y effwd effht
+              (gp:draw-rectangle port x y effwd effht
                                  :foreground (if (highlighted legend)
                                                  :magenta
                                                :black))
@@ -79,7 +79,7 @@
                         ;; ---------------------------------------------
                         (labels ((draw-line (&optional thickness)
                                    (gp:with-graphics-state
-                                       (pane
+                                       (port
                                         :thickness  (or thickness
                                                         (line-thick line-style))
                                         :dashed     (and line-style
@@ -87,14 +87,14 @@
                                         :dash       (and line-style
                                                          (line-dashing line-style))
                                         :foreground (if line-style
-                                                        (adjust-color pane
+                                                        (adjust-color port
                                                                       (line-color line-style)
                                                                       (line-alpha line-style))
-                                                      (adjust-color pane
+                                                      (adjust-color port
                                                                     (fill-color symbol-style)
                                                                     (fill-alpha symbol-style))))
                                      (let ((y (floor (- y (/ effht1 2)))))
-                                       (gp:draw-line pane
+                                       (gp:draw-line port
                                                      (+ x  3) y
                                                      (+ x 33) y)
                                        ))))
@@ -106,7 +106,7 @@
                                     (otherwise
                                      (when line-style
                                        (draw-line))
-                                     (funcall (get-symbol-plotfn pane symbol-style)
+                                     (funcall (get-symbol-plotfn port symbol-style)
                                               (+ x 18) (- y (/ effht1 2))
                                               ))
                                     ))
@@ -115,101 +115,101 @@
                                  ))
                           
                         ;; ---------------------------------------------
-                        (gp:draw-string pane (legend item) (+ x 36) (- y 3)
+                        (gp:draw-string port (legend item) (+ x 36) (- y 3)
                                         :font font1)
                         ))
               ))
           ))
       )))
 
-(defun draw-accumulated-legend (pane)
-  (let ((items  (all-legends pane))
-        (legend (plotter-legend pane)))
+(defun draw-accumulated-legend (plt)
+  (let ((items  (all-legends plt))
+        (legend (plotter-legend plt)))
     (cond ((null items)
            (setf (has-content legend) nil))
 
           ((activep legend)
            (setf (has-content legend) items)
-           (internal-draw-existing-legend pane))
+           (internal-draw-existing-legend (display-pane-of plt) plt))
           )))
 
-(defun refresh-view (pane x y w h)
+(defun refresh-view (plt x y w h)
   ;; Code to convert a plotter region rectangle to an absolute,
   ;; scaled, rectangle in the parent graphport.
   ;;
   ;; CAPI:REDISPLAY-ELEMENT is great, but it doesn't know anything
   ;; about graphics transforms.
   (let ((xform (gp:make-transform))
-        (sf    (plotter-sf pane))
-        (box   (plotter-box pane)))
+        (sf    (plotter-sf plt))
+        (box   (plotter-box plt)))
     (gp:apply-translation xform (box-left box) (box-top box))
     (gp:apply-scale xform sf sf)
     (multiple-value-bind (xp yp)
         (gp:transform-point xform x y)
       (multiple-value-bind (rp bp)
           (gp:transform-point xform (+ x w) (+ y h))
-        (capi:redisplay-element pane xp yp (- rp xp) (- bp yp))
+        (capi:redisplay-element plt xp yp (- rp xp) (- bp yp))
         ))
     ))
 
-(defun draw-existing-legend (pane legend)
+(defun draw-existing-legend (plt legend)
   (let* ((extra   2)
          (extra*2 (* 2 extra))
          (w       (ceiling (+ extra*2 (width legend))))
          (h       (ceiling (+ extra*2 (height legend))))
-         (x       (floor (- (or (preferred-x pane)
+         (x       (floor (- (or (preferred-x plt)
                                 (x legend))
                             extra)))
-         (y       (floor (- (or (preferred-y pane)
+         (y       (floor (- (or (preferred-y plt)
                                 (y legend))
                             extra))))
-    (refresh-view pane x y w h)
+    (refresh-view plt x y w h)
     ))
 
-(defun restore-legend-background (pane legend)
+(defun restore-legend-background (plt legend)
   (let* ((extra   2)
          (extra*2 (* 2 extra))
          (w       (ceiling (+ extra*2 (width legend))))
          (h       (ceiling (+ extra*2 (height legend))))
          (x-old   (floor (- (x legend) extra)))
          (y-old   (floor (- (y legend) extra))))
-    (refresh-view pane x-old y-old w h)
+    (refresh-view plt x-old y-old w h)
     ))
 
-(defun highlight-legend (pane)
-  (let ((legend (plotter-legend pane)))
+(defun highlight-legend (plt)
+  (let ((legend (plotter-legend plt)))
     (when (activep legend)
       (unless (highlighted legend)
         (setf (highlighted legend) t)
-        (restore-legend-background pane legend)
-        (draw-existing-legend pane legend)
+        (restore-legend-background plt legend)
+        (draw-existing-legend plt legend)
         ))))
 
-(defun unhighlight-legend (pane)
-  (let ((legend (plotter-legend pane)))
+(defun unhighlight-legend (plt)
+  (let ((legend (plotter-legend plt)))
     (when (and (activep legend)
                (highlighted legend))
       (setf (highlighted legend) nil)
-      (restore-legend-background pane legend)
-      (draw-existing-legend pane legend)
+      (restore-legend-background plt legend)
+      (draw-existing-legend plt legend)
       )))
 
-(defun window-to-plotview-coords (pane x y)
+(defun window-to-plotview-coords (plt x y)
   ;; Convert reported screen coords to nominal plotting region coords.
   ;; Effectively, this just makes the system resize-scaling agnostic.
   (multiple-value-bind (xd yd)
       ;; back to data coords
-      (gp:transform-point (plotter-inv-xform pane) x y)
+      (gp:transform-point (plotter-inv-xform plt) x y)
     ;; then to nominal frame coords
-    (gp:transform-point (plotter-xform pane) xd yd)
+    (gp:transform-point (plotter-xform plt) xd yd)
     ))
 
-(defun on-legend (pane x y)
-  (let ((legend (plotter-legend pane)))
+(defun on-legend (plt x y)
+  (let ((legend (plotter-legend plt)))
     (and (activep legend)
          (has-content legend)
          (multiple-value-bind (xp yp)
-             (window-to-plotview-coords pane x y)
+             (window-to-plotview-coords plt x y)
            (with-accessors ((xl   x)
                             (yl   y)
                             (wd   width)
@@ -219,33 +219,33 @@
              ))
          )))
 
-(defun start-drag-legend (pane x y)
-  (let ((legend (plotter-legend pane)))
+(defun start-drag-legend (plt x y)
+  (let ((legend (plotter-legend plt)))
     (when (and (activep legend)
                (has-content legend))
       (multiple-value-bind (xp yp)
-          (window-to-plotview-coords pane x y)
+          (window-to-plotview-coords plt x y)
         (setf (dragging legend) t
               (dx legend) (- (x legend) xp)
               (dy legend) (- (y legend) yp))
         ))))
 
-(defun undrag-legend (pane x y)
+(defun undrag-legend (plt x y)
   (declare (ignore x y))
-  (let ((legend (plotter-legend pane)))
+  (let ((legend (plotter-legend plt)))
     (when (dragging legend)
       (setf (dragging legend) nil)
       )))
 
-(defun drag-legend (pane x y)
-  (let ((legend (plotter-legend pane)))
+(defun drag-legend (plt x y)
+  (let ((legend (plotter-legend plt)))
     (when (dragging legend)
-      (restore-legend-background pane legend)
+      (restore-legend-background plt legend)
       (multiple-value-bind (xp yp)
-          (window-to-plotview-coords pane x y)
-        (setf (preferred-x pane) (+ xp (dx legend))
-              (preferred-y pane) (+ yp (dy legend)))
-        (draw-existing-legend pane legend)
+          (window-to-plotview-coords plt x y)
+        (setf (preferred-x plt) (+ xp (dx legend))
+              (preferred-y plt) (+ yp (dy legend)))
+        (draw-existing-legend plt legend)
         ))))
 
 

@@ -138,7 +138,7 @@
 
 ;; -------------------------------------------------------------------
 
-(defclass plotter-pane (capi:output-pane)
+(defclass plotter-mixin ()
   ;; stuff used by 2-D plot scaling and plotting
   ;; The mixin has all the information needed to produce plots
   ;; but has nothing to draw on...
@@ -173,8 +173,34 @@
    (legend        :accessor plotter-legend             :initform (make-instance 'legend))
    (preferred-x   :accessor preferred-x                :initform nil)
    (preferred-y   :accessor preferred-y                :initform nil)
-  
-   (initial-gs    :accessor plotter-initial-gs         :initform nil)
+   )
+  (:default-initargs
+   :nominal-width      400
+   :nominal-height     300
+   ))
+
+(defmethod initialize-instance :after ((plt plotter-mixin) &key
+                                       (xsize         400)
+                                       (ysize         300)
+                                       (left-margin   +left-inset+)
+                                       (top-margin    +top-inset+)
+                                       (right-margin  +right-inset+)
+                                       (bottom-margin +bottom-inset+)
+                                       &allow-other-keys)
+  (unless (plotter-box plt)
+    (setf (plotter-box plt) (inset-box-sides
+                             `(0 0 ,xsize ,ysize)
+                             left-margin  top-margin
+                             right-margin bottom-margin))
+    ))
+
+;; --------------------------------------------
+
+(defclass plotter-pane (plotter-mixin capi:output-pane)
+  ;; stuff used by 2-D plot scaling and plotting
+  ;; The mixin has all the information needed to produce plots
+  ;; but has nothing to draw on...
+  ((initial-gs    :accessor plotter-initial-gs         :initform nil)
    (plotting-gs   :accessor plotter-plotting-gs        :initform nil)
    (prev-frame    :accessor plotter-prev-frame         :initform nil)
    (cached-cmap   :accessor cached-cmap                :initform nil)
@@ -184,8 +210,6 @@
    (plot-cursor   :accessor plotter-cursor             :initform (or *cross-cursor* :crosshair))
    )
   (:default-initargs
-   :nominal-width      400
-   :nominal-height     300
    :display-callback   'display-callback
    :resize-callback    'resize-callback
    :default-width      400
@@ -264,23 +288,9 @@
                  :crosshair)
    ))
 
-(defmethod initialize-instance :after ((pane plotter-pane) &key
-                                       (xsize         400)
-                                       (ysize         300)
-                                       (left-margin   +left-inset+)
-                                       (top-margin    +top-inset+)
-                                       (right-margin  +right-inset+)
-                                       (bottom-margin +bottom-inset+)
-                                       &allow-other-keys)
+(defmethod initialize-instance :after ((pane plotter-pane) &key &allow-other-keys)
   ;; make a backup copy for restore as needed
-  (setf (plotter-cursor pane) (capi:simple-pane-cursor pane))
-  (unless (plotter-box pane)
-    (setf (plotter-box pane) (inset-box-sides
-                              `(0 0 ,xsize ,ysize)
-                              left-margin  top-margin
-                              right-margin bottom-margin))
-    ))
-
+  (setf (plotter-cursor pane) (capi:simple-pane-cursor pane)))
 
 #+:WIN32
 (defmethod initialize-instance :after ((pane articulated-plotter-pane)
@@ -290,7 +300,7 @@
           (complementary-color pane full-crosshair background))))
 
 
-(defmethod clone-display-list ((dst plotter-pane) (src plotter-pane))
+(defmethod clone-display-list ((dst plotter-mixin) (src plotter-mixin))
   (capi:apply-in-pane-process dst
                               (lambda ()
                                 (let* ((lst  (copy-list (qitems (plotter-display-list src))))
@@ -405,41 +415,42 @@
     ))
 
 ;; ---------------------------------------------------------
+
 (defgeneric plotter-pane-of (pane-rep &optional args)
   ;; rep might be a plotter-pane,
   ;; a subclass of capi:interface,
   ;; or a symbolic name of a window
+  (:method ((pane plotter-mixin) &optional args)
+   (declare (ignore args))
+   pane)
   )
 
-(defmethod plotter-pane-of ((pane plotter-pane) &optional args)
-  ;; it is me...
-  (declare (ignore args))
-  pane)
-
 ;; ------------------------------------------
-(defmethod display-pane-of (pane)
-  pane)
 
-(defmethod display-pane-of ((obj capi:pinboard-object))
-  (display-pane-of (capi:element-parent obj)))
+(defgeneric display-pane-of (pane)
+  (:method (pane)
+   pane)
+  (:method ((obj capi:pinboard-object))
+   (capi:pinboard-object-pinboard obj))
+  )
 
 ;; -------------------------------------------------------------------
-
-(defun append-display-list (pane item)
-  (when item
-    (qadd (plotter-display-list pane) item)
-    (update-pane pane)))
-
-(defun discard-display-list (pane)
-  (qclr (plotter-display-list pane)))
 
 (defun display-list-empty-p (pane)
   (qempty? (plotter-display-list pane)))
 
 (defun augment-display-list (pane action fresh)
-  (when fresh
-    (discard-display-list pane))
-  (append-display-list pane action))
+  (let ((q   (plotter-display-list pane))
+        (chg nil))
+    (when (and (qitems q) fresh)
+      (qclr q)
+      (setf chg t))
+    (when action
+      (qadd q action)
+      (setf chg t))
+    (when chg
+      (capi:redisplay-element pane))
+    ))
 
 (defun perform-display-list-items (pane &rest args)
   (loop for fn in (qitems (plotter-display-list pane)) do
@@ -487,3 +498,8 @@
   (cond ((consp islog) (second islog))
         (islog         #'pow10)
         (t             #'identity)))
+
+;; --------------------------------------------
+#|
+(plt:fplot 'plt '(-20 20) (lambda (x) (/ (sin x) x)) :clear t :thick 2)                      
+|#

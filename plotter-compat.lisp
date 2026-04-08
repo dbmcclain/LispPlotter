@@ -30,32 +30,32 @@
   wd)
 
 ;; ------------------------------------------
-(defun background-color (pane)
+(defun background-color (port)
   (gp:graphics-state-background
-   (gp:get-graphics-state pane)))
+   (gp:get-graphics-state port)))
 
-(defun foreground-color (pane)
+(defun foreground-color (port)
   (gp:graphics-state-foreground
-   (gp:get-graphics-state pane)))
+   (gp:get-graphics-state port)))
 
 #+:WIN32x
 ;; --- WE FINALLY HAVE DECENT ALPHA BLENDING ON WINDOW 7+ --
 ;; DM/RAL 05/14
-(defun adjust-color (pane color &optional alpha)
+(defun adjust-color (port color &optional alpha)
   ;; Win/XP can't handle true alpha blending. So we use a make-pretend system
   ;; that assumes the color will be blending with the background color. That only
   ;; works properly as long as the drawing is actually over that background color.
   (let* ((c (color:get-color-spec
              (color:unconvert-color
-              pane
-              (color:convert-color pane color))))
+              port
+              (color:convert-color port color))))
          (a (or alpha (color:color-alpha c))))
     (if (= 1 a)
       color
       (let* ((bg  (color:get-color-spec
-                   (color:unconvert-color pane
-                                          (color:convert-color pane
-                                                               (background-color pane)))))
+                   (color:unconvert-color port
+                                          (color:convert-color port
+                                                               (background-color port)))))
              (1-a (- 1.0 a)))
         (labels ((mix (fn)
                    (+ (* 1-a (funcall fn bg))
@@ -67,14 +67,14 @@
         )))))
       
 ;; #-:WIN32
-(defun adjust-color (pane color &optional alpha)
+(defun adjust-color (port color &optional alpha)
   ;; Mac OS/X Cocoa can do real alpha blending. Here we take the user's
   ;; requested color, and a possibly separate alpha level (alpha might be nil)
   ;; to produce a color that will be properly alpha blended over a varying background.
   (if (null alpha)
       color
     (let ((c (color:get-color-spec
-              (color:unconvert-color pane color))))
+              (color:unconvert-color port color))))
       (color:make-rgb
        (color:color-red   c)
        (color:color-green c)
@@ -83,13 +83,13 @@
       )))
 
 #+:WIN32
-(defun complementary-color (pane color background)
+(defun complementary-color (port color background)
   ;; produce a color such that XOR mode of that color against the background
   ;; will produce the requested color...
   (let* ((c  (color:get-color-spec
-              (color:unconvert-color pane color)))
+              (color:unconvert-color port color)))
          (bg (color:get-color-spec
-              (color:unconvert-color pane background))))
+              (color:unconvert-color port background))))
     
     (labels ((color-xor (compon1 compon2)
                (let ((icompon1  (round (* 255 compon1)))

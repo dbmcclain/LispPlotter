@@ -109,53 +109,53 @@
 
 ;; ----------------------------------------------------------  
 
-(defun get-symbol-plotfn (pane symbol-style)
+(defun get-symbol-plotfn (port symbol-style)
   (labels ((draw-symbol (fn)
              #-:WIN32
-             (with-color (pane (or (if (fill-color symbol-style)
-                                     (adjust-color pane
+             (with-color (port (or (if (fill-color symbol-style)
+                                     (adjust-color port
                                                    (fill-color symbol-style)
                                                    (fill-alpha symbol-style)))
                                    #.(color:make-gray 1.0 0.25)))
                (funcall fn t))
              #+:WIN32
              (when (fill-color symbol-style)
-               (with-color (pane (adjust-color pane
+               (with-color (port (adjust-color port
                                                (fill-color symbol-style)
                                                (fill-alpha symbol-style)))
                  (funcall fn t)))
-             (gp:with-graphics-state (pane
+             (gp:with-graphics-state (port
                                       :thickness  (adjust-linewidth (border-thick symbol-style))
-                                      :foreground (adjust-color pane
+                                      :foreground (adjust-color port
                                                                 (border-color symbol-style)
                                                                 (border-alpha symbol-style)))
                (funcall fn))))
     
     (ecase (plot-symbol symbol-style)
       (:cross     (lambda (x y)
-                    (gp:with-graphics-state (pane
+                    (gp:with-graphics-state (port
                                              :thickness  (adjust-linewidth (border-thick symbol-style))
-                                             :foreground (adjust-color pane
+                                             :foreground (adjust-color port
                                                                        (border-color symbol-style)
                                                                        (border-alpha symbol-style)))
-                      (gp:draw-line pane (- x 3) y (+ x 3) y)
-                      (gp:draw-line pane x (- y 3) x (+ y 3))
+                      (gp:draw-line port (- x 3) y (+ x 3) y)
+                      (gp:draw-line port x (- y 3) x (+ y 3))
                       )))
       
       (:x         (lambda (x y)
-                    (gp:with-graphics-state (pane
+                    (gp:with-graphics-state (port
                                              :thickness  (adjust-linewidth (border-thick symbol-style))
-                                             :foreground (adjust-color pane
+                                             :foreground (adjust-color port
                                                                        (border-color symbol-style)
                                                                        (border-alpha symbol-style)))
-                      (gp:draw-line pane (- x 3) (- y 3) (+ x 3) (+ y 3))
-                      (gp:draw-line pane (+ x 3) (- y 3) (- x 3) (+ y 3))
+                      (gp:draw-line port (- x 3) (- y 3) (+ x 3) (+ y 3))
+                      (gp:draw-line port (+ x 3) (- y 3) (- x 3) (+ y 3))
                       )))
       
       ((:circle :sampled-data)
        (lambda (x y)
          (labels ((draw-circle (&optional filled)
-                    (gp:draw-circle pane
+                    (gp:draw-circle port
                                     x 
                                     #-:WIN32 (- y 0.5)
                                     #+:WIN32 y
@@ -167,7 +167,7 @@
       ((:box :square)
        (lambda (x y)
          (labels ((draw-rectangle (&optional filled)
-                    (gp:draw-rectangle pane (- x 3) (- y 3) 6 6
+                    (gp:draw-rectangle port (- x 3) (- y 3) 6 6
                                        :filled filled)))
            (draw-symbol #'draw-rectangle)
            )))
@@ -175,7 +175,7 @@
       ((:triangle :up-triangle)
        (lambda (x y)
          (labels ((draw-triangle (&optional filled)
-                    (gp:draw-polygon pane
+                    (gp:draw-polygon port
                                      (list (- x 3) (+ y 3)
                                            x (- y 4)
                                            (+ x 3) (+ y 3))
@@ -187,7 +187,7 @@
       (:down-triangle
        (lambda (x y)
          (labels ((draw-triangle (&optional filled)
-                    (gp:draw-polygon pane
+                    (gp:draw-polygon port
                                      (list (- x 3) (- y 3)
                                            x (+ y 4)
                                            (+ x 3) (- y 3))
@@ -199,7 +199,7 @@
       (:right-triangle
        (lambda (x y)
          (labels ((draw-triangle (&optional filled)
-                    (gp:draw-polygon pane
+                    (gp:draw-polygon port
                                      (list (- x 3) (- y 3)
                                            (+ x 4) y
                                            (- x 3) (+ y 3))
@@ -211,7 +211,7 @@
       (:left-triangle
        (lambda (x y)
          (labels ((draw-triangle (&optional filled)
-                    (gp:draw-polygon pane
+                    (gp:draw-polygon port
                                      (list (+ x 3) (- y 3)
                                            (- x 4) y
                                            (+ x 3) (+ y 3))
@@ -222,16 +222,16 @@
 
       (:dot
        (lambda (x y)
-         (with-color (pane (adjust-color pane
+         (with-color (port (adjust-color port
                                          (border-color symbol-style)
                                          (border-alpha symbol-style)))
-           (gp:draw-circle pane x (1- y) 0.5))
+           (gp:draw-circle port x (1- y) 0.5))
          ))
       )))
 
 ;; --------------------------------------------------------------------
 
-(defmethod pw-plot-prepped ((pane plotter-pane) prepped symbol-fn
+(defun pw-plot-prepped (port plt prepped symbol-fn
                                    &key
                                    ;; (color #.(color:make-rgb 0.0 0.5 0.0))
                                    ;; alpha
@@ -253,18 +253,18 @@
                                    symbol-for-legend
                                    &allow-other-keys)
     (when (legend plot-style)
-      (append-legend pane plot-style))
+      (append-legend plt plot-style))
 
     (when legend-x
-      (setf (plotter-legend-x pane) legend-x))
+      (setf (plotter-legend-x plt) legend-x))
     (when legend-y
-      (setf (plotter-legend-y pane) legend-y))
+      (setf (plotter-legend-y plt) legend-y))
     (when legend-anchor
-      (setf (plotter-legend-anchor pane) legend-anchor))
+      (setf (plotter-legend-anchor plt) legend-anchor))
 
-    (with-plotview-coords (pane)
+    (with-plotview-coords (port plt)
       
-      (gp:with-graphics-state (pane
+      (gp:with-graphics-state (port
                                ;; :thickness  linewidth
                                ;; :dashed     (not (null linedashing))
                                ;; :dash       linedashing
@@ -272,8 +272,9 @@
                                :line-end-style   :butt
                                :line-joint-style :miter
                                ;; :scale-thickness  t  ;; already present form WITH-PLOTVIEW-COORDS
-                               :mask             (plotter-mask pane))
-        (let+ ((xform        (plotter-xform pane))
+                               :mask  (plotting-region plt)
+                               )
+        (let+ ((xform        (plotter-xform plt))
                (line-style   (line-style plot-style))
                (symbol-style (and (not symbol-for-legend)
                                   (symbol-style plot-style)))
@@ -302,14 +303,14 @@
                                ))))
                    |#
                    (draw-lines ()
-                     (gp:with-graphics-state (pane
+                     (gp:with-graphics-state (port
                                               :thickness  (adjust-linewidth (line-thick line-style))
-                                              :foreground (adjust-color pane
+                                              :foreground (adjust-color port
                                                                         (line-color line-style)
                                                                         (line-alpha line-style))
                                               :dashed     (line-dashing line-style)
                                               :dash       (line-dashing line-style))
-                       (gp:draw-polygon pane prepped)
+                       (gp:draw-polygon port prepped)
                        ;; (draw-polygon)
                        )
                      ))
@@ -317,23 +318,23 @@
                    (case (plot-symbol symbol-style)
                      
                      ((:vbars :hbars)
-                      (gp:with-graphics-state (pane
-                                               :foreground (adjust-color pane
+                      (gp:with-graphics-state (port
+                                               :foreground (adjust-color port
                                                                          (fill-color symbol-style)
                                                                          (fill-alpha symbol-style)))
                         (if (bar-width symbol-style)
                             (with-rects (prepped x y wd ht)
-                              (gp:draw-rectangle pane
+                              (gp:draw-rectangle port
                                                  x y wd ht
                                                  :filled t))
                           ;; else
-                          (gp:draw-polygon pane prepped :filled t)
+                          (gp:draw-polygon port prepped :filled t)
                           ;; (draw-polygon :filled t)
                           )))
                      
                      (:sampled-data
-                      (gp:with-graphics-state (pane
-                                               :foreground (adjust-color pane
+                      (gp:with-graphics-state (port
+                                               :foreground (adjust-color port
                                                                          (or (and line-style
                                                                                   (line-color line-style))
                                                                              :black)
@@ -344,7 +345,7 @@
                                                                                       (line-thick line-style))
                                                                                  1)))
                         (with-pts (prepped x y)
-                          (gp:draw-line pane x y0 x y)
+                          (gp:draw-line port x y0 x y)
                           (funcall symbol-fn x y))
                         ))
                      
@@ -358,12 +359,12 @@
                   (line-style
                    (case (line-type line-style)
                      ((:stepped :histo)
-                      (gp:with-graphics-state (pane
+                      (gp:with-graphics-state (port
                                                :thickness  (adjust-linewidth (line-thick line-style))
-                                               :foreground (adjust-color pane
+                                               :foreground (adjust-color port
                                                                          (line-color line-style)
                                                                          (line-alpha line-style)))
-                        (gp:draw-polygon pane prepped)
+                        (gp:draw-polygon port prepped)
                         ;; (draw-polygon)
                         ))
                      
@@ -578,63 +579,63 @@
 |#
 
 ;; ------------------------------------------------------------------------------
-(defun get-bar-symbol-plotfn (pane symbol color neg-color bar-width testfn)
+(defun get-bar-symbol-plotfn (port symbol color neg-color bar-width testfn)
   ;; bear in mind that the y values at this point are absolute screen
   ;; coords and are inverted with respect to data ordering
   (ecase symbol
     (:sigma
      (lambda (x ys)
        (destructure-vector (ymin ymax) ys
-         (gp:draw-line pane x ymin x ymax)
-         (gp:draw-line pane (- x (/ bar-width 2)) ymin (+ x (/ bar-width 2)) ymin)
-         (gp:draw-line pane (- x (/ bar-width 2)) ymax (+ x (/ bar-width 2)) ymax)
+         (gp:draw-line port x ymin x ymax)
+         (gp:draw-line port (- x (/ bar-width 2)) ymin (+ x (/ bar-width 2)) ymin)
+         (gp:draw-line port (- x (/ bar-width 2)) ymax (+ x (/ bar-width 2)) ymax)
          )))
 
     (:hl-bar
      (lambda (x ys)
        (destructure-vector (ymin ymax) ys
-         (gp:draw-line pane x ymin x ymax)
+         (gp:draw-line port x ymin x ymax)
          )))
     
     (:hlc-bar
      (lambda (x ys)
        (destructure-vector (h l c) ys
-         (gp:draw-line pane x l x h)
-         (gp:draw-line pane x c (+ x (/ bar-width 2)) c)
+         (gp:draw-line port x l x h)
+         (gp:draw-line port x c (+ x (/ bar-width 2)) c)
          )))
     
     (:ohlc-bar
      (lambda (x ys)
        (destructure-vector (o h l c) ys
-         (with-color (pane (if (funcall testfn c o) neg-color color))
-           (gp:draw-line pane x l x h)
-           (gp:draw-line pane (- x (/ bar-width 2)) o x o)
-           (gp:draw-line pane x c (+ x (/ bar-width 2)) c)
+         (with-color (port (if (funcall testfn c o) neg-color color))
+           (gp:draw-line port x l x h)
+           (gp:draw-line port (- x (/ bar-width 2)) o x o)
+           (gp:draw-line port x c (+ x (/ bar-width 2)) c)
            ))))
     
     (:candlestick
      (lambda (x ys)
        (destructure-vector (o h l c) ys
          (if (funcall testfn c o)
-             (with-color (pane neg-color)
-               (gp:draw-line pane x l x h)
-               (gp:draw-rectangle pane (- x (/ bar-width 2)) o bar-width (- c o)
+             (with-color (port neg-color)
+               (gp:draw-line port x l x h)
+               (gp:draw-rectangle port (- x (/ bar-width 2)) o bar-width (- c o)
                                   :filled t))
            (progn
-             (with-color (pane :black)
-               (gp:draw-line pane x l x h))
-             (with-color (pane color)
-               (gp:draw-rectangle pane (- x (/ bar-width 2)) o bar-width (- c o)
+             (with-color (port :black)
+               (gp:draw-line port x l x h))
+             (with-color (port color)
+               (gp:draw-rectangle port (- x (/ bar-width 2)) o bar-width (- c o)
                                   :filled t))
-             (with-color (pane :black)
-               (gp:draw-rectangle pane (- x (/ bar-width 2)) o bar-width (- c o)))
+             (with-color (port :black)
+               (gp:draw-rectangle port (- x (/ bar-width 2)) o bar-width (- c o)))
              ))
          )))
     ))
 
 ;;-------------------------------------------------------------------
 
-(defmethod pw-plot-bars-xv-yv ((pane plotter-pane) xvector yvectors 
+(defun pw-plot-bars-xv-yv (port plt xvector yvectors 
                                &key
                                (color #.(color:make-rgb 0.0 0.5 0.0))
                                (neg-color color)
@@ -649,18 +650,18 @@
                                &allow-other-keys)
   ;; this is the base bar-plotting routine
   ;; called only from within the pane process
-  (let* ((xform     (plotter-xform pane))
-         (color     (adjust-color pane color alpha))
-         (neg-color (adjust-color pane neg-color alpha))
+  (let* ((xform     (plotter-xform plt))
+         (color     (adjust-color port color alpha))
+         (neg-color (adjust-color port neg-color alpha))
          (linewidth (adjust-linewidth linewidth))
 
          (nel       (let ((nely (reduce #'min (mapcar #'length-of yvectors))))
                       (if xvector
                           (min (length-of xvector) nely)
                         nely)))
-         (xlog      (plotter-xlog pane))
+         (xlog      (plotter-xlog plt))
          (xlogfn    (logfn xlog))
-         (ylog      (plotter-ylog pane))
+         (ylog      (plotter-ylog plt))
          (ylogfn    (logfn ylog))
          (xs        (let* ((xform   (lambda (x)
                                       (gp:transform-point xform x 0)))
@@ -690,18 +691,18 @@
                        (if (< y2 y1)
                            #'>
                          #'<)))
-         (plotfn (get-bar-symbol-plotfn pane symbol
+         (plotfn (get-bar-symbol-plotfn port symbol
                                         color neg-color bar-width
                                         c<o-testfn))
          (tmp       (make-array (length ys))))
 
-    (with-plotview-coords (pane)
-      (gp:with-graphics-state (pane
+    (with-plotview-coords (port plt)
+      (gp:with-graphics-state (port
                                :thickness  linewidth
                                :foreground color
                                :line-end-style   :butt
                                :line-joint-style :miter
-                               :mask       (plotter-mask pane))
+                               :mask       (plotter-mask plt))
         
         (with-scanner (xs x)
           (map-into tmp #'next-item ys)
@@ -715,7 +716,7 @@
 (defun /2 (x)
   (/ x 2))
 
-(defun plt-draw-shape (pane shape x0 y0
+(defun plt-draw-shape (port plt shape x0 y0
                           &key
                           width height radius to
                           color alpha filled
@@ -725,16 +726,16 @@
   ;; For :rect,   (x0,y0) = ctr, (wd,ht) are width, height
   ;; For :ellipse (x0,y0) = ctr, (wd,ht) are radii
   ;; For :arc     (x0,y0) = ctr, (wd,ht) are radii, sweep and start angles are radian measure
-  (let* ((color     (adjust-color pane color alpha))
-         (bcolor    (adjust-color pane border-color border-alpha))
+  (let* ((color     (adjust-color port color alpha))
+         (bcolor    (adjust-color port border-color border-alpha))
          (linewidth (adjust-linewidth (or border-thick 0)))
-         (x0        (get-x-location pane x0))
-         (y0        (get-y-location pane y0)))
+         (x0        (get-x-location plt x0))
+         (y0        (get-y-location plt y0)))
     (labels
         ((draw-fns ()
              (labels ((draw (shape-fn)
                         (labels ((do-drawing ()
-                                   (gp:with-graphics-state (pane
+                                   (gp:with-graphics-state (port
                                                             :thickness        linewidth
                                                             :foreground       color
                                                             :line-end-style   :butt
@@ -742,47 +743,47 @@
                                      (when filled
                                        (funcall shape-fn :filled t))
                                      (when border-thick
-                                       (with-color (pane bcolor)
+                                       (with-color (port bcolor)
                                          (funcall shape-fn :filled nil)))
                                      )))
                           (if raw
                               (do-drawing)
-                            (gp:with-graphics-state (pane
-                                                     :mask (plotter-mask pane))
+                            (gp:with-graphics-state (port
+                                                     :mask (plotter-mask plt))
                               (do-drawing))
                             ))))
                
                (ecase shape
                  (:line
-                  (let ((x1 (get-x-location pane (car to)))
-                        (y1 (get-y-location pane (cdr to))))
-                    (draw (um:curry #'gp:draw-line pane x0 y0 x1 y1))
+                  (let ((x1 (get-x-location plt (car to)))
+                        (y1 (get-y-location plt (cdr to))))
+                    (draw (um:curry #'gp:draw-line port x0 y0 x1 y1))
                     ))
                  (:rect
-                  (let ((wd (get-x-width pane width))
-                        (ht (get-y-width pane height)))
-                    (draw (um:curry #'gp:draw-rectangle pane
+                  (let ((wd (get-x-width plt width))
+                        (ht (get-y-width plt height)))
+                    (draw (um:curry #'gp:draw-rectangle port
                                     (- x0 (/2 wd)) (- y0 (/2 ht)) wd ht))
                     ))
                  (:ellipse
-                  (let ((wd (get-x-width pane width))
-                        (ht (get-y-width pane height)))
-                    (draw (um:curry #'gp:draw-ellipse pane x0 y0 wd ht))))
+                  (let ((wd (get-x-width plt width))
+                        (ht (get-y-width plt height)))
+                    (draw (um:curry #'gp:draw-ellipse port x0 y0 wd ht))))
                  
                  (:arc
-                  (let ((wd (get-x-width pane width))
-                        (ht (get-y-width pane height)))
-                    (draw (um:curry #'gp:draw-arc pane
+                  (let ((wd (get-x-width plt width))
+                        (ht (get-y-width plt height)))
+                    (draw (um:curry #'gp:draw-arc port
                                     (- x0 (/2 wd)) (- y0 (/2 ht)) wd ht
                                     start-angle sweep-angle))
                     ))
                  (:circle
-                  (let ((rad (get-x-width pane radius)))
-                    (draw (um:curry #'gp:draw-circle pane x0 y0 rad))
+                  (let ((rad (get-x-width plt radius)))
+                    (draw (um:curry #'gp:draw-circle port x0 y0 rad))
                     ))
                  ))))
       (if raw
           (draw-fns)
-        (with-plotview-coords (pane)
+        (with-plotview-coords (port plt)
           (draw-fns)))
       )))

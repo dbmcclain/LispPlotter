@@ -4,15 +4,15 @@
 ;; ------------------------------------------
 ;; Convenience macros
 
-(defmacro with-color ((pane color) &body body)
+(defmacro with-color ((port color) &body body)
   `(gp:with-graphics-state
-       (,pane
+       (,port
         :foreground ,color)
      ,@body))
   
-(defmacro with-mask ((pane mask) &body body)
+(defmacro with-mask ((port mask) &body body)
   `(gp:with-graphics-state
-       (,pane
+       (,port
         :mask ,mask)
      ,@body))
 

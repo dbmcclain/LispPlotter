@@ -4,7 +4,7 @@
 ;; ----------------------------------------------------------------
 ;; pane location decoding for strings and legends
 ;;
-(defun parse-location (sym pane)
+(defun parse-location (sym plt)
   ;; BEWARE:: '1.2d+3p means (:pixel 1200) NOT (:data 1.2 +3)
   ;; be sure to disambiguate the "d" as in '1.2data+3p
   ;;
@@ -40,13 +40,13 @@
                         ((char-equal #\t (char s ix))
                          ;; 't' for top
                          (iter :scan-to-plus-or-minus (1+ ix)
-                               (list :pixel (plotter-nominal-height pane))
+                               (list :pixel (plotter-nominal-height plt))
                                ))
                         
                         ((char-equal #\r (char s ix))
                          ;; 'r' for right
                          (iter :scan-to-plus-or-minus (1+ ix)
-                               (list :pixel (plotter-nominal-width pane))
+                               (list :pixel (plotter-nominal-width plt))
                                ))
 
                         ((or (char-equal #\b (char s ix))
@@ -106,29 +106,29 @@
       (iter :initial 0 nil)
       )))
 
-(defun parse-location-cons (pane pos-expr axis absolute)   
+(defun parse-location-cons (plt pos-expr axis absolute)   
   (let* ((sym (um:mkstr (first pos-expr)))
          (val (second pos-expr)))
     (ecase (char-upcase (char sym 0))
       ;; accommodates :DATA :DAT :D :DATUM, :FRAC :F :FRACTION, :PIXEL :P :PIX :PIXELS, etc.
       (#\F  ;; pane fraction  0 = left, bottom;  1 = right, top
             (ecase axis
-              (:x  (* val (plotter-nominal-width pane)))
+              (:x  (* val (plotter-nominal-width plt)))
               
               ;; port y axis is inverted, top at 0
               (:y
                (if absolute
-                   (* (- 1 val) (plotter-nominal-height pane))
-                 (* val (plotter-nominal-height pane))))
+                   (* (- 1 val) (plotter-nominal-height plt))
+                 (* val (plotter-nominal-height plt))))
               ))
         
       (#\D  ;; data coordinates
             (multiple-value-bind (x0 y0)
-              (gp:transform-point (plotter-xform pane) 0 0)
+              (gp:transform-point (plotter-xform plt) 0 0)
               (ecase axis
                 (:x
-                 (let ((ans (gp:transform-point (plotter-xform pane)
-                                                (funcall (logfn (plotter-xlog pane)) val)
+                 (let ((ans (gp:transform-point (plotter-xform plt)
+                                                (funcall (logfn (plotter-xlog plt)) val)
                                                 0)))
                    (if absolute
                        ans
@@ -137,9 +137,9 @@
                 
                 (:y
                  (let ((ans (multiple-value-bind (xx yy)
-                                (gp:transform-point (plotter-xform pane)
+                                (gp:transform-point (plotter-xform plt)
                                                     0
-                                                    (funcall (logfn (plotter-ylog pane)) val))
+                                                    (funcall (logfn (plotter-ylog plt)) val))
                               (declare (ignore xx))
                               yy)))
                    (if absolute
@@ -154,44 +154,44 @@
               
               ;; port y axis is inverted, top at 0
               (:y (if absolute
-                      (- (plotter-nominal-height pane) val 1)
+                      (- (plotter-nominal-height plt) val 1)
                     val))
               ))
       )))
 
-(defgeneric get-location (pane pos-expr axis &key absolute)
-  (:method (pane (pos-expr cons) axis &key absolute)
-   (parse-location-cons pane pos-expr axis absolute))
-  (:method (pane (pos-expr number) axis &key absolute)
+(defgeneric get-location (plt pos-expr axis &key absolute)
+  (:method (plt (pos-expr cons) axis &key absolute)
+   (parse-location-cons plt pos-expr axis absolute))
+  (:method (plt (pos-expr number) axis &key absolute)
    ;; assume :DATA
-   (get-location pane (list :data pos-expr) axis :absolute absolute))
-  (:method (pane pos-expr axis &key absolute)
+   (get-location plt (list :data pos-expr) axis :absolute absolute))
+  (:method (plt pos-expr axis &key absolute)
    ;; else, expect a parsable symbol or string '1.2data+3pix
    (destructuring-bind (vtype v &optional (dv 0))
-       (parse-location pos-expr pane)
-     (+ (get-location pane (list vtype v) axis :absolute absolute)
+       (parse-location pos-expr plt)
+     (+ (get-location plt (list vtype v) axis :absolute absolute)
         (ecase axis
           (:x dv)
           (:y (- dv))  ;; port y axis is inverted, top at 0
           )))) )
    
-(defun get-x-location (pane x)
-  (get-location pane x :x :absolute t))
+(defun get-x-location (plt x)
+  (get-location plt x :x :absolute t))
 
-(defun get-y-location (pane y)
-  (get-location pane y :y :absolute t))
+(defun get-y-location (plt y)
+  (get-location plt y :y :absolute t))
 
-(defun get-x-width (pane wd)
-  (get-location pane wd :x :absolute nil))
+(defun get-x-width (plt wd)
+  (get-location plt wd :x :absolute nil))
 
-(defun get-y-width (pane wd)
-  (get-location pane wd :y :absolute nil))
+(defun get-y-width (plt wd)
+  (get-location plt wd :y :absolute nil))
 
-(defun get-x-for-location (pane x)
-  (let ((ans (gp:transform-point (plotter-inv-xform pane) x 0)))
-    (funcall (alogfn (plotter-xlog pane)) ans)))
+(defun get-x-for-location (plt x)
+  (let ((ans (gp:transform-point (plotter-inv-xform plt) x 0)))
+    (funcall (alogfn (plotter-xlog plt)) ans)))
 
-(defun get-y-for-location (pane y)
-  (multiple-value-bind (xv yv) (gp:transform-point (plotter-inv-xform pane) 0 y)
+(defun get-y-for-location (plt y)
+  (multiple-value-bind (xv yv) (gp:transform-point (plotter-inv-xform plt) 0 y)
     (declare (ignore xv))
-    (funcall (alogfn (plotter-ylog pane)) yv)))
+    (funcall (alogfn (plotter-ylog plt)) yv)))

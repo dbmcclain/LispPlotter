@@ -42,7 +42,7 @@
                                  (getf plot-style :legend))))
            (make-instance 'plot-style
                           :line-style   (and line-style
-                                             (apply 'make-instance 'line-styleline-style))
+                                             (apply 'make-instance 'line-style line-style))
                           :symbol-style (and symbol-style
                                              (apply 'make-instance 'symbol-style symbol-style))
                           :legend       (and legend

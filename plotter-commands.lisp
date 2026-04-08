@@ -27,9 +27,8 @@
                          width
                          height
                          to
-                        
                          &allow-other-keys)
-  (let* ((pane      (plotter-pane-of pane))
+  (let* ((plt       (plotter-pane-of pane))
          (augm-args (list*
                      :color  color
                      :alpha  alpha
@@ -44,10 +43,10 @@
                      :start-angle  start-angle
                      :sweep-angle  sweep-angle
                      args))
-         (action    (lambda (pane _x _y _width _height)
+         (action    (lambda (port _x _y _width _height)
                       (declare (ignore _x _y _width _height))
-                      (apply 'plt-draw-shape pane shape x0 y0 augm-args))))
-    (augment-display-list pane action nil)
+                      (apply 'plt-draw-shape port plt shape x0 y0 augm-args))))
+    (augment-display-list plt action nil)
     ))
 
 ;; user callable function
@@ -93,10 +92,9 @@
                     (cright1 *cright1*)
                     (cright2 *cright2*)
                     ;;(fullgrid t)
-                   
                     &allow-other-keys)
-  (let ((pane  (plotter-pane-of pane args)))
-    (with-delayed-update pane
+  (let ((plt  (plotter-pane-of pane args)))
+    (with-delayed-update plt
       (let+ ((:mvb (xvf yvf)
               (cond (xv
                      (filter-potential-x-y-nans-and-infinities xv yv xlog ylog))
@@ -106,7 +104,7 @@
                     ))
              (style (apply 'get-plot-style args))
              (fresh (or clear
-                        (display-list-empty-p pane)))
+                        (display-list-empty-p plt)))
              (augm-args (if fresh
                             (list*
                              :plot-style style
@@ -124,15 +122,15 @@
                            ;; :color color
                            args)))
              (_      (when fresh
-                       (apply 'pw-init-xv-yv pane xvf yvf augm-args)))
-             (:mvb (prepped symbol-fn)  (apply #'prep-vectors pane xvf yvf augm-args))
-             (action    (lambda (pane x y width height)
+                       (apply 'pw-init-xv-yv plt xvf yvf augm-args)))
+             (:mvb (prepped symbol-fn)  (apply #'prep-vectors plt xvf yvf augm-args))
+             (action    (lambda (port x y width height)
                           (declare (ignore x y width height))
                           (when fresh
-                            (apply 'pw-axes pane augm-args))
-                          (apply 'pw-plot-prepped pane prepped symbol-fn augm-args)
+                            (apply 'pw-axes port plt augm-args))
+                          (apply 'pw-plot-prepped port plt prepped symbol-fn augm-args)
                           )))
-        (augment-display-list pane action fresh)
+        (augment-display-list plt action fresh)
         ))))
 
 ;; -------------------------------------------------------------------
@@ -151,12 +149,11 @@
                          (logo-alpha *ext-logo-alpha*)
                          (cright1 *cright1*)
                          (cright2 *cright2*)
-                        
                          &allow-other-keys)
-  (let ((pane  (plotter-pane-of pane args)))
-    (with-delayed-update pane
+  (let ((plt  (plotter-pane-of pane args)))
+    (with-delayed-update plt
       (let+ ((fresh (or clear
-                        (display-list-empty-p pane)))
+                        (display-list-empty-p plt)))
              (augm-args (if fresh
                             (list*
                              :color     color
@@ -173,16 +170,16 @@
                            :color color
                            :neg-color neg-color
                            args)))
-             (action    (lambda (pane x y width height)
+             (action    (lambda (port x y width height)
                           (declare (ignore x y width height))
                           (when fresh
-                            (apply 'pw-axes pane augm-args))
-                          (apply 'pw-plot-bars-xv-yv pane xv yvs augm-args))
+                            (apply 'pw-axes port plt augm-args))
+                          (apply 'pw-plot-bars-xv-yv port plt xv yvs augm-args))
                         ))
         (when fresh
           ;; no drawing in the init, so do it in my thread
-          (apply 'pw-init-bars-xv-yv pane xv yvs augm-args))
-        (augment-display-list pane action fresh)
+          (apply 'pw-init-bars-xv-yv plt xv yvs augm-args))
+        (augment-display-list plt action fresh)
         ))))
 
 ;; ------------------------------------------
@@ -228,12 +225,11 @@
                    (logo-alpha *ext-logo-alpha*)
                    (cright1 *cright1*)
                    (cright2 *cright2*)
-                  
                    &allow-other-keys)
   ;; allow a list of yvectors to be given
   ;; so that we can find the best fitting autoscale that accommodates all of them
-  (let ((pane (plotter-pane-of pane args)))
-    (with-delayed-update pane
+  (let ((plt (plotter-pane-of pane args)))
+    (with-delayed-update plt
       (multiple-value-bind (xv yv)
           (let ((ylist (remove nil (um:mklist yvectors))))
             (unless (lw:sequencep (first ylist))
@@ -256,13 +252,13 @@
                            :cright1 cright1
                            :cright2 cright2
                            args))
-               (action  (lambda (pane x y width height)
+               (action  (lambda (port x y width height)
                           (declare (ignore x y width height))
-                          (apply 'pw-axes pane augm-args))
+                          (apply 'pw-axes port plt augm-args))
                         ))
           ;; do the init setup in our own thread
-          (apply 'pw-init-xv-yv pane xv yv augm-args)
-          (augment-display-list pane action t)
+          (apply 'pw-init-xv-yv plt xv yv augm-args)
+          (augment-display-list plt action t)
           )))))
 
 ;; user callable function
@@ -282,13 +278,13 @@
                     (color :black)
                     alpha                  
                     &allow-other-keys)
-  (let* ((pane   (plotter-pane-of pane))
-         (action (lambda (pane xarg yarg width height)
+  (let* ((plt    (plotter-pane-of pane))
+         (action (lambda (port xarg yarg width height)
                    (declare (ignore xarg yarg width height))
-                   (with-plotview-coords (pane)
-                     (let* ((xx (+ offset-x (get-x-location pane x)))
-                            (yy (+ offset-y (get-y-location pane y)))
-                            (font (find-best-font pane
+                   (with-plotview-coords (port plt)
+                     (let* ((xx (+ offset-x (get-x-location plt x)))
+                            (yy (+ offset-y (get-y-location plt y)))
+                            (font (find-best-font port
                                                   :family font
                                                   :size   font-size))
                             (x-align (ecase (or anchor align)
@@ -299,11 +295,11 @@
                                        ((:nw :n :ne) :top)
                                        ((:w :ctr :e) :center)
                                        ((:sw :s :se) :baseline)))
-                            (color (adjust-color pane color alpha)))
+                            (color (adjust-color port color alpha)))
                        
                        ;; #+:WIN32
-                       (with-mask (pane (plotter-mask pane))
-                         (apply 'draw-string-x-y pane str
+                       (with-mask (port (plotter-mask plt))
+                         (apply 'draw-string-x-y port plt str
                                 xx yy
                                 :font font
                                 :x-alignment x-align
@@ -328,7 +324,7 @@
                         |#
                        )))
                  ))
-    (augment-display-list pane action nil)
+    (augment-display-list plt action nil)
     ))
 
 (defun draw-text-box (pane strs xorg yorg
@@ -343,42 +339,42 @@
                            (border-color :black)
                            border-alpha
                            &allow-other-keys)
-  (let* ((pane  (plotter-pane-of pane))
-         (action (lambda (pane xarg yarg width height)
+  (let* ((plt  (plotter-pane-of pane))
+         (action (lambda (port xarg yarg width height)
                    (declare (ignore xarg yarg width height))
-                   (with-plotview-coords (pane)
-                     (let* ((font (find-best-font pane
+                   (with-plotview-coords (port plt)
+                     (let* ((font (find-best-font port
                                                   :size   font-size
                                                   :family font))
                             (width (loop for s in strs maximize
                                            (multiple-value-bind (left top right bottom)
-                                               (gp:get-string-extent pane s font)
+                                               (gp:get-string-extent port s font)
                                              (declare (ignore top bottom))
                                              (- right left))))
                             (height (multiple-value-bind (left top right bottom)
-                                        (gp:get-string-extent pane (car strs) font)
+                                        (gp:get-string-extent port (car strs) font)
                                       (declare (ignore left right))
                                       (- bottom top)))
-                            (x0        (get-x-location pane xorg))
-                            (y0        (get-y-location pane yorg))
-                            (color     (adjust-color pane color alpha))
-                            (bcolor    (adjust-color pane border-color border-alpha))
+                            (x0        (get-x-location plt xorg))
+                            (y0        (get-y-location plt yorg))
+                            (color     (adjust-color port color alpha))
+                            (bcolor    (adjust-color port border-color border-alpha))
                             (linewidth (adjust-linewidth (or border-thick 0))))
                        
-                       (gp:with-graphics-state (pane
+                       (gp:with-graphics-state (port
                                                 :foreground color
                                                 :thickness  linewidth
                                                 :line-end-style   :butt
                                                 :line-joint-style :miter
-                                                :mask  (plotter-mask pane))
+                                                :mask  (plotter-mask plt))
                          (when filled
-                           (gp:draw-rectangle pane x0 y0
+                           (gp:draw-rectangle port x0 y0
                                               (+ width 4)
                                               (* (length strs) height)
                                               :filled color))
                          (when border-thick
-                           (with-color (pane bcolor)
-                             (gp:draw-rectangle pane x0 y0
+                           (with-color (port bcolor)
+                             (gp:draw-rectangle port x0 y0
                                                 (+ width 4)
                                                 (* (length strs) height)
                                                 :filled nil))))
@@ -387,13 +383,13 @@
                              for s in strs
                              for x = (+ x0 2)
                              do
-                               (gp:draw-string pane s x y
+                               (gp:draw-string port s x y
                                                :font font
                                                :foreground text-color
                                                :block nil) )
                        )))
                  ))
-    (augment-display-list pane action nil)
+    (augment-display-list plt action nil)
     ))
 
 ;; --------------------------------------------

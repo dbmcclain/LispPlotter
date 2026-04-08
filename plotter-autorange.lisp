@@ -45,7 +45,7 @@
          +LEFT-INSET+ +TOP-INSET+ +RIGHT-INSET+ +BOTTOM-INSET+)
         )))
 
-(defmethod pw-init-xv-yv ((pane plotter-pane) xv yv
+(defmethod pw-init-xv-yv ((plt plotter-mixin) xv yv
                           &key xrange yrange box xlog ylog aspect
                           (magn 1)
                           &allow-other-keys)
@@ -76,7 +76,7 @@
           (setf xmax (min (+ xmax dx) $largest-permissible-value))
           ))
       
-      (let* ((box    (nominal-box pane box))
+      (let* ((box    (nominal-box plt box))
              (dx     (- xmax xmin))
              (dy     (- ymin ymax))
              (xscale (qdiv (box-width  box) dx))
@@ -152,21 +152,21 @@
         ;; from screen coords to function space coords.
         ;; ---------------------------------------------------------------
 
-        (setf (plotter-box    pane) box
-              (plotter-xmin   pane) xmin
-              (plotter-xmax   pane) xmax
-              (plotter-ymin   pane) ymin
-              (plotter-ymax   pane) ymax
-              (plotter-xlog   pane) xlog
-              (plotter-ylog   pane) ylog
-              (plotter-aspect pane) aspect
-              (plotter-magn   pane) magn
-              (plotter-xform  pane) xform)
-        (recompute-transform pane)
+        (setf (plotter-box    plt) box
+              (plotter-xmin   plt) xmin
+              (plotter-xmax   plt) xmax
+              (plotter-ymin   plt) ymin
+              (plotter-ymax   plt) ymax
+              (plotter-xlog   plt) xlog
+              (plotter-ylog   plt) ylog
+              (plotter-aspect plt) aspect
+              (plotter-magn   plt) magn
+              (plotter-xform  plt) xform)
+        (recompute-transform plt)
         ))
     ))
 
-(defun recompute-transform (pane)
+(defun recompute-transform (plt)
   ;; So, tldr; PLOTTER-XFORM contains all that is needed to convert
   ;; data coords into nominal frame plotview coords. But does not
   ;; contain any information about margins around the plotting region,
@@ -176,19 +176,19 @@
   ;; all the way back to data coords. So it does have knowledge of
   ;; resize scaling and plotview margins.
   ;;
-  (with-accessors ((sf   plotter-sf)) pane
+  (with-accessors ((sf   plotter-sf)) plt
         
-    (let ((xform     (gp:copy-transform (plotter-xform pane)))
+    (let ((xform     (gp:copy-transform (plotter-xform plt)))
           (inv-xform (gp:make-transform))
-          (box       (plotter-box pane)))
+          (box       (plotter-box plt)))
       ;; develop inv-xform to take raw pane coords and convert to data
       ;; coords
       (gp:apply-translation xform (box-left box) (box-top box))
       (gp:apply-scale xform sf sf)
       (gp:invert-transform xform   inv-xform)
       
-      (setf (plotter-inv-xform pane) inv-xform
-            (plotter-mask      pane) (plotting-region pane))
+      (setf (plotter-inv-xform plt) inv-xform
+            (plotter-mask      plt) (plotting-region plt))
       )))
 
 #|
@@ -227,12 +227,12 @@
 (defun double (x)
   (+ x x))
 
-(defun bounding-region (pane)
+(defmethod bounding-region ((plt plotter-mixin))
   ;; returns (list lf tp wd ht) for the parent frame of the plotting
   ;; region, as needed for gp:draw-rectangle
   (with-accessors ((sf         plotter-sf)
                    (nom-width  plotter-nominal-width)
-                   (nom-height plotter-nominal-height)) pane
+                   (nom-height plotter-nominal-height)) plt
     (let ((xform  (gp:make-transform)))
       (gp:apply-scale xform sf sf)
       (destructuring-bind (lf tp rt bt)
@@ -240,7 +240,7 @@
         (list lf tp (- rt lf) (- bt tp))
         ))))
   
-(defun plotting-region (pane)
+(defmethod plotting-region ((plt plotter-mixin))
   ;; Return a region (lf tp wd ht) in parent pixel space that can be
   ;; used for clipping masks covering the plotting region. (The GP
   ;; State MASK seems ignorant of any transforms in effect, so we must
@@ -273,7 +273,7 @@
   ;; plotting region.
   
   (with-accessors ((sf   plotter-sf)
-                   (box  plotter-box)) pane
+                   (box  plotter-box)) plt
     (let ((xform (gp:make-transform)))
       (gp:apply-translation xform (box-left box) (box-top box))
       (gp:apply-scale xform sf sf)
@@ -283,6 +283,17 @@
         ))
     ))
 
+#|
+  ;; Test that plotting is restricted to interior of plotting-region.
+(let* ()
+  (plt:fplot 'plt '(-20 20) (lambda (x) (/ (sin x) x))
+             :clear t :thick 2)
+  (plt:plot 'plt '(0.5 0.3) '(-40 40)
+            :color :red :thick 2)
+  (plt:plot 'plt '(-10 10) '(-1 1)
+            :color :orange :thick 2))
+|#
+
 ;; ---------------------------------------------------------
 
 (defun vector-group-min (yvecs)
@@ -291,11 +302,11 @@
 (defun vector-group-max (yvecs)
   (reduce #'max (mapcar #'vmax-of yvecs)))
 
-(defun pw-init-bars-xv-yv (pane xvec yvecs &rest args)
+(defun pw-init-bars-xv-yv (plt xvec yvecs &rest args)
   ;; just run the usual scaling initialization
   ;; but against a y-vector that contains those values
   ;; from the multiple vectors which have the largest absolute values
-  (apply #'pw-init-xv-yv pane
+  (apply #'pw-init-xv-yv plt
          (or (and xvec
                   (list (vmin-of xvec) (vmax-of xvec)))
              (and yvecs

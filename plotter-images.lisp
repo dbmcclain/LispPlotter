@@ -192,21 +192,21 @@
 ;; the BGRA vector contents, then hand off this image to whatever
 ;; drawing routines need to be called.
 
-(defun do-convert-array-to-color-image-for-pane (bgra-vec wd ht pane continuation)
-  (with-image (pane (img #-:WIN32 (gp:make-image pane wd ht)
-                         #+:WIN32 (gp:make-image pane wd ht :alpha nil)
+(defun do-convert-array-to-color-image-for-pane (bgra-vec wd ht port continuation)
+  (with-image (port (img #-:WIN32 (gp:make-image port wd ht)
+                         #+:WIN32 (gp:make-image port wd ht :alpha nil)
                          ))
-    (with-image-access (acc (gp:make-image-access pane img))
+    (with-image-access (acc (gp:make-image-access port img))
       (gp:image-access-transfer-from-image acc)
       (gp:image-access-pixels-from-bgra acc bgra-vec)
       (gp:image-access-transfer-to-image acc))
     (funcall continuation img)
     ))
 
-(defmacro with-array-converted-to-color-image-for-pane ((bgra-vec wd ht pane img)
+(defmacro with-array-converted-to-color-image-for-pane ((bgra-vec wd ht port img)
                                                         &body body)
   `(do-convert-array-to-color-image-for-pane
-          ,bgra-vec ,wd ,ht ,pane
+          ,bgra-vec ,wd ,ht ,port
           (lambda (,img)
             ,@body)))
 
@@ -280,7 +280,7 @@
 
 ;; -----------------------------------------------------------
 
-(defun pw-plot-image (pane xv yv img wd ht)
+(defun pw-plot-image (port plt xv yv img wd ht)
   (let* (#|
          (box    (let ((box (plotter-box pane)))
                    (adjust-box
@@ -290,9 +290,9 @@
                  (box-height box)))
                    ))
          |#
-         (xlog   (plotter-xlog pane))
+         (xlog   (plotter-xlog plt))
          (xlogfn (logfn xlog))
-         (ylog   (plotter-ylog pane))
+         (ylog   (plotter-ylog plt))
          (ylogfn (logfn ylog)))
     (declare (fixnum wd ht))
     
@@ -301,7 +301,7 @@
            (y-value (y)
              (funcall ylogfn y)))
       
-      (let+ ((xform  (plotter-xform pane))
+      (let+ ((xform  (plotter-xform plt))
              ( (lf bt rt tp)
                (gp:transform-points xform
                                     (list (x-value (elt xv 0)) (y-value (elt yv 0))
@@ -311,10 +311,10 @@
              (plt-ht (1+ (- bt tp))))
         
         ;; (print (list plt-wd plt-ht))
-        (with-plotview-coords (pane)
-          (gp:with-graphics-state (pane
-                                   :mask (plotter-mask pane))
-            (gp:draw-image pane img
+        (with-plotview-coords (port plt)
+          (gp:with-graphics-state (port
+                                   :mask (plotter-mask plt))
+            (gp:draw-image port img
                            lf tp
                            :from-width  wd
                            :from-height ht
@@ -329,20 +329,20 @@
                            clear
                            &allow-other-keys)
   "Internal workhorse for image plotting."
-  (let+ ((pane     (plotter-pane-of pane))
+  (let+ ((plt      (plotter-pane-of pane))
          (fresh    (or clear
-                       (display-list-empty-p pane)))
+                       (display-list-empty-p plt)))
          (bgra-vec (apply #'make-bgra-image arr args))
          ((ht wd)  (array-dimensions arr))
-         (action   (lambda (pane x y width height)
+         (action   (lambda (port x y width height)
                      (declare (ignore x y width height))
                      (when fresh
-                       (apply 'pw-axes pane args))
-                     (with-array-converted-to-color-image-for-pane (bgra-vec wd ht pane img)
-                       (pw-plot-image pane xv yv img wd ht)))
+                       (apply 'pw-axes port plt args))
+                     (with-array-converted-to-color-image-for-pane (bgra-vec wd ht port img)
+                       (pw-plot-image port plt xv yv img wd ht)))
                    ))
-    (apply 'pw-init-xv-yv pane xv yv args)
-    (augment-display-list pane action fresh)
+    (apply 'pw-init-xv-yv plt xv yv args)
+    (augment-display-list plt action fresh)
     ))
 
 (defun plot-image (pane xv yv image-arr &rest args)
@@ -392,10 +392,10 @@
                              (global-alpha 1.0)
                              &allow-other-keys)
   "Internal workhorse for image rendering."
-  (let+ ((pane     (plotter-pane-of pane))
-         (action (lambda (pane x y wd ht)
+  (let+ ((plt    (plotter-pane-of pane))
+         (action (lambda (port x y wd ht)
                    (declare (ignore x y wd ht))
-                   (with-image (pane (img (gp:convert-external-image pane ext-img)))
+                   (with-image (port (img (gp:convert-external-image port ext-img)))
                      #|
                      (ac:send ac:fmt-println "wd = ~A, ht = ~A"
                               (gp:image-width img)
@@ -417,17 +417,17 @@
                             (from-height (or (and from-height
                                                   (min from-height sub-ht))
                                              sub-ht)))
-                       (apply 'pw-init-xv-yv pane
+                       (apply 'pw-init-xv-yv plt
                               (vector from-x (+ from-x from-width))
                               (vector from-y (+ from-y from-height))
                               :aspect 1
                               (append args *default-args*))
-                       (apply 'pw-axes pane args)
+                       (apply 'pw-axes port plt args)
                        #|
                        (ac:send ac:fmt-println "from-x = ~A, from-y = ~A, from-wd = ~A, from-ht = ~A"
                                 from-x from-y from-width from-height)
                        |#
-                       (let+ (( (lf tp rt bt) (gp:transform-points (plotter-xform pane)
+                       (let+ (( (lf tp rt bt) (gp:transform-points (plotter-xform plt)
                                                                    ;; bottom-left, top-right
                                                                    (list from-x                 from-y
                                                                          (+ from-x from-width)  (+ from-y from-height)))
@@ -435,7 +435,7 @@
                          #|
                          (ac:send ac:fmt-println "l = ~A, t = ~A, r = ~A, b = ~A" lf tp rt bt)
                          |#
-                         (with-plotview-coords (pane)
+                         (with-plotview-coords (port plt)
                            #|
                            (when clear
                              (apply (um:rcurry #'gp:draw-rectangle
@@ -445,15 +445,15 @@
                                                :shape-mode :plain)
                                     pane (bounding-region pane)))
                            |#
-                           (gp:with-graphics-state (pane
-                                                    :mask  (plotter-mask pane))
+                           (gp:with-graphics-state (port
+                                                    :mask  (plotter-mask plt))
                              #|
                              (pdbg "i-wd: ~A, i-ht: ~A, p-wd: ~A, p-ht: ~A"
                                    from-width from-height
                                    to-width to-height)
                              |#
-                             (gp:draw-image pane img lf tp
-                                            :transform    nil ;; (or transform (plotter-xform pane))
+                             (gp:draw-image port img lf tp
+                                            :transform    nil ;; (or transform (plotter-xform plt))
                                             :from-x       from-x
                                             :from-y       from-y
                                             :to-width     (- rt lf)
@@ -465,7 +465,7 @@
                          ))
                      ))
                  ))
-    (augment-display-list pane action clear)
+    (augment-display-list plt action clear)
     ))
 
 #|

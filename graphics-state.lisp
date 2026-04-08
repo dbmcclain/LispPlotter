@@ -73,71 +73,72 @@
 
 ; -------------------------------------------------------------
 
-(defun do-with-plotview-coords (pane fn)
-  ;;
-  ;; Inside here we should work, with unscaled screen-level coords
-  ;; for, the plotview - a viewport that assumes origin at top-left
-  ;; corner, with positive measure in x pixels to the right, and y
-  ;; pixels toward the bottom.
-  ;;
-  ;; The transform wrapped around the body will translate into
-  ;; absolute scaled coords for the parent port.
-  ;;
-  ;; NOTE: LW states that they use transform pre-mult, which I take to
-  ;; mean: mult from left (but their language is ambiguous). And they
-  ;; demonstrate that transform is used by multiplying a row vector on
-  ;; the left of the transform matrix.
-  ;;
-  ;; But after experimenting above, the net effect is to have the
-  ;; transforms apply in order from innermost to outermost nesting
-  ;; order, i.e., the first one (innermost) applied happens first to
-  ;; coords.
-  ;;
-  ;; !! THIS IS OPPOSITE OF THE EFFECT OF SUCCESSIVE TRANFORMATIONS
-  ;; WHEN CONSTRUCTING AN OVERT COMPOSITE TRANSFORM MATRIX.
-  ;;
-  ;;  (0,0) --> plus x
-  ;;  | +------------------------------------------+
-  ;;  | | Parent frame                             |
-  ;;  v |  +----------------------------------+    |
-  ;;    |  | Plotting region                  |    |
-  ;;  p |  |                                  |    |
-  ;;  l |  |                                  |    |
-  ;;  u |  |                                  |    |
-  ;;  s |  |                                  |    |
-  ;;    |  |                                  |    |
-  ;;  y |  |                                  |    |
-  ;;    |  |                                  |    |
-  ;;    |  +----------------------------------+    |
-  ;;    |                                          |
-  ;;    +------------------------------------------+
-  ;;
-  ;; This code transforms from pixel space inside the plotting region
-  ;; to pixel space coords inside the parent frame.
-  ;;
-  ;; NB: Regarding PLOTTER-BOX. It is mutated along the way to
-  ;; indicate the size of the plotting region in unscaled pixel
-  ;; coords.
-  ;;
-  ;; Only the right and bottom are modified according to aspect ratio.
-  ;; The top-left is adjusted to always be the location of
-  ;; the plotting region within the parent graphport, before any
-  ;; scaling has been applied. The true location of the parent
-  ;; graphport is indicated by (LEFT - +LEFT-INSET+) and (TOP -
-  ;; +TOP-INSET+) prior to any scaling.
-  ;;
-  ;; Masks, for clipping regions, appear to be unaffected by graphic
-  ;; transforms, and so must be explicitly computed in parent frame
-  ;; coordinates.
-  ;;
-  (with-accessors ((plot-state plotter-plotting-gs)) pane
-    (with-new-graphics-state (pane plot-state)
-      (funcall fn))
-    ))
+(defgeneric do-with-plotview-coords (port plt fn)
+  (:method ((port plotter-pane) plt fn)
+   ;;
+   ;; Inside here we should work, with unscaled screen-level coords
+   ;; for, the plotview - a viewport that assumes origin at top-left
+   ;; corner, with positive measure in x pixels to the right, and y
+   ;; pixels toward the bottom.
+   ;;
+   ;; The transform wrapped around the body will translate into
+   ;; absolute scaled coords for the parent port.
+   ;;
+   ;; NOTE: LW states that they use transform pre-mult, which I take to
+   ;; mean: mult from left (but their language is ambiguous). And they
+   ;; demonstrate that transform is used by multiplying a row vector on
+   ;; the left of the transform matrix.
+   ;;
+   ;; But after experimenting above, the net effect is to have the
+   ;; transforms apply in order from innermost to outermost nesting
+   ;; order, i.e., the first one (innermost) applied happens first to
+   ;; coords.
+   ;;
+   ;; !! THIS IS OPPOSITE OF THE EFFECT OF SUCCESSIVE TRANFORMATIONS
+   ;; WHEN CONSTRUCTING AN OVERT COMPOSITE TRANSFORM MATRIX.
+   ;;
+   ;;  (0,0) --> plus x
+   ;;  | +------------------------------------------+
+   ;;  | | Parent frame                             |
+   ;;  v |  +----------------------------------+    |
+   ;;    |  | Plotting region                  |    |
+   ;;  p |  |                                  |    |
+   ;;  l |  |                                  |    |
+   ;;  u |  |                                  |    |
+   ;;  s |  |                                  |    |
+   ;;    |  |                                  |    |
+   ;;  y |  |                                  |    |
+   ;;    |  |                                  |    |
+   ;;    |  +----------------------------------+    |
+   ;;    |                                          |
+   ;;    +------------------------------------------+
+   ;;
+   ;; This code transforms from pixel space inside the plotting region
+   ;; to pixel space coords inside the parent frame.
+   ;;
+   ;; NB: Regarding PLOTTER-BOX. It is mutated along the way to
+   ;; indicate the size of the plotting region in unscaled pixel
+   ;; coords.
+   ;;
+   ;; Only the right and bottom are modified according to aspect ratio.
+   ;; The top-left is adjusted to always be the location of
+   ;; the plotting region within the parent graphport, before any
+   ;; scaling has been applied. The true location of the parent
+   ;; graphport is indicated by (LEFT - +LEFT-INSET+) and (TOP -
+   ;; +TOP-INSET+) prior to any scaling.
+   ;;
+   ;; Masks, for clipping regions, appear to be unaffected by graphic
+   ;; transforms, and so must be explicitly computed in parent frame
+   ;; coordinates.
+   ;;
+   (with-accessors ((plot-state plotter-plotting-gs)) port
+     (with-new-graphics-state (port plot-state)
+       (funcall fn))
+     )))
 
-(defmacro with-plotview-coords ((pane) &body body)
-  `(do-with-plotview-coords ,pane (lambda ()
-                                    ,@body)))
+(defmacro with-plotview-coords ((port plt) &body body)
+  `(do-with-plotview-coords ,port ,plt (lambda ()
+                                         ,@body)))
 
 ;; ---------------------------------------------------
 ;; We don't have a PORT until we get called during REDRAW callback
@@ -155,8 +156,7 @@
                                ;; :transform (gp:make-transform)
                                :scale-thickness t)
         (gp:with-graphics-scale (pane sf sf)
-          (gp:with-graphics-translation
-              (pane (box-left box) (box-top box))
+          (gp:with-graphics-translation (pane (box-left box) (box-top box))
             (get-graphics-state pane)
             )))
       )))
