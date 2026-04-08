@@ -3,6 +3,16 @@ LispPlotter
 
 Publication-quality 2-D Data Plotting in Lisp
 
+Apr 8 2026 - Changes to separate drawing panes from plotter info...
+---
+
+Allows us to have plots in window, multiple plotter panes in windows, and plots displayed all over pinboard layouts:
+
+<img width="1393" height="816" alt="Pinboard Example" src="https://github.com/user-attachments/assets/bf4e44da-aceb-48b9-9c2d-91d9c11a1ca0" />
+
+
+---------------
+
 ![Example](https://github.com/dbmcclain/LispPlotter/assets/3160577/2e312dbc-c592-4e7f-9845-1eab6459cc4c)
 
 [Example.pdf](https://github.com/dbmcclain/LispPlotter/files/14318921/Example.pdf)
